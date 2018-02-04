@@ -24,6 +24,9 @@ building with cmake is supported assuming build happens in a dedicated build dir
     mkdir build
     cd build
     cmake ..
+    make
+    ctest
+    sudo make install    
 ```
 
 ### build with different BACKEND=boost_asio
@@ -34,6 +37,9 @@ building with cmake is supported assuming build happens in a dedicated build dir
     mkdir build
     cd build
     cmake .. -DWITH_LIBEVENT=Off
+    make
+    ctest
+    sudo make install    
 ```
 ### build for CXX=clang++-5.0 and default BACKEND
 
@@ -43,6 +49,9 @@ building with cmake is supported assuming build happens in a dedicated build dir
     mkdir build
     cd build
     cmake .. -DCMAKE_CXX_COMPILER="clang++-5.0" -DCMAKE_CXX_FLAGS="-std=c++14 -stdlib=libc++"
+    make
+    ctest
+    sudo make install    
 ```
 note this requires not only clang++-5.0 toolchain installed,
 but also dependent cpp libraries built against clang++ and libc++.
