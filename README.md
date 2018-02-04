@@ -4,6 +4,13 @@ promising reactive io
 # install
 
 ## native linux
+```bash
+    git clone https://github.com/littlemole/prio.git
+    make 
+    make test
+    make install
+```
+self documention makefile, run *make help* for details
 
 ## cmake support
 
@@ -11,7 +18,7 @@ building with cmake is supported assuming build happens in a dedicated build dir
 
 ### default build CXX=g++ and BACKEND=libevent
 
-```cpp
+```bash
     git clone https://github.com/littlemole/prio.git
     cd prio
     mkdir build
@@ -21,7 +28,7 @@ building with cmake is supported assuming build happens in a dedicated build dir
 
 ### build with different BACKEND=boost_asio
 
-```cpp
+```bash
     git clone https://github.com/littlemole/prio.git
     cd prio
     mkdir build
@@ -30,14 +37,14 @@ building with cmake is supported assuming build happens in a dedicated build dir
 ```
 ### build for CXX=clang++-5.0 and default BACKEND
 
-```cpp
+```bash
     git clone https://github.com/littlemole/prio.git
     cd prio
     mkdir build
     cd build
     cmake .. -DCMAKE_CXX_COMPILER="clang++-5.0" -DCMAKE_CXX_FLAGS="-std=c++14 -stdlib=libc++"
 ```
-not this requires not only clang++-5.0 toolchain installed,
+note this requires not only clang++-5.0 toolchain installed,
 but also dependent cpp libraries built against clang++ and libc++.
 for this project that means gtest and cryptoneat libraries
 have to be built using clang++ toolchain.
