@@ -64,3 +64,6 @@ just add both options from above to calling cmake.
 
 
 ## docker
+
+the makefile has targets to build and test this lib in an
+reproducible environment. see Dockerfile for concrete setup.
