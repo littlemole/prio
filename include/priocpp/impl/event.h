@@ -39,12 +39,12 @@ class Event : public std::enable_shared_from_this<Event>
 public:
 
 	typedef std::shared_ptr<Event> Ptr;
-	typedef std::function<void(int fd,short what)> callback_t;
+	typedef std::function<void(socket_t fd,short what)> callback_t;
 
 	Event() noexcept;
 	~Event();
 
-	static Event::Ptr create(::event_base* loop, int fd = -1, short what=0) noexcept;
+	static Event::Ptr create(::event_base* loop, socket_t fd = -1, short what=0) noexcept;
 
 	Event::Ptr callback( const callback_t& f);
 	Event::Ptr callback( callback_t&& f);
@@ -68,12 +68,12 @@ private:
 	Event& operator=(const Event& rhs) = delete;
 	Event& operator=(Event&& rhs) = delete;
 
-	static void event_handler(int fd, short what, void* arg);
+	static void event_handler(socket_t fd, short what, void* arg);
 
 	event* e;
 };
 
-Event::Ptr onEvent(int fd, short what);
+Event::Ptr onEvent(socket_t fd, short what);
 
 class LibEventLoop : public Loop
 {
@@ -92,7 +92,7 @@ public:
 
 	virtual Future<int> signal(int s) noexcept;
 
-	Event::Ptr on(int fd, short what) const noexcept;
+	Event::Ptr on(socket_t fd, short what) const noexcept;
 
 	event_base* base() { return base_; }
 

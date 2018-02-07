@@ -78,19 +78,19 @@ void set_non_blocking(socket_t fd)
 #endif
 }
 
-Event::Ptr onEvent(int fd, short what)
+Event::Ptr onEvent(socket_t fd, short what)
 {
 	return eventLoop().on(fd,what);
 }
 
 
-void Event::event_handler(int fd, short what, void* arg)
+void Event::event_handler(socket_t fd, short what, void* arg)
 {
 	Event* e = (Event*)arg;
 	e->cb_(fd,what);
 }
 
-Event::Ptr Event::create(::event_base* loop, int fd, short what) noexcept
+Event::Ptr Event::create(::event_base* loop, socket_t fd, short what) noexcept
 {
 	Ptr that;
 	try
@@ -117,7 +117,7 @@ Event::Event() noexcept
 	LITTLE_MOLE_ADDREF_DEBUG_REF_CNT(events);
 
 	e = nullptr;
-	cb_ = [](int fd, short what){};
+	cb_ = [](socket_t fd, short what){};
 }
 
 Event::~Event()
@@ -134,7 +134,7 @@ void Event::cancel() noexcept
 		::event_free(e);
 		e = nullptr;
 	}
-	cb_ = [](int fd, short what){};
+	cb_ = [](socket_t fd, short what){};
 }
 
 Event::Ptr Event::add(int secs, int ms) noexcept
@@ -185,7 +185,7 @@ event* Event::handle()
 void nextTick( const std::function<void()>& f) noexcept
 {
 	auto e = Event::create(eventLoop().base());
-	e->callback( [e,f] (int fd, short what) 
+	e->callback( [e,f] (socket_t fd, short what) 
 	{
 		auto tmp = std::move(f);
 		e->dispose();
@@ -198,7 +198,7 @@ void nextTick( const std::function<void()>& f) noexcept
 void nextTick(std::function<void()>&& f) noexcept
 {
 	auto e = Event::create(eventLoop().base());
-	e->callback([e, f](int fd, short what)
+	e->callback([e, f](socket_t fd, short what)
 	{
 		auto tmp = std::move(f);
 		e->dispose();
@@ -213,7 +213,7 @@ Future<> nextTick() noexcept
 	auto p = promise();
 
 	auto e = Event::create(eventLoop().base());
-	e->callback( [e,p] (int fd, short what) 
+	e->callback( [e,p] (socket_t fd, short what) 
 	{
 		auto tmp = std::move(p);
 		e->dispose();
@@ -404,7 +404,7 @@ void TcpListenerImpl::accept_handler(Promise<Connection::Ptr> p)
 {
 	e = onEvent(fd, EV_READ|EV_PERSIST);
 
-	e->callback( [p](int fd, short what )
+	e->callback( [p](socket_t fd, short what )
 	{
 		try
 		{
@@ -485,7 +485,7 @@ void SslListenerImpl::accept_handler(Promise<Connection::Ptr> p)
 {
 	e = onEvent(fd, EV_READ|EV_PERSIST);
 
-	e->callback( [this,p](int fd, short what )
+	e->callback( [this,p](socket_t fd, short what )
 	{
 		auto impl = new SslConnectionImpl;
 		Connection::Ptr ptr( new SslConnection(impl) );		
@@ -551,7 +551,7 @@ Future<> IOImpl::onRead(socket_t fd)
 	auto p = promise();
 
 	e = onEvent(fd, EV_READ);
-	e->callback( [p](int fd, short what )
+	e->callback( [p](socket_t fd, short what )
 	{
 		p.resolve();
 	})
@@ -566,7 +566,7 @@ Future<> IOImpl::onWrite(socket_t fd)
 	auto p = promise();
 
 	e = onEvent(fd, EV_WRITE);
-	e->callback( [p](int fd, short what )
+	e->callback( [p](socket_t fd, short what )
 	{		
 		p.resolve();
 	})
