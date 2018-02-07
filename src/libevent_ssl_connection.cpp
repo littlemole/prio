@@ -92,7 +92,7 @@ void SslConnection::ssl_do_connect(Promise<Connection::Ptr> p)
 	}
 
 	impl_->e_ = onEvent( impl_->fd, s)
-	->callback( [this,p](int fd, short w)
+	->callback( [this,p](socket_t fd, short w)
 	{
 		if(w == EV_TIMEOUT)
 		{
@@ -123,7 +123,7 @@ Future<Connection::Ptr> SslConnection::connect(const std::string& host, int port
 		SSL* ssl = SSL_new(ctx.ctx->ctx);
 		impl->ssl = ssl;
 
-		SSL_set_fd(ssl,fd);
+		SSL_set_fd(ssl,(int)fd);
 		SSL_set_mode(ssl, SSL_MODE_ENABLE_PARTIAL_WRITE|SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER);
 
 		ptr->ssl_do_connect(p);
@@ -140,7 +140,7 @@ Future<Connection::Ptr> SslConnection::connect(const std::string& host, int port
 void SslConnection::do_ssl_read(Promise<Connection::Ptr,std::string> p, short what)
 {
 	impl_->e_ = onEvent(impl_->fd,what)
-	->callback( [this,p,what](int fd, short w)
+	->callback( [this,p,what](socket_t fd, short w)
 	{
 		if( what & EV_TIMEOUT)
 		{
@@ -211,7 +211,7 @@ Future<Connection::Ptr, std::string> SslConnection::read()
 void SslConnection::do_ssl_read( Promise<Connection::Ptr,std::string> p, short what, std::shared_ptr<std::string> buffer, std::shared_ptr<size_t> want)
 {
 	impl_->e_ = onEvent(impl_->fd,what)
-	->callback( [this,p,want,buffer](int fd, short w)
+	->callback( [this,p,want,buffer](socket_t fd, short w)
 	{
 		while(true)
 		{
@@ -298,7 +298,7 @@ Future<Connection::Ptr, std::string> SslConnection::read(size_t s)
 void SslConnection::do_ssl_write(Promise<Connection::Ptr> p, std::string data, std::shared_ptr<size_t> written, short what)
 {
 	impl_->e_ = onEvent(impl_->fd,what)
-	->callback([this,p,data,written](int fd, short w)
+	->callback([this,p,data,written](socket_t fd, short w)
 	{
 		while(true)
 		{

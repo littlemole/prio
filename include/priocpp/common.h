@@ -36,9 +36,9 @@ std::string base64_encode(unsigned char const* bytes_to_encode, unsigned int in_
 std::string base64_decode(const std::string& encoded_string);
 
 #ifndef _WIN32
-typedef intptr_t socket_t;
+typedef int socket_t;
 #else
-typedef unsigned int socket_t;
+typedef intptr_t socket_t;
 #endif
 
 

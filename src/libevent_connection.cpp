@@ -77,7 +77,7 @@ Future<Connection::Ptr, std::string> TcpConnection::read()
 {
 	auto p = promise<Connection::Ptr,std::string>();
 	impl_->e_read = onEvent(impl_->fd,(short)EV_READ)
-	->callback( [p,this] (int fd, short what)
+	->callback( [p,this] (socket_t fd, short what)
 	{
 		if( what & EV_TIMEOUT)
 		{
@@ -122,7 +122,7 @@ Future<Connection::Ptr, std::string> TcpConnection::read(size_t s)
 	std::shared_ptr<std::string> buffer = std::make_shared<std::string>();
 
 	impl_->e_read = onEvent(impl_->fd,EV_READ)
-	->callback( [p,this,buffer,want,s](int fd, short what)
+	->callback( [p,this,buffer,want,s](socket_t fd, short what)
 	{
 		if( what & EV_TIMEOUT)
 		{
@@ -201,7 +201,7 @@ Future<Connection::Ptr> TcpConnection::write(const std::string& data)
 	// start waiting for write
 
 	impl_->e_write = onEvent(impl_->fd,EV_WRITE)
-	->callback( [p,this,data,written](int fd, short what)
+	->callback( [p,this,data,written](socket_t fd, short what)
 	{
 		if( what & EV_TIMEOUT)
 		{

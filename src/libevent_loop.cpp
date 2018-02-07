@@ -37,7 +37,7 @@ LibEventLoop::~LibEventLoop()  noexcept
 	::event_base_free(base_);
 }
 
-Event::Ptr LibEventLoop::on(int fd, short what) const noexcept
+Event::Ptr LibEventLoop::on(socket_t fd, short what) const noexcept
 {
 	return Event::create(base_,fd,what);
 }

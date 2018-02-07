@@ -214,7 +214,7 @@ public:
 	Resolver();
 	~Resolver();
 
-	Future<int> connect(const std::string& host, int port);
+	Future<socket_t> connect(const std::string& host, int port);
 
 private:
 

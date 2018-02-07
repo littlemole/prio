@@ -456,7 +456,7 @@ SslListenerImpl::~SslListenerImpl()
 void do_ssl_accept(Promise<Connection::Ptr> p, Connection::Ptr ptr, socket_t sock_fd, SSL* ssl, short what, SSL_CTX* ctx)
 {
 	Event::Ptr e  = onEvent(sock_fd,what);
-	e->callback( [e,p,ptr,sock_fd,ssl,what,ctx](int fd, short w)
+	e->callback( [e,p,ptr,sock_fd,ssl,what,ctx](socket_t fd, short w)
 	{
 		int r = ::SSL_accept(ssl);
 		int s = check_err_code(ssl,r,what);
@@ -506,7 +506,7 @@ void SslListenerImpl::accept_handler(Promise<Connection::Ptr> p)
 			set_non_blocking(client);
 
 			SSL* ssl = SSL_new(ctx.ctx->ctx);
-			SSL_set_fd(ssl,client);
+			SSL_set_fd(ssl,(int)client);
 			SSL_set_mode(ssl, SSL_MODE_ENABLE_PARTIAL_WRITE|SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER);
 
 			impl->fd = client;
@@ -627,9 +627,9 @@ Resolver::~Resolver()
 	evdns_base_free(dnsbase_, 0);	
 }
 
-Future<int> Resolver::connect(const std::string& host, int port)
+Future<socket_t> Resolver::connect(const std::string& host, int port)
 {
-	auto p = promise<int>();
+	auto p = promise<socket_t>();
 
 	resolve(host)
 	.then( [p,host,port] (sockaddr_in* sin)

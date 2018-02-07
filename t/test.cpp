@@ -136,7 +136,7 @@ TEST_F(BasicTest, TcpServer) {
 				listener.cancel();
 				theLoop().exit();
 			});
-		}, 0, 50);
+		}, 0, 1250);
 	
 		
 		theLoop().run();
