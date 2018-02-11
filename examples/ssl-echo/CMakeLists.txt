@@ -1,6 +1,6 @@
 ############################################
 cmake_minimum_required(VERSION 2.8.9)
-project(priocpp)
+project(ssl-echo)
 include(CTest)
 
 set(CMAKE_CXX_STANDARD 14)
@@ -21,11 +21,13 @@ IF (WIN32)
 	find_library(CRYPTONEAT_LIBRARY NAMES cryptoneat)
 	find_library(NG2HTTP_LIBRARY NAMES nghttp2)
 	find_library(LIBEVENT_LIBRARY NAMES event)
+	find_library(PRIO_LIBRARY NAMES priocpp)
 
-	set(BUILDFLAGS "-await")
+    set(BUILD_INCLUDE_DIR ${OPENSSL_INCLUDE_DIRS})	
+    set(BUILDFLAGS "-await")
 	set(DEBUGFLAGS "-DMOL_PROMISE_DEBUG")
 
-	set(LIBS ${CRYPTONEAT_LIBRARY} ${GTEST_LIBRARIES} ${OPENSSL_LIBRARIES} ${NG2HTTP_LIBRARY}  )
+	set(LIBS ${PRIO_LIBRARY} ${CRYPTONEAT_LIBRARY} ${GTEST_LIBRARIES} ${OPENSSL_LIBRARIES} ${NG2HTTP_LIBRARY}  )
 
  ELSEIF(UNIX)
 
@@ -35,16 +37,17 @@ IF (WIN32)
     pkg_check_modules(GTEST REQUIRED gtest)
     pkg_check_modules(OPENSSL REQUIRED openssl)
     pkg_check_modules(CRYPTONEAT REQUIRED cryptoneat)
-    pkg_check_modules(NGHTTP2 REQUIRED nghttp2)
+    pkg_check_modules(NGHTTP2 REQUIRED libnghttp2)
     pkg_check_modules(LIBEVENT REQUIRED libevent_pthreads)
+    pkg_check_modules(PRIOCPP REQUIRED priocpp)
 
-    set(OPENSSL_INCLUDE_DIR ${OPENSSL_INCLUDE_DIRS})
 	set(LIBEVENT_LIBRARY ${LIBEVENT_LIBRARIES})
 
+    set(BUILD_INCLUDE_DIR ${OPENSSL_INCLUDE_DIRS} ${PRIOCPP_INCLUDE_DIRS})
     set(BUILDFLAGS "${GTEST_CFLAGS_OTHER}")
 	set(DEBUGFLAGS "-g -DMOL_PROMISE_DEBUG")
 
-	set(LIBS ${CRYPTONEAT_LIBRARIES} ${GTEST_LIBRARIES} ${OPENSSL_LIBRARIES} ${NG2HTTP_LIBRARIES}  )
+	set(LIBS ${CRYPTONEAT_LIBRARIES} ${GTEST_LIBRARIES} ${OPENSSL_LIBRARIES} ${NGHTTP2_LIBRARIES}  )
 
 ENDIF ()
 
@@ -85,52 +88,26 @@ endif()
 # sources
 ############################################
 
-include_directories(include)
-include_directories(${OPENSSL_INCLUDE_DIR})
-
-file(GLOB SOURCES "src/*.cpp")
-file(GLOB HEADERS "include/priocpp/*.h")
+include_directories(${BUILD_INCLUDE_DIR})
 
 ############################################
 # targets
 ############################################
 
-add_library(priocpp  STATIC ${SOURCES})
-add_library(priocppd STATIC ${SOURCES})
+add_executable(ssl-echo.bin ssl-echo.cpp)
+add_executable(ssl-echod.bin ssl-echo.cpp)
 
-add_executable(Tests t/test.cpp)
+AddCompilerFlags(ssl-echo.bin ${BUILDFLAGS})
 
-AddCompilerFlags(priocpp ${BUILDFLAGS})
-
-AddCompilerFlags(priocppd ${BUILDFLAGS})
-AddCompilerFlags(priocppd ${DEBUGFLAGS})
-
-AddCompilerFlags(Tests ${BUILDFLAGS})
-AddCompilerFlags(Tests ${DEBUGFLAGS})
-
+AddCompilerFlags(ssl-echod.bin ${BUILDFLAGS})
+AddCompilerFlags(ssl-echod.bin ${DEBUGFLAGS})
 
 ############################################
 # libs
 ############################################
 
-target_link_libraries(Tests priocppd ${LIBS} ${BACKEND} ${OSLIBS} )
+target_link_libraries(ssl-echo.bin priocpp ${LIBS} ${BACKEND} ${OSLIBS} )
+target_link_libraries(ssl-echod.bin priocppd ${LIBS} ${BACKEND} ${OSLIBS} )
 
-
-############################################
-# tests
-############################################
-
-add_test(NAME AllTests COMMAND Tests)
-
-file(COPY pem DESTINATION .)
+#file(COPY pem DESTINATION .)
  
-############################################
-# install rules
-############################################
- 
-install(TARGETS priocpp DESTINATION lib)
-install(TARGETS priocppd DESTINATION lib)
-
-install(FILES ${HEADERS} DESTINATION include/priocpp)
-
-install(FILES priocpp.pc DESTINATION lib/pkgconfig)

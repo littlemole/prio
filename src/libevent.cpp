@@ -274,70 +274,7 @@ Future<ConnectionPtr> Listener::bind( int port )
 
 	LITTLE_MOLE_ADDREF_DEBUG_REF_CNT(sockets);
 
-
-	/*
-	addrinfo hints;
-	addrinfo* servinfo = 0;
-	addrinfo* p = 0;
-
-	int yes = 1;
-	int rv;
-
-	memset(&hints, 0, sizeof hints);
-	hints.ai_family = AF_INET;//UNSPEC;
-	hints.ai_socktype = SOCK_STREAM;
-	hints.ai_flags    = AI_PASSIVE; // use my IP
-
-	std::ostringstream oss;
-	oss << port;
-
-	if ((rv = getaddrinfo(NULL, oss.str().c_str(), &hints, &servinfo)) != 0) 
-	{
-		throw Ex("getaddrinfo failed");
-	}
-
-	// loop through all the results and bind to the first we can
-	for(p = servinfo; p != NULL; p = p->ai_next) 
-	{
-		std::string a = inet_ntoa(((struct sockaddr_in*)(p->ai_addr))->sin_addr);
-		std::cout << "bind: " << p->ai_family << " " << a << std::endl;
-
-		if (a == "0.0.0.0")
-			continue;
-
-		if ((fd = socket(p->ai_family, p->ai_socktype,
-				p->ai_protocol)) == -1) 
-		{
-			continue;
-		}
-
-		if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (const char*)&yes,
-				sizeof(int)) == -1) 
-		{
-			throw Ex("setsockopt failed");
-		}
-
-		if (::bind(fd, p->ai_addr, p->ai_addrlen) == -1) {
-			close_socket(fd);
-			continue;
-		}
-		
-		break;
-	}
-
-	if (p == NULL)  
-	{
-		throw Ex("server: failed to bind");
-	}
-
-
-	LITTLE_MOLE_ADDREF_DEBUG_REF_CNT(sockets);
-
-	freeaddrinfo(servinfo); 
-	*/
 	impl_->fd = fd;
-
-	std::cout << "FD: " << fd << std::endl;
 
 	return impl_->bind(port);
 }
