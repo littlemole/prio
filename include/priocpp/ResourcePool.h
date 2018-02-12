@@ -9,9 +9,8 @@
 #include "priocpp/api.h"
 #include "priocpp/task.h"
 
-namespace mol {
 
-namespace io {
+namespace prio {
 
 
 template<class T>
@@ -58,8 +57,8 @@ public:
 
 	typedef typename L::type type;
 	typedef std::shared_ptr<Resource<type>> ResourcePtr;
-	typedef Promise<ResourcePtr> PromiseType;
-	typedef Future<ResourcePtr> FutureType;
+	typedef repro::Promise<ResourcePtr> PromiseType;
+	typedef repro::Future<ResourcePtr> FutureType;
 
 	ResourcePool()
 		:min_capacity_(4)
@@ -101,7 +100,7 @@ public:
 
 	FutureType get(const std::string url)
 	{
-		auto p = promise<ResourcePtr>();
+		auto p = repro::promise<ResourcePtr>();
 
 		if( unused_.count(url) > 0)
 		{
@@ -208,7 +207,6 @@ private:
 
 
 
-} /* namespace io */
-} /* namespace org */
+} 
 
 #endif /* INCLUDE_PROMISE_LIBEVENT_RESOURCEPOOL_H_ */
