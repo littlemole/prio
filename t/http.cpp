@@ -42,7 +42,7 @@ TEST_F(BasicTest, HttpClient2) {
 #endif
 		Connection::Ptr client;
 
-		TcpConnection::connect("amazon.de",80)
+		TcpConnection::connect("google.de",80)
 		.then( [&client](Connection::Ptr con)
 		{
 			client = con;
@@ -85,7 +85,7 @@ TEST_F(BasicTest, SSlClient2) {
 #endif
 		Connection::Ptr client;
 
-		SslConnection::connect("amazon.de",443,ssl)
+		SslConnection::connect("google.de",443,ssl)
 		.then( [&client](Connection::Ptr con)
 		{
 			std::cout << "connected" << std::endl;
