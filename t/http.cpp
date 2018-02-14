@@ -42,7 +42,7 @@ TEST_F(BasicTest, HttpClient2) {
 #endif
 		Connection::Ptr client;
 
-		TcpConnection::connect("google.de",80)
+		TcpConnection::connect("amazon.de",80)
 		.then( [&client](Connection::Ptr con)
 		{
 			client = con;
@@ -66,7 +66,7 @@ TEST_F(BasicTest, HttpClient2) {
 		theLoop().run();
 	}
 
-	EXPECT_EQ("HTTP/1.0 200 OK",result);
+	EXPECT_EQ("HTTP/1.1 301 Mo",result);
 	MOL_TEST_ASSERT_CNTS(0,0);
 
 }
@@ -85,12 +85,12 @@ TEST_F(BasicTest, SSlClient2) {
 #endif
 		Connection::Ptr client;
 
-		SslConnection::connect("google.de",443,ssl)
+		SslConnection::connect("amazon.de",443,ssl)
 		.then( [&client](Connection::Ptr con)
 		{
 			std::cout << "connected" << std::endl;
 			client = con;
-			return con->write("GET / HTTP/1.0\r\n\r\n");
+			return con->write("GET / HTTP/1.0\r\nHost:amazon.de\r\n\r\n");
 		})
 		.then( [](Connection::Ptr con)
 		{
@@ -113,7 +113,7 @@ TEST_F(BasicTest, SSlClient2) {
 		theLoop().run();
 	}
 
-	EXPECT_EQ("HTTP/1.0 200 OK",result);
+	EXPECT_EQ("HTTP/1.1 301 Mo",result);
 	MOL_TEST_ASSERT_CNTS(0,0);
 
 }
@@ -197,6 +197,46 @@ TEST_F(BasicTest, SSlClient3)
 	EXPECT_EQ("HELO",result);
 
 }
+
+#ifdef _RESUMABLE_FUNCTIONS_SUPPORTED
+
+repro::Future<> coroutine_example(std::string& result);
+
+
+TEST_F(BasicTest, Coroutine) {
+
+	std::string result;
+	{
+		signal(SIGINT).then([](int s) {theLoop().exit(); });
+
+		coroutine_example(result);
+
+		theLoop().run();
+	}
+
+	EXPECT_EQ("promised", result);
+	MOL_TEST_ASSERT_CNTS(0, 0);
+}
+
+
+repro::Future<> coroutine_example(std::string& result)
+{
+	try
+	{
+		co_await nextTick();
+		result = "promised";
+
+		theLoop().exit();
+	}
+	catch (const std::exception& ex)
+	{
+		std::cout << "ex:t " << ex.what() << std::endl;
+		theLoop().exit();
+	}
+	co_return;
+}
+
+#endif
 
 
 int main(int argc, char **argv) 
