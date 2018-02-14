@@ -214,7 +214,7 @@ TEST_F(BasicTest, Coroutine) {
 		theLoop().run();
 	}
 
-	EXPECT_EQ("promised", result);
+	EXPECT_EQ("HTTP/1.1 301 Mo", result);
 	MOL_TEST_ASSERT_CNTS(0, 0);
 }
 
@@ -223,10 +223,23 @@ repro::Future<> coroutine_example(std::string& result)
 {
 	try
 	{
-		co_await nextTick();
-		result = "promised";
+		Connection::Ptr client = co_await TcpConnection::connect("amazon.de",80);
+		co_await client->write("GET / HTTP/1.0\r\n\r\n");
 
-		theLoop().exit();
+		client->read()
+		.then( [&result](Connection::Ptr con, std::string data)
+		{
+			result = data.substr(0,15);
+			con->close();
+			theLoop().exit();
+		})
+		.otherwise([](const std::exception& ex)
+		{
+			std::cout << ex.what() << std::endl;
+			theLoop().exit();
+		});
+
+		//theLoop().exit();
 	}
 	catch (const std::exception& ex)
 	{
