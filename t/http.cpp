@@ -209,7 +209,7 @@ TEST_F(BasicTest, Coroutine) {
 	{
 		signal(SIGINT).then([](int s) {theLoop().exit(); });
 
-		coroutine_example(result);
+		coroutine_example(result).then([](){});
 
 		theLoop().run();
 	}
