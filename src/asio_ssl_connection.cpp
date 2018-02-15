@@ -9,11 +9,11 @@
 #ifdef _WIN32
 #include <inttypes.h>
 typedef int ssize_t;
-#include <nghttp2/nghttp2.h>
+//#include <nghttp2/nghttp2.h>
 #define close_socket ::closesocket
 #define SHUT_WR SD_SEND 
 #else
-#include <nghttp2/nghttp2.h>
+//#include <nghttp2/nghttp2.h>
 #define close_socket ::close
 #endif
 
@@ -392,7 +392,7 @@ void SslCtx::load_cert_pem(const std::string& file)
 	ctx->ssl.use_certificate_chain_file(file);
 	ctx->ssl.use_private_key_file(file, boost::asio::ssl::context::pem);
 }
-
+/*
 int next_proto_cb(SSL *ssl, const unsigned char **data,unsigned int *len, void *arg);
 
 #if OPENSSL_VERSION_NUMBER >= 0x10002000L
@@ -449,7 +449,7 @@ void SslCtxImpl::enableHttp2Client(  )
 	  SSL_CTX_set_alpn_protos(sslCtx, (const unsigned char *)"\x02h2", 3);
 #endif // OPENSSL_VERSION_NUMBER >= 0x10002000L	  
 }
-
+*/
 
 } // close namespaces
 

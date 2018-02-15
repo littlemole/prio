@@ -119,8 +119,8 @@ public:
 	~SslCtx();
 
 	void load_cert_pem(const std::string& file);
-	void enableHttp2();
-	void enableHttp2Client();
+	//void enableHttp2();
+	//void enableHttp2Client();
 	
 	std::unique_ptr<SslCtxImpl> ctx;
 };

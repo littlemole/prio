@@ -16,7 +16,8 @@
 #include <inttypes.h>
 typedef int ssize_t;
 #endif
-#include <nghttp2/nghttp2.h>
+
+//#include <nghttp2/nghttp2.h>
 
 
 namespace prio      {
@@ -74,8 +75,8 @@ Future<> timeout( int secs) noexcept
 
 
 
-unsigned char next_proto_list[256];
-size_t next_proto_list_len;
+//unsigned char next_proto_list[256];
+//size_t next_proto_list_len;
 
 Future<int> signal(int s) noexcept
 {
@@ -101,6 +102,7 @@ Future<Connection::Ptr> Connection::connect(const std::string& host, int port, S
 	return SslConnection::connect(host,port,ctx);
 }
 
+/*
 int next_proto_cb(SSL *ssl, const unsigned char **data,unsigned int *len, void *arg) 
 {
   *data = next_proto_list;
@@ -123,6 +125,7 @@ int alpn_select_proto_cb(SSL *ssl, const unsigned char **out,
 }
 #endif // OPENSSL_VERSION_NUMBER >= 0x10002000L
 
+*/
 
 } // close namespaces
 

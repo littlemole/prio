@@ -147,8 +147,8 @@ struct SslCtxImpl
 	~SslCtxImpl();
 	
 	void loadKeys( const std::string& keyfile );
-	void enableHttp2();
-	void enableHttp2Client();
+	//void enableHttp2();
+	//void enableHttp2Client();
 	
 	SSL_CTX* ctx;
 };

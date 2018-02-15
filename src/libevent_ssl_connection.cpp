@@ -20,11 +20,11 @@
 #ifdef _WIN32
 #include <inttypes.h>
 typedef int ssize_t;
-#include <nghttp2/nghttp2.h>
+//#include <nghttp2/nghttp2.h>
 #define close_socket ::closesocket
 #define SHUT_WR SD_SEND 
 #else
-#include <nghttp2/nghttp2.h>
+//#include <nghttp2/nghttp2.h>
 #define close_socket ::close
 #endif
 
@@ -548,6 +548,8 @@ void SslCtxImpl::loadKeys( const std::string& keyfile )
 	  
 }
 
+/*
+
 void SslCtxImpl::enableHttp2(  )
 {
 	next_proto_list[0] = NGHTTP2_PROTO_VERSION_ID_LEN;
@@ -589,6 +591,8 @@ void SslCtxImpl::enableHttp2Client(  )
 #endif // OPENSSL_VERSION_NUMBER >= 0x10002000L	  
 }
 
+*/
+
 SslCtx::SslCtx()
 	: ctx(new SslCtxImpl)
 {
@@ -605,6 +609,7 @@ void SslCtx::load_cert_pem(const std::string& file)
 	ctx->loadKeys(file);
 }
 
+/*
 void SslCtx::enableHttp2()
 {
 	ctx->enableHttp2();
@@ -615,6 +620,7 @@ void SslCtx::enableHttp2Client()
 {
 	ctx->enableHttp2Client();
 }
+*/
 
 } // close namespaces
 

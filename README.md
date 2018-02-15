@@ -1,6 +1,12 @@
 # prio
 promising reactive io
 
+# dependencies
+
+repro header library for promises
+openssl for ssl support 
+libevent or (experimentai) boost_asio as event loop backend
+
 # install
 
 ## native linux
