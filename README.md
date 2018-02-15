@@ -5,7 +5,74 @@ promising reactive io
 
 repro header library for promises
 openssl for ssl support 
-libevent or (experimentai) boost_asio as event loop backend
+
+# backend dependencies
+using libevent (default) or (experimentai) boost_asio 
+as main event loop backend
+
+# features
+
+this library implements basics to use reactive repro promise from an event loop.
+
+implemented basics are
+ - timeouts
+ - async socket io
+ - POSIX signal handling  
+ - get multithreaded by threading out with tasks
+
+# api
+
+## timeouts
+
+timeout api declarations with futures:
+
+```cpp
+    Future<> timeout(int secs, int ms) noexcept;
+    Future<> timeout(int secs) noexcept;
+
+    //usage example using a timeout in 10 seconds
+    timeout(10)
+    .then([]()
+    {
+        std::cout << "timeout!" << std::endl;
+    });
+```
+
+*nextTick* helper to run a timeout as soon as possible:
+
+```cpp
+    Future<> nextTick() noexcept;
+
+    //usage example 
+    nextTick()
+    .then([]()
+    {
+        std::cout << "now next on the event loop!" << std::endl;
+    });
+```
+
+threadsafe version that can be called safely from within a prio::task
+
+```cpp
+
+    void timeout( const std::function<void()>& f, int secs, int ms) noexcept;
+    void timeout( const  std::function<void()>& f, int secs) noexcept;
+    void nextTick( const  std::function<void()>& f) noexcept;
+
+    //usage example 
+    nextTick( []()
+    {
+        std::cout << "now next on the event loop!" << std::endl;
+    });
+```    
+
+## async socket io
+
+### connect
+### read
+### write
+### listen
+
 
 # install
 
