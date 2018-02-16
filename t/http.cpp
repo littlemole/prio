@@ -200,7 +200,7 @@ TEST_F(BasicTest, SSlClient3)
 
 #ifdef _RESUMABLE_FUNCTIONS_SUPPORTED
 
-repro::Future<> coroutine_example(std::string& result);
+repro::Future<> coroutine_example(std::string& result,Connection::Ptr& client);
 
 
 TEST_F(BasicTest, Coroutine) {
@@ -209,7 +209,8 @@ TEST_F(BasicTest, Coroutine) {
 	{
 		signal(SIGINT).then([](int s) {theLoop().exit(); });
 
-		coroutine_example(result).then([](){});
+		Connection::Ptr client;
+		coroutine_example(result,client).then([](){});
 
 		theLoop().run();
 	}
@@ -219,11 +220,11 @@ TEST_F(BasicTest, Coroutine) {
 }
 
 
-repro::Future<> coroutine_example(std::string& result)
+repro::Future<> coroutine_example(std::string& result,Connection::Ptr& client)
 {
 	try
 	{
-		Connection::Ptr client = co_await TcpConnection::connect("amazon.de",80);
+		client = co_await TcpConnection::connect("amazon.de",80);
 		co_await client->write("GET / HTTP/1.0\r\n\r\n");
 
 		client->read()
