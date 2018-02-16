@@ -19,33 +19,37 @@ IF (WIN32)
     find_package(gtest REQUIRED)
     find_package(openssl REQUIRED)
 	find_library(CRYPTONEAT_LIBRARY NAMES cryptoneat)
-	find_library(NG2HTTP_LIBRARY NAMES nghttp2)
+#	find_library(NG2HTTP_LIBRARY NAMES nghttp2)
 	find_library(LIBEVENT_LIBRARY NAMES event)
 
 	set(BUILDFLAGS "-await")
 	set(DEBUGFLAGS "-DMOL_PROMISE_DEBUG")
 
-	set(LIBS ${CRYPTONEAT_LIBRARY} ${GTEST_LIBRARIES} ${OPENSSL_LIBRARIES} ${NG2HTTP_LIBRARY}  )
+	set(LIBS ${CRYPTONEAT_LIBRARY} ${GTEST_LIBRARIES} ${OPENSSL_LIBRARIES}   )
 
  ELSEIF(UNIX)
 
     set(OSLIBS "pthread")
 
     find_package(PkgConfig)
-    pkg_check_modules(GTEST REQUIRED gtest)
+    find_package(GTest)
+#    pkg_check_modules(GTEST REQUIRED gtest)
     pkg_check_modules(OPENSSL REQUIRED openssl)
     pkg_check_modules(CRYPTONEAT REQUIRED cryptoneat)
-    pkg_check_modules(NGHTTP2 REQUIRED nghttp2)
+#    pkg_check_modules(NGHTTP2 REQUIRED nghttp2)
     pkg_check_modules(LIBEVENT REQUIRED libevent_pthreads)
 
     set(OPENSSL_INCLUDE_DIR ${OPENSSL_INCLUDE_DIRS})
 	set(LIBEVENT_LIBRARY ${LIBEVENT_LIBRARIES})
 
-    set(BUILDFLAGS "${GTEST_CFLAGS_OTHER}")
-	set(DEBUGFLAGS "-g -DMOL_PROMISE_DEBUG")
+    set(BUILDFLAGS " ")
+    set(DEBUGFLAGS "-g -DMOL_PROMISE_DEBUG")
 
-	set(LIBS ${CRYPTONEAT_LIBRARIES} ${GTEST_LIBRARIES} ${OPENSSL_LIBRARIES} ${NG2HTTP_LIBRARIES}  )
+    set(LIBS ${CRYPTONEAT_LIBRARIES} ${GTEST_LIBRARIES} ${OPENSSL_LIBRARIES} )
 
+    message(${BUILDFLAGS})
+    message(${DEBUGFLAGS})
+    message(${LIBS})
 ENDIF ()
 
 
