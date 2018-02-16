@@ -1,6 +1,6 @@
 !/bin/bash
 
-cd /opt/workspace/priocpp
+cd /usr/local/src/priocpp
 make clean
 make -e install
 

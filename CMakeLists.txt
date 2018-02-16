@@ -11,15 +11,14 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # OS support
 ############################################
 
+find_package(GTest REQUIRED)
+find_package(OpenSSL REQUIRED)
 
 IF (WIN32)
 
 	set(OSLIBS "Ws2_32" "Rpcrt4")
 
-    find_package(gtest REQUIRED)
-    find_package(openssl REQUIRED)
 	find_library(CRYPTONEAT_LIBRARY NAMES cryptoneat)
-#	find_library(NG2HTTP_LIBRARY NAMES nghttp2)
 	find_library(LIBEVENT_LIBRARY NAMES event)
 
 	set(BUILDFLAGS "-await")
@@ -32,26 +31,22 @@ IF (WIN32)
     set(OSLIBS "pthread")
 
     find_package(PkgConfig)
-    find_package(GTest)
-#    pkg_check_modules(GTEST REQUIRED gtest)
-    pkg_check_modules(OPENSSL REQUIRED openssl)
     pkg_check_modules(CRYPTONEAT REQUIRED cryptoneat)
-#    pkg_check_modules(NGHTTP2 REQUIRED nghttp2)
     pkg_check_modules(LIBEVENT REQUIRED libevent_pthreads)
 
-    set(OPENSSL_INCLUDE_DIR ${OPENSSL_INCLUDE_DIRS})
 	set(LIBEVENT_LIBRARY ${LIBEVENT_LIBRARIES})
 
     set(BUILDFLAGS " ")
+    set(RELEASEFLAGS " -O3 ")
     set(DEBUGFLAGS "-g -DMOL_PROMISE_DEBUG")
 
     set(LIBS ${CRYPTONEAT_LIBRARIES} ${GTEST_LIBRARIES} ${OPENSSL_LIBRARIES} )
 
-    message(${BUILDFLAGS})
-    message(${DEBUGFLAGS})
-    message(${LIBS})
 ENDIF ()
 
+message(${BUILDFLAGS})
+message(${DEBUGFLAGS})
+message(${LIBS})
 
 ############################################
 # macros
@@ -90,7 +85,7 @@ endif()
 ############################################
 
 include_directories(include)
-include_directories(${OPENSSL_INCLUDE_DIR})
+include_directories(${OPENSSL_INCLUDE_DIR} ${GTEST_INCLUDE_DIR} ${CRYPTONEAT_INCLUDE_DIRS} )
 
 file(GLOB SOURCES "src/*.cpp")
 file(GLOB HEADERS "include/priocpp/*.h")
@@ -102,29 +97,34 @@ file(GLOB HEADERS "include/priocpp/*.h")
 add_library(priocpp  STATIC ${SOURCES})
 add_library(priocppd STATIC ${SOURCES})
 
-add_executable(Tests t/test.cpp)
+add_executable(SimpleTest t/test.cpp)
+add_executable(HttpTest t/http.cpp)
 
 AddCompilerFlags(priocpp ${BUILDFLAGS})
 
 AddCompilerFlags(priocppd ${BUILDFLAGS})
 AddCompilerFlags(priocppd ${DEBUGFLAGS})
 
-AddCompilerFlags(Tests ${BUILDFLAGS})
-AddCompilerFlags(Tests ${DEBUGFLAGS})
+AddCompilerFlags(SimpleTest ${BUILDFLAGS})
+AddCompilerFlags(SimpleTest ${DEBUGFLAGS})
 
+AddCompilerFlags(HttpTest ${BUILDFLAGS})
+AddCompilerFlags(HttpTest ${DEBUGFLAGS})
 
 ############################################
 # libs
 ############################################
 
-target_link_libraries(Tests priocppd ${LIBS} ${BACKEND} ${OSLIBS} )
+target_link_libraries(SimpleTest priocppd ${LIBS} ${BACKEND} ${OSLIBS} )
+target_link_libraries(HttpTest priocppd ${LIBS} ${BACKEND} ${OSLIBS} )
 
 
 ############################################
 # tests
 ############################################
 
-add_test(NAME AllTests COMMAND Tests)
+add_test(NAME Simple_Test COMMAND SimpleTest)
+add_test(NAME Http_Test COMMAND HttpTest)
 
 file(COPY pem DESTINATION .)
  

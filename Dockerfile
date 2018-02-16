@@ -59,7 +59,8 @@ RUN cd /usr/local/src && \
   make CXX=${CXX} test && \
   make CXX=${CXX} install 
 
-RUN mkdir -p /opt/workspace/priocpp
+RUN mkdir -p /usr/local/src/priocpp
+ADD . /usr/local/src/priocpp
 
-ADD docker/run.sh /usr/local/bin/run.sh
-CMD ["/usr/local/bin/run.sh"]
+RUN /usr/local/src/priocpp/docker/run.sh
+

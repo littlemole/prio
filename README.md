@@ -69,6 +69,9 @@ threadsafe version that can be called safely from within a prio::task
 ## async socket io
 
 ### connect
+
+    
+
 ### read
 ### write
 ### listen
