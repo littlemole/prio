@@ -9,7 +9,8 @@ LIBINC = ./include/priocpp
 
 PWD=$(shell pwd)
 
-CONTAINER = $(shell echo "$(LIBNAME)_$(CXX)_$(BACKEND)" | sed 's/++/pp/')
+BUILDCHAIN = make
+CONTAINER = $(shell echo "$(LIBNAME)_$(CXX)_$(BACKEND)_$(BUILDCHAIN)" | sed 's/++/pp/')
 IMAGE = littlemole/$(CONTAINER)
 
 #################################################
@@ -74,16 +75,13 @@ remove: ## remove lib from $(DESTDIR)/$(PREFIX) defaults to /usr/local
 # docker stable testing environment
 
 image: ## build docker test image
-	docker build -t $(IMAGE) . -fDockerfile  --build-arg CXX=$(CXX) --build-arg BACKEND=$(BACKEND)
+	docker build -t $(IMAGE) . -fDockerfile  --build-arg CXX=$(CXX) --build-arg BACKEND=$(BACKEND) --build-arg BUILDCHAIN=$(BUILDCHAIN)
 
 clean-image: ## rebuild the docker test image from scratch
-	docker build -t $(IMAGE) . --no-cache -fDockerfile --build-arg CXX=$(CXX) --build-arg BACKEND=$(BACKEND)
+	docker build -t $(IMAGE) . --no-cache -fDockerfile --build-arg CXX=$(CXX) --build-arg BACKEND=$(BACKEND) --build-arg BUILDCHAIN=$(BUILDCHAIN)
 		
-run: rmc image ## run the docker image, runs docker/run.sh
-	docker run --name $(CONTAINER) -d -e COMPILER=$(CXX) -v "$(PWD):/opt/workspace/priocpp"  $(IMAGE)
-                                        
 bash: rmc image ## run the docker image and open a shell
-	docker run --name $(CONTAINER) -ti -e COMPILER=$(CXX) -v "$(PWD):/opt/workspace/priocpp"  $(IMAGE) bash
+	docker run --name $(CONTAINER) -ti $(IMAGE) bash
 
 stop: ## stop running docker image, if any
 	-docker stop $(CONTAINER)

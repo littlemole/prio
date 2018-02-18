@@ -7,46 +7,6 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-############################################
-# OS support
-############################################
-
-find_package(GTest REQUIRED)
-find_package(OpenSSL REQUIRED)
-
-IF (WIN32)
-
-	set(OSLIBS "Ws2_32" "Rpcrt4")
-
-	find_library(CRYPTONEAT_LIBRARY NAMES cryptoneat)
-	find_library(LIBEVENT_LIBRARY NAMES event)
-
-	set(BUILDFLAGS "-await")
-	set(DEBUGFLAGS "-DMOL_PROMISE_DEBUG")
-
-	set(LIBS ${CRYPTONEAT_LIBRARY} ${GTEST_LIBRARIES} ${OPENSSL_LIBRARIES}   )
-
- ELSEIF(UNIX)
-
-    set(OSLIBS "pthread")
-
-    find_package(PkgConfig)
-    pkg_check_modules(CRYPTONEAT REQUIRED cryptoneat)
-    pkg_check_modules(LIBEVENT REQUIRED libevent_pthreads)
-
-	set(LIBEVENT_LIBRARY ${LIBEVENT_LIBRARIES})
-
-    set(BUILDFLAGS " ")
-    set(RELEASEFLAGS " -O3 ")
-    set(DEBUGFLAGS "-g -DMOL_PROMISE_DEBUG")
-
-    set(LIBS ${CRYPTONEAT_LIBRARIES} ${GTEST_LIBRARIES} ${OPENSSL_LIBRARIES} )
-
-ENDIF ()
-
-message(${BUILDFLAGS})
-message(${DEBUGFLAGS})
-message(${LIBS})
 
 ############################################
 # macros
@@ -64,16 +24,73 @@ macro(AddCompilerFlags target flags)
     set_target_properties(${target} PROPERTIES COMPILE_FLAGS ${CF} )
 endmacro()
 
+
 ############################################
-# defaults
+# clang support
 ############################################
 
+set(LINKERFLAGS "")
+set(STDLIB "")
+set(FLAGS "")
 
-set(BACKEND ${LIBEVENT_LIBRARY})
+message(" COMPILER: ${CMAKE_CXX_COMPILER_ID}")
+
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    set(STDLIB "c++abi")
+    set(LINKERFLAGS "-stdlib=libc++ -fcoroutines-ts  -std=c++14")
+    set(FLAGS "-stdlib=libc++ -fcoroutines-ts -D_RESUMABLE_FUNCTIONS_SUPPORTED")
+endif()
+
+set( CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} ${LINKERFLAGS}" )
+
+
+############################################
+# OS support
+############################################
+
+find_package(GTest REQUIRED)
+find_package(OpenSSL REQUIRED)
+
+IF (WIN32)
+
+	set(OSLIBS "Ws2_32" "Rpcrt4")
+
+	find_library(CRYPTONEAT_LIBRARY NAMES cryptoneat)
+	find_library(LIBEVENT_LIBRARY NAMES event)
+
+	set(BUILDFLAGS "-await ${FLAGS}")
+	set(DEBUGFLAGS "-DMOL_PROMISE_DEBUG")
+
+	set(LIBS ${CRYPTONEAT_LIBRARY} ${GTEST_LIBRARIES} ${OPENSSL_LIBRARIES} ${STDLIB}  )
+
+ ELSEIF(UNIX)
+
+    set(OSLIBS "pthread")
+
+    find_package(PkgConfig)
+    pkg_check_modules(CRYPTONEAT REQUIRED cryptoneat)
+    pkg_check_modules(LIBEVENT libevent_pthreads)
+
+	set(LIBEVENT_LIBRARY ${LIBEVENT_LIBRARIES})
+
+    set(BUILDFLAGS " ${FLAGS}")
+    set(RELEASEFLAGS " -O3 ")
+    set(DEBUGFLAGS "-g -DMOL_PROMISE_DEBUG")
+
+    set(LIBS ${CRYPTONEAT_LIBRARIES} ${GTEST_LIBRARIES} ${OPENSSL_LIBRARIES} ${STDLIB} )
+
+ENDIF ()
+
+
+############################################
+# backend: libevent or boost_asio
+############################################
+
 
 option(WITH_LIBEVENT "use libevent (default:on)" ON)
 if(WITH_LIBEVENT)
-    add_definitions(-DPROMISE_USE_LIBEVENT)
+    add_definitions(-DPROMISE_USE_LIBEVENT)    
+    set(BACKEND ${LIBEVENT_LIBRARY})
 else()
     add_definitions(-DPROMISE_USE_BOOST_ASIO)
     set(BACKEND "boost_system")
@@ -96,6 +113,7 @@ file(GLOB HEADERS "include/priocpp/*.h")
 
 add_library(priocpp  STATIC ${SOURCES})
 add_library(priocppd STATIC ${SOURCES})
+
 
 add_executable(SimpleTest t/test.cpp)
 add_executable(HttpTest t/http.cpp)
