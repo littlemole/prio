@@ -9,8 +9,13 @@ cd /usr/local/src/$1
 
 if [ "$BUILDCHAIN" == "make" ] 
 then
-    make clean
-    make -e test
+    if [ "$SKIPTEST" == "true" ]
+    then
+    	echo "skipping tests for $1 ..."
+    else
+	make clean
+	make -e test
+    fi
     make clean
     make -e install
 else
