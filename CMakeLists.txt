@@ -107,6 +107,7 @@ include_directories(${OPENSSL_INCLUDE_DIR} ${GTEST_INCLUDE_DIR} ${CRYPTONEAT_INC
 file(GLOB SOURCES "src/*.cpp")
 file(GLOB_RECURSE HEADERS "include/priocpp/*.h")
 
+message("HEADERS: ${HEADERS}")
 ############################################
 # targets
 ############################################
