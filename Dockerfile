@@ -50,5 +50,5 @@ RUN /usr/local/bin/install.sh cryptoneat
 RUN mkdir -p /usr/local/src/priocpp
 ADD . /usr/local/src/priocpp
 
-RUN /usr/local/bin/build.sh priocpp 
+RUN SKIPTEST=true /usr/local/bin/build.sh priocpp 
 
