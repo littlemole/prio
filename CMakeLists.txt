@@ -154,6 +154,6 @@ file(COPY pem DESTINATION .)
 install(TARGETS priocpp DESTINATION lib)
 install(TARGETS priocppd DESTINATION lib)
 
-install(FILES ${HEADERS} DESTINATION include/priocpp)
+install(DIRECTORY include/priocpp DESTINATION include)
 
 install(FILES priocpp.pc DESTINATION lib/pkgconfig)
