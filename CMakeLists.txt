@@ -145,8 +145,8 @@ AddCompilerFlags(HttpTest ${DEBUGFLAGS})
 # libs
 ############################################
 
-target_link_libraries(SimpleTest priocppd ${LIBS} ${BACKEND} ${OSLIBS} )
-target_link_libraries(HttpTest priocppd ${LIBS} ${BACKEND} ${OSLIBS} )
+target_link_libraries(SimpleTest ${LIBS} ${BACKEND} ${OSLIBS} )
+target_link_libraries(HttpTest ${LIBS} ${BACKEND} ${OSLIBS} )
 
 
 ############################################
