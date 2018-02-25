@@ -23,7 +23,7 @@ IF (WIN32)
 	find_library(LIBEVENT_LIBRARY NAMES event)
 	find_library(PRIO_LIBRARY NAMES priocpp)
 
-    set(BUILD_INCLUDE_DIR ${OPENSSL_INCLUDE_DIRS})	
+    set(BUILD_INCLUDE_DIR ${OPENSSL_INCLUDE_DIR})	
     set(BUILDFLAGS "-await")
 	set(DEBUGFLAGS "-DMOL_PROMISE_DEBUG")
 
@@ -51,7 +51,7 @@ IF (WIN32)
 
 ENDIF ()
 
-
+message( "${BUILD_INCLUDE_DIR}")
 ############################################
 # macros
 ############################################
@@ -88,6 +88,7 @@ endif()
 # sources
 ############################################
 
+include_directories(${BUILD_INCLUDE_DIR})
 include_directories(${BUILD_INCLUDE_DIR})
 
 ############################################

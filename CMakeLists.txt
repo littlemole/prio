@@ -7,6 +7,10 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+set(INSTALL_DEBUG "On")
+set(INSTALL_RELEASE "On")
+
+set(ME_AS_DEP "${CMAKE_PROJECT_NAME}")
 
 ############################################
 # macros
@@ -56,12 +60,21 @@ IF (WIN32)
 	set(OSLIBS "Ws2_32" "Rpcrt4")
 
 	find_library(CRYPTONEAT_LIBRARY NAMES cryptoneat)
+	find_library(CRYPTONEATD_LIBRARY NAMES cryptoneatd)
 	find_library(LIBEVENT_LIBRARY NAMES event)
 
 	set(BUILDFLAGS "-await ${FLAGS}")
 	set(DEBUGFLAGS "-DMOL_PROMISE_DEBUG")
 
-	set(LIBS ${CRYPTONEAT_LIBRARY} ${GTEST_LIBRARIES} ${OPENSSL_LIBRARIES} ${STDLIB}  )
+	set(LIBS ${GTEST_LIBRARIES} ${OPENSSL_LIBRARIES} ${STDLIB}  )
+
+	if( "${CMAKE_BUILD_TYPE}" STREQUAL "Release")
+		set(INSTALL_DEBUG "Off")
+		set(LIBS ${LIBS} ${CRYPTONEAT_LIBRARY} )
+	else()
+		set(INSTALL_RELEASE "Off")
+		set(LIBS ${LIBS} ${CRYPTONEATD_LIBRARY} )
+	endif()
 
  ELSEIF(UNIX)
 
@@ -150,8 +163,13 @@ file(COPY pem DESTINATION .)
 # install rules
 ############################################
  
-install(TARGETS priocpp DESTINATION lib)
-install(TARGETS priocppd DESTINATION lib)
+if( "${INSTALL_RELEASE}" STREQUAL "On")
+	install(TARGETS priocpp DESTINATION lib)
+endif()
+
+if( "${INSTALL_DEBUG}" STREQUAL "On")
+	install(TARGETS priocppd DESTINATION lib)
+endif()
 
 install(DIRECTORY include/priocpp DESTINATION include)
 
