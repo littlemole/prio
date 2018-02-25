@@ -10,8 +10,6 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(INSTALL_DEBUG "On")
 set(INSTALL_RELEASE "On")
 
-set(ME_AS_DEP "${CMAKE_PROJECT_NAME}")
-
 ############################################
 # macros
 ############################################
@@ -69,11 +67,11 @@ IF (WIN32)
 
 	if( "${CMAKE_BUILD_TYPE}" STREQUAL "Release")
 		set(INSTALL_DEBUG "Off")
-		set(LIBS ${LIBS} ${CRYPTONEAT_LIBRARY} )
+		set(LIBS ${LIBS} ${CMAKE_PROJECT_NAME} ${CRYPTONEAT_LIBRARY} )
 		set(DEBUGFLAGS " ")
 	else()
 		set(INSTALL_RELEASE "Off")
-		set(LIBS ${LIBS} ${CRYPTONEATD_LIBRARY} )
+		set(LIBS ${LIBS} ${CMAKE_PROJECT_NAME}d ${CRYPTONEATD_LIBRARY} )
 		set(DEBUGFLAGS "-DMOL_PROMISE_DEBUG ")
 	endif()
 
@@ -91,7 +89,7 @@ IF (WIN32)
     set(RELEASEFLAGS " -O3 ")
     set(DEBUGFLAGS "-g -DMOL_PROMISE_DEBUG")
 
-    set(LIBS ${CRYPTONEAT_LIBRARIES} ${GTEST_LIBRARIES} ${OPENSSL_LIBRARIES} ${STDLIB} )
+    set(LIBS ${CMAKE_PROJECT_NAME}d ${CRYPTONEAT_LIBRARIES} ${GTEST_LIBRARIES} ${OPENSSL_LIBRARIES} ${STDLIB} )
 
 ENDIF ()
 
