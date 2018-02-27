@@ -14,8 +14,8 @@ then
     then
     	echo "skipping tests for $1 ..."
     else
-	make clean
-	make -e test
+	    make clean
+	    make -e test
     fi
     make clean
     make -e install

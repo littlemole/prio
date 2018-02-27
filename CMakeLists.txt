@@ -164,21 +164,14 @@ file(COPY pem DESTINATION .)
 ############################################
  
 if( "${INSTALL_RELEASE}" STREQUAL "On")
-	install(TARGETS priocpp EXPORT priocpp_export DESTINATION lib)
+	install(TARGETS priocpp DESTINATION lib)
 
-	install(EXPORT priocpp_export
-		NAMESPACE priocpp::
-		DESTINATION lib/cmake/priocpp
-	)
 endif()
 
 if( "${INSTALL_DEBUG}" STREQUAL "On")
-	install(TARGETS priocppd EXPORT priocppd_export DESTINATION lib)
+	install(TARGETS priocppd DESTINATION lib)
 
-	install(EXPORT priocppd_export
-		NAMESPACE priocppd::
-		DESTINATION lib/cmake/priocppd
-	)
+	install(FILES priocppd-config.cmake DESTINATION lib)
 endif()
 
 install(DIRECTORY include/priocpp DESTINATION include)
