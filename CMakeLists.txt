@@ -4,6 +4,8 @@ cmake_policy(SET CMP0054 NEW)
 project(priocpp)
 include(CTest)
 
+set(CMAKE_PREFIX_PATH "${CMAKE_INSTALL_PREFIX}/lib/CMake")
+
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -81,7 +83,8 @@ IF (WIN32)
     set(OSLIBS "pthread")
 
     find_package(PkgConfig)
-    pkg_check_modules(CRYPTONEAT REQUIRED cryptoneat)
+    find_package(cryptoneat)
+#    pkg_check_modules(CRYPTONEAT REQUIRED cryptoneat)
     pkg_check_modules(LIBEVENT libevent_pthreads)
 
 	set(LIBEVENT_LIBRARY ${LIBEVENT_LIBRARIES})
@@ -90,7 +93,7 @@ IF (WIN32)
     set(RELEASEFLAGS " -O3 ")
     set(DEBUGFLAGS "-g -DMOL_PROMISE_DEBUG")
 
-    set(LIBS ${CMAKE_PROJECT_NAME}d ${CRYPTONEAT_LIBRARIES} ${GTEST_LIBRARIES} ${OPENSSL_LIBRARIES} ${STDLIB} )
+    set(LIBS ${CMAKE_PROJECT_NAME}d cryptoneat ${GTEST_LIBRARIES} ${OPENSSL_LIBRARIES} ${STDLIB} )
 
 ENDIF ()
 
@@ -115,7 +118,7 @@ endif()
 ############################################
 
 include_directories(include)
-include_directories(${OPENSSL_INCLUDE_DIR} ${GTEST_INCLUDE_DIR} ${CRYPTONEAT_INCLUDE_DIRS} )
+include_directories(${OPENSSL_INCLUDE_DIR} ${GTEST_INCLUDE_DIR} ${CRYPTONEAT_INCLUDE_DIR} )
 
 file(GLOB SOURCES "src/*.cpp")
 file(GLOB_RECURSE HEADERS "include/priocpp/*.h")
@@ -165,16 +168,15 @@ file(COPY pem DESTINATION .)
  
 if( "${INSTALL_RELEASE}" STREQUAL "On")
 	install(TARGETS priocpp DESTINATION lib)
-
 endif()
 
 if( "${INSTALL_DEBUG}" STREQUAL "On")
 	install(TARGETS priocppd DESTINATION lib)
-
-	install(FILES priocppd-config.cmake DESTINATION lib)
 endif()
 
 install(DIRECTORY include/priocpp DESTINATION include)
 
 install(FILES priocpp.pc DESTINATION lib/pkgconfig)
 
+
+install(FILES priocpp-config.cmake DESTINATION "lib/CMake/priocpp" COMPONENT dev)
