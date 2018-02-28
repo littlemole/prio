@@ -81,7 +81,6 @@ IF (WIN32)
     set(OSLIBS "pthread")
 
     find_package(PkgConfig)
-    find_package(cryptoneat)
     pkg_check_modules(CRYPTONEAT REQUIRED cryptoneat)
 
     set(LIBEVENT_LIBRARY ${LIBEVENT_LIBRARIES})
