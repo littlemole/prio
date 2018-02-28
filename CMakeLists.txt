@@ -82,6 +82,7 @@ IF (WIN32)
 
     find_package(PkgConfig)
     pkg_check_modules(CRYPTONEAT REQUIRED cryptoneat)
+    pkg_check_modules(LIBEVENT REQUIRED libevent_pthreads)
 
     set(LIBEVENT_LIBRARY ${LIBEVENT_LIBRARIES})
 
