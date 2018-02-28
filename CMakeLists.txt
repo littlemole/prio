@@ -4,8 +4,6 @@ cmake_policy(SET CMP0054 NEW)
 project(priocpp)
 include(CTest)
 
-set(CMAKE_PREFIX_PATH "${CMAKE_INSTALL_PREFIX}/lib/CMake")
-
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -84,10 +82,9 @@ IF (WIN32)
 
     find_package(PkgConfig)
     find_package(cryptoneat)
-#    pkg_check_modules(CRYPTONEAT REQUIRED cryptoneat)
-    pkg_check_modules(LIBEVENT libevent_pthreads)
+    pkg_check_modules(CRYPTONEAT REQUIRED cryptoneat)
 
-	set(LIBEVENT_LIBRARY ${LIBEVENT_LIBRARIES})
+    set(LIBEVENT_LIBRARY ${LIBEVENT_LIBRARIES})
 
     set(BUILDFLAGS " ${FLAGS}")
     set(RELEASEFLAGS " -O3 ")
@@ -179,4 +176,3 @@ install(DIRECTORY include/priocpp DESTINATION include)
 install(FILES priocpp.pc DESTINATION lib/pkgconfig)
 
 
-install(FILES priocpp-config.cmake DESTINATION "lib/CMake/priocpp" COMPONENT dev)
