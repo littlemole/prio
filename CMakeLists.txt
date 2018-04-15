@@ -98,7 +98,7 @@ message("LIB: >>>>>>>>>>> ${LIBS}")
     set(RELEASEFLAGS " -O3 ")
     set(DEBUGFLAGS "-g -DMOL_PROMISE_DEBUG")
 
-    set(LIBS ${CMAKE_PROJECT_NAME}d cryptoneat ${GTEST_LIBRARIES} ${OPENSSL_LIBRARIES} ${STDLIB} )
+    set(LIBS debug ${CMAKE_PROJECT_NAME} optimized ${CMAKE_PROJECT_NAME} cryptoneat ${GTEST_LIBRARIES} ${OPENSSL_LIBRARIES} ${STDLIB} )
 
 ENDIF ()
 
