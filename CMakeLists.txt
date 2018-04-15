@@ -11,6 +11,10 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(INSTALL_DEBUG "On")
 set(INSTALL_RELEASE "On")
 
+if(NOT CMAKE_DEBUG_POSTFIX)
+  set(CMAKE_DEBUG_POSTFIX d)
+endif()
+
 ############################################
 # macros
 ############################################
@@ -66,15 +70,19 @@ IF (WIN32)
 
 	set(LIBS ${GTEST_LIBRARIES} ${OPENSSL_LIBRARIES} ${STDLIB}  )
 
+message("LIB: >>>>>>>>>>> ${LIBS}")
+
 	if( "${CMAKE_BUILD_TYPE}" STREQUAL "Release")
 		set(INSTALL_DEBUG "Off")
-		set(LIBS ${LIBS} ${CMAKE_PROJECT_NAME} ${CRYPTONEAT_LIBRARY} )
-		set(DEBUGFLAGS " ")
+		#set(LIBS ${LIBS} ${CMAKE_PROJECT_NAME} ${CRYPTONEAT_LIBRARY} )
+		#set(DEBUGFLAGS " ")
 	else()
 		set(INSTALL_RELEASE "Off")
-		set(LIBS ${LIBS} ${CMAKE_PROJECT_NAME}d ${CRYPTONEATD_LIBRARY} )
-		set(DEBUGFLAGS "-DMOL_PROMISE_DEBUG ")
+		#set(LIBS ${LIBS} ${CMAKE_PROJECT_NAME}d ${CRYPTONEATD_LIBRARY} )
+		#set(DEBUGFLAGS "-DMOL_PROMISE_DEBUG ")
 	endif()
+
+	set(LIBS ${LIBS} debug ${CMAKE_PROJECT_NAME} optimized ${CMAKE_PROJECT_NAME} debug ${CRYPTONEATD_LIBRARY} optimized  ${CRYPTONEAT_LIBRARY} )
 
  ELSEIF(UNIX)
 
@@ -94,6 +102,8 @@ IF (WIN32)
 
 ENDIF ()
 
+SET(CMAKE_CXX_FLAGS_DEBUG  "${CMAKE_CXX_FLAGS_DEBUG} -DMOL_PROMISE_DEBUG")
+SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${BUILDFLAGS}")
 
 ############################################
 # backend: libevent or boost_asio
@@ -125,22 +135,22 @@ file(GLOB_RECURSE HEADERS "include/priocpp/*.h")
 ############################################
 
 add_library(priocpp  STATIC ${SOURCES})
-add_library(priocppd STATIC ${SOURCES})
+#add_library(priocppd STATIC ${SOURCES})
 
 
 add_executable(SimpleTest t/test.cpp)
 add_executable(HttpTest t/http.cpp)
 
-AddCompilerFlags(priocpp ${BUILDFLAGS})
+#AddCompilerFlags(priocpp ${BUILDFLAGS})
 
-AddCompilerFlags(priocppd ${BUILDFLAGS})
-AddCompilerFlags(priocppd ${DEBUGFLAGS})
+#AddCompilerFlags(priocppd ${BUILDFLAGS})
+#AddCompilerFlags(priocppd ${DEBUGFLAGS})
 
-AddCompilerFlags(SimpleTest ${BUILDFLAGS})
-AddCompilerFlags(SimpleTest ${DEBUGFLAGS})
+#AddCompilerFlags(SimpleTest ${BUILDFLAGS})
+#AddCompilerFlags(SimpleTest ${DEBUGFLAGS})
 
-AddCompilerFlags(HttpTest ${BUILDFLAGS})
-AddCompilerFlags(HttpTest ${DEBUGFLAGS})
+#AddCompilerFlags(HttpTest ${BUILDFLAGS})
+#AddCompilerFlags(HttpTest ${DEBUGFLAGS})
 
 ############################################
 # libs
@@ -163,13 +173,13 @@ file(COPY pem DESTINATION .)
 # install rules
 ############################################
  
-if( "${INSTALL_RELEASE}" STREQUAL "On")
+#if( "${INSTALL_RELEASE}" STREQUAL "On")
 	install(TARGETS priocpp DESTINATION lib)
-endif()
+#endif()
 
-if( "${INSTALL_DEBUG}" STREQUAL "On")
-	install(TARGETS priocppd DESTINATION lib)
-endif()
+#if( "${INSTALL_DEBUG}" STREQUAL "On")
+#	install(TARGETS priocppd DESTINATION lib)
+#endif()
 
 install(DIRECTORY include/priocpp DESTINATION include)
 
