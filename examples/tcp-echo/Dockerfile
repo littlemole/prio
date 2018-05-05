@@ -1,4 +1,4 @@
-FROM littlemole/priocpp_gpp_libevent
+FROM littlemole/priocpp_clangpp_boost_asio_make
 MAINTAINER me <little.mole@oha7.org>
 
 ARG CXX=g++

@@ -19,7 +19,6 @@ EOF
 sleep 1
 
 read -d '' EXPECTED <<EOF
-FD: 7
 server read:huhu
 helo
 quit
@@ -38,5 +37,5 @@ else
     echo "failed"
 fi
 
-killall -INT tcp-echo.bin
+killall -s SIGINT tcp-echo.bin
 sync
