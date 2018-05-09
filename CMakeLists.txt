@@ -52,16 +52,34 @@ endif()
 IF (WIN32)
 
 	set(OSLIBS "Ws2_32" "Rpcrt4")
-
-	find_library(CRYPTONEAT_LIBRARY NAMES cryptoneat)
-	find_library(CRYPTONEATD_LIBRARY NAMES cryptoneatd)
-	find_library(LIBEVENT_LIBRARY NAMES event)
-
 	set(BUILDFLAGS "-await ${FLAGS}")
 
+	find_library(LIBEVENT_LIBRARY NAMES event)
 	set(LIBS ${GTEST_LIBRARIES} ${OPENSSL_LIBRARIES} ${STDLIB}  )
 
-	set(LIBS ${LIBS} debug ${CMAKE_PROJECT_NAME} optimized ${CMAKE_PROJECT_NAME} debug ${CRYPTONEATD_LIBRARY} optimized  ${CRYPTONEAT_LIBRARY} )
+message("++++++++++++++++++++++")
+message("${CMAKE_BUILD_TYPE}")
+
+
+	if( ${CMAKE_BUILD_TYPE} MATCHES "Debug")
+			find_library(CRYPTONEATD_LIBRARY NAMES cryptoneatd)
+			message("Debug:${CRYPTONEATD_LIBRARY}")
+			set(LIBS ${LIBS} debug ${CMAKE_PROJECT_NAME} optimized ${CMAKE_PROJECT_NAME} ${CRYPTONEATD_LIBRARY} )
+	elseif(${CMAKE_BUILD_TYPE} MATCHES "Release")
+			find_library(CRYPTONEAT_LIBRARY NAMES cryptoneat)
+			message("Release:${CRYPTONEAT_LIBRARY}")
+			set(LIBS ${LIBS} debug ${CMAKE_PROJECT_NAME} optimized ${CMAKE_PROJECT_NAME} ${CRYPTONEAT_LIBRARY} )
+    else()
+		find_library(CRYPTONEAT_LIBRARY NAMES cryptoneat)
+		find_library(CRYPTONEATD_LIBRARY NAMES cryptoneatd)
+		message("${CRYPTONEAT_LIBRARY}")
+		message("${CRYPTONEATD_LIBRARY}")
+
+		set(LIBS ${LIBS} debug ${CMAKE_PROJECT_NAME} optimized ${CMAKE_PROJECT_NAME} debug ${CRYPTONEATD_LIBRARY} optimized  ${CRYPTONEAT_LIBRARY} )
+	endif()
+
+message("++++++++++++++++++++++")
+
 
  ELSEIF (UNIX)
 
