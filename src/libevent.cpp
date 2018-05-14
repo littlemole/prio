@@ -559,14 +559,10 @@ Resolver& dnsResolver()
 }
 
 Resolver::Resolver()
-{
-	//dnsbase_ = evdns_base_new(eventLoop().base(), 1);
-}
+{}
 
 Resolver::~Resolver()
-{	
-	//evdns_base_free(dnsbase_, 0);	
-}
+{}
 
 
 Future<socket_t> Resolver::connect(const std::string& host, int port)
@@ -598,8 +594,9 @@ Future<socket_t> Resolver::connect(const std::string& host, int port)
 			fprintf(stderr,"next:\r\n");
 			struct sockaddr_in *sin = (struct sockaddr_in *)(rp->ai_addr);
 
-			char * c = inet_ntoa(sin->sin_addr);
-			std::cout << "DNS: " << c << std::endl;
+// to show DNS resolves:
+//			char * c = inet_ntoa(sin->sin_addr);
+//			std::cout << "DNS: " << c << std::endl;
 
 			sin->sin_port = htons(port);	
 
@@ -650,66 +647,6 @@ Future<socket_t> Resolver::connect(const std::string& host, int port)
 }
 
 
-/*
-
-
-Future<sockaddr_in*> Resolver::resolve(const std::string host)
-{
-	ResolveData* rd = new ResolveData;
-	rd->p = promise<sockaddr_in*>();
-
-	nextTick( [this,host,rd]() 
-	{
-
-		struct evutil_addrinfo hints;
-		//struct evdns_getaddrinfo_request *req;
-		memset(&hints, 0, sizeof(hints));
-		hints.ai_family = AF_UNSPEC;
-		hints.ai_flags = EVUTIL_AI_CANONNAME;
-		hints.ai_socktype = SOCK_STREAM;
-		hints.ai_protocol = IPPROTO_TCP;
-		
-		//req = 
-		evdns_getaddrinfo(
-			dnsbase_, 
-			host.c_str(), 
-			NULL 
-			&hints, 
-			callback, 
-			rd
-		);
-	});
-	return rd->p.future();
-}
-
-
-void Resolver::callback(int errcode, struct evutil_addrinfo *addr, void *ptr)
-{
-	ResolveData* rd = (ResolveData*)ptr;
-
-	if (errcode) 
-	{
-		rd->p.reject(Ex(evutil_gai_strerror(errcode)));
-	} 
-	else 
-	{
-		struct evutil_addrinfo *ai;
-		for (ai = addr; ai; ai = ai->ai_next) 
-		{
-			if (ai->ai_family == AF_INET) 
-			{
-				struct sockaddr_in *sin = (struct sockaddr_in *)(ai->ai_addr);
-
-				rd->p.resolve(sin);
-				break;
-			}
-		}
-		evutil_freeaddrinfo(addr);
-	}
-	delete rd;
-}
-
-*/
 
 } // close namespaces
 
