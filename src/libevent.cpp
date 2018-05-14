@@ -5,6 +5,7 @@
 #include "priocpp/impl/event.h"
 #include "priocpp/connection.h"
 #include "priocpp/ssl_connection.h"
+#include "priocpp/task.h"
 
 #include <openssl/ssl.h>
 #include <openssl/bio.h>
@@ -25,6 +26,9 @@
 #define SHUT_RDWR SD_SEND 
 #else
 #define close_socket ::close
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 #endif
 
 using namespace repro;
@@ -556,37 +560,75 @@ Resolver& dnsResolver()
 
 Resolver::Resolver()
 {
-	dnsbase_ = evdns_base_new(eventLoop().base(), 1);
+	//dnsbase_ = evdns_base_new(eventLoop().base(), 1);
 }
 
 Resolver::~Resolver()
 {	
-	evdns_base_free(dnsbase_, 0);	
+	//evdns_base_free(dnsbase_, 0);	
 }
+
 
 Future<socket_t> Resolver::connect(const std::string& host, int port)
 {
 	auto p = promise<socket_t>();
 
-	resolve(host)
-	.then( [p,host,port] (sockaddr_in* sin)
+	prio::task( [host,port]() -> socket_t
 	{
-		sin->sin_port = htons(port);	
 
-		socket_t fd;
-		// create the socket
-		fd = ::socket( AF_INET,SOCK_STREAM, IPPROTO_TCP);
-		LITTLE_MOLE_ADDREF_DEBUG_REF_CNT(sockets);
+		struct addrinfo hints;
+		struct addrinfo *result, *rp;
+		int s;
 
-		set_non_blocking(fd);
+		memset(&hints, 0, sizeof(struct addrinfo));
+		hints.ai_family = AF_INET;    /* Allow IPv4 */
+		hints.ai_socktype = SOCK_STREAM;
+		hints.ai_flags = AI_CANONNAME;
+		hints.ai_protocol = 0;          /* Any protocol */
 
-		// connect
-		int r = ::connect( fd, (const sockaddr*)sin, sizeof(sockaddr_in));
-		if(r< 0 && !would_block())
+		s = getaddrinfo(host.c_str(), NULL, &hints, &result);
+		if (s != 0) 
 		{
-			std::ostringstream oss;
-			oss << " connect(" << host << ":" << port <<") failed";
-			throw Ex(oss.str());
+			fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(s));
+			return -1;
+		}
+
+		for (rp = result; rp != NULL; rp = rp->ai_next) 
+		{
+			fprintf(stderr,"next:\r\n");
+			struct sockaddr_in *sin = (struct sockaddr_in *)(rp->ai_addr);
+
+			char * c = inet_ntoa(sin->sin_addr);
+			std::cout << "DNS: " << c << std::endl;
+
+			sin->sin_port = htons(port);	
+
+			socket_t fd;
+			// create the socket
+			fd = ::socket( AF_INET,SOCK_STREAM, IPPROTO_TCP);
+			LITTLE_MOLE_ADDREF_DEBUG_REF_CNT(sockets);
+
+			set_non_blocking(fd);
+
+			// connect
+			int r = ::connect( fd, (const sockaddr*)sin, sizeof(sockaddr_in));
+			freeaddrinfo(result);
+
+			if(r< 0 && !would_block())
+			{
+				return -1;
+			}
+			
+			return fd;
+		}
+		return -1;
+	})
+	.then([p](socket_t fd)
+	{
+		if(fd == -1)
+		{
+			p.reject(Ex("host not found"));
+			return;
 		}
 
 		IO* io = new IO;
@@ -598,16 +640,17 @@ Future<socket_t> Resolver::connect(const std::string& host, int port)
 			p.resolve(fd);
 			delete io;
 		});
-
 	})
-	.otherwise( [p] (const std::exception& ex)
+	.otherwise([p](const std::exception& ex)
 	{
-		std::cout << ex.what() << std::endl;
 		p.reject(ex);
 	});
 
 	return p.future();
 }
+
+
+/*
 
 
 Future<sockaddr_in*> Resolver::resolve(const std::string host)
@@ -623,9 +666,6 @@ Future<sockaddr_in*> Resolver::resolve(const std::string host)
 		memset(&hints, 0, sizeof(hints));
 		hints.ai_family = AF_UNSPEC;
 		hints.ai_flags = EVUTIL_AI_CANONNAME;
-		/* Unless we specify a socktype, we'll get at least two entries for
-		* each address: one for TCP and one for UDP. That's not what we
-		* want. */
 		hints.ai_socktype = SOCK_STREAM;
 		hints.ai_protocol = IPPROTO_TCP;
 		
@@ -633,7 +673,7 @@ Future<sockaddr_in*> Resolver::resolve(const std::string host)
 		evdns_getaddrinfo(
 			dnsbase_, 
 			host.c_str(), 
-			NULL /* no service name given */,
+			NULL 
 			&hints, 
 			callback, 
 			rd
@@ -669,7 +709,7 @@ void Resolver::callback(int errcode, struct evutil_addrinfo *addr, void *ptr)
 	delete rd;
 }
 
-
+*/
 
 } // close namespaces
 

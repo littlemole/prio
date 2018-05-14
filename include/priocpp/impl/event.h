@@ -218,16 +218,20 @@ public:
 
 private:
 
+	Future<sockaddr_in*> resolve(const std::string host);
+
+	/*
 	struct ResolveData
 	{
 		repro::Promise<sockaddr_in*> p;
 	};
 
-	Future<sockaddr_in*> resolve(const std::string host);
+	
 
 	static void callback(int errcode, struct evutil_addrinfo *addr, void *ptr);
 
 	evdns_base *dnsbase_;
+	*/
 };
 
 Resolver& dnsResolver();
