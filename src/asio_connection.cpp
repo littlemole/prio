@@ -122,7 +122,7 @@ Future<Connection::Ptr, std::string> TcpConnection::read()
 				{
 					return;
 				}
-
+				std::cout << "read failed: " << error.value() << " == " << boost::system::errc::operation_canceled << std::endl;
 				p.reject(repro::Ex(std::string("read failed: ") + error.message()));
 			}
 			else
