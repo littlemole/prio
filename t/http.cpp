@@ -40,6 +40,7 @@ TEST_F(BasicTest, HttpClient2) {
 #ifndef _WIN32
 		signal(SIGPIPE).then([](int s){ std::cout << "SIGPIPE" << std::endl; });
 #endif
+		signal(SIGINT).then([](int s) { theLoop().exit(); });
 		Connection::Ptr client;
 
 		TcpConnection::connect("amazon.de",80)
@@ -73,7 +74,6 @@ TEST_F(BasicTest, HttpClient2) {
 
 
 
-
 TEST_F(BasicTest, SSlClient2) {
 
 	SslCtx ssl;
@@ -83,6 +83,8 @@ TEST_F(BasicTest, SSlClient2) {
 #ifndef _WIN32
 		signal(SIGPIPE).then([](int s){ std::cout << "SIGPIPE" << std::endl; });
 #endif
+		signal(SIGINT).then([](int s) { theLoop().exit(); });
+
 		Connection::Ptr client;
 
 		SslConnection::connect("amazon.de",443,ssl)
@@ -159,37 +161,40 @@ TEST_F(BasicTest, SSlClient3)
 				theLoop().exit();			
 			},1,100);
 		});
-
+		
 		SslCtx ctx;
 		SslConnection::Ptr con;
-		nextTick([&con,&ctx,&result,&listener]()
+		timeout([&con, &ctx, &result, &listener]()
 		{
-			SslConnection::connect("localhost",8765,ctx)
-			.then( [&con](Connection::Ptr c)
+			nextTick([&con, &ctx, &result, &listener]()
 			{
-				std::cout << "client connected" << std::endl;
-				con = c;
-				return con->write("HELO");
-			})
-			.then( [](Connection::Ptr con)
-			{
-				std::cout << "client written" << std::endl;
-				return con->read();
-			})
-			.then( [&result](Connection::Ptr con, std::string data)
-			{
-				std::cout << "client received " << data << std::endl;
-				result = data;
-				con->close();
-			})
-			.otherwise([&listener](const std::exception& ex)
-			{
-				std::cout << ex.what() << std::endl;
-				listener.cancel();
-				theLoop().exit();
+				SslConnection::connect("localhost", 8765, ctx)
+					.then([&con](Connection::Ptr c)
+				{
+					std::cout << "client connected" << std::endl;
+					con = c;
+					return con->write("HELO");
+				})
+					.then([](Connection::Ptr con)
+				{
+					std::cout << "client written" << std::endl;
+					return con->read();
+				})
+					.then([&result](Connection::Ptr con, std::string data)
+				{
+					std::cout << "client received " << data << std::endl;
+					result = data;
+					con->close();
+				})
+					.otherwise([&listener](const std::exception& ex)
+				{
+					std::cout << ex.what() << std::endl;
+					listener.cancel();
+					theLoop().exit();
+				});
 			});
-		});
-
+		}, 0, 10);
+		
 		theLoop().run();
 	}
 
@@ -251,6 +256,7 @@ repro::Future<> coroutine_example(std::string& result,Connection::Ptr& client)
 }
 
 #endif
+
 
 
 int main(int argc, char **argv) 
