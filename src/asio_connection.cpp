@@ -102,6 +102,8 @@ Future<Connection::Ptr, std::string> TcpConnection::read()
 
 	auto ptr = shared_from_this();
 
+	impl_->cancelled = false;
+
 	impl_->timer.after(timeouts_.rw_timeout_s)
 	.then( [this,p]()
 	{
@@ -115,6 +117,11 @@ Future<Connection::Ptr, std::string> TcpConnection::read()
 		[this,ptr,p](const boost::system::error_code& error,std::size_t bytes_transferred)
 		{
 			impl_->timer.cancel();
+
+			if(impl_->cancelled)
+			{
+				return;
+			}
 			
 			if(error)
 			{
@@ -141,6 +148,8 @@ Future<Connection::Ptr, std::string> TcpConnection::read(size_t s)
 
 	auto ptr = shared_from_this();
 
+	impl_->cancelled = false;
+
 	impl_->timer.after(timeouts_.rw_timeout_s)
 	.then( [this,p]()
 	{
@@ -156,6 +165,11 @@ Future<Connection::Ptr, std::string> TcpConnection::read(size_t s)
 		[this,ptr,p,buffer](const boost::system::error_code& error,std::size_t bytes_transferred)
 		{
 			impl_->timer.cancel();
+
+			if(impl_->cancelled)
+			{
+				return;
+			}			
 
 			if(error)
 			{
@@ -182,6 +196,8 @@ Future<Connection::Ptr> TcpConnection::write(const std::string& data)
 
 	auto ptr = shared_from_this();
 
+	impl_->cancelled = false;	
+
 	impl_->timer.after(timeouts_.rw_timeout_s)
 	.then( [this,p]()
 	{
@@ -197,6 +213,11 @@ Future<Connection::Ptr> TcpConnection::write(const std::string& data)
 		[this,p,ptr,buffer](const boost::system::error_code& error,std::size_t bytes_transferred)
 		{
 			impl_->timer.cancel();
+			
+			if(impl_->cancelled)
+			{
+				return;
+			}
 			
 			if(error)
 			{
@@ -219,7 +240,8 @@ Future<Connection::Ptr> TcpConnection::write(const std::string& data)
 
 void TcpConnection::close()
 {
-	impl_->socket.close();
+	impl_->cancelled = true;	
+	impl_->socket.close();	
 }
 
 
@@ -251,6 +273,7 @@ Future<> TcpConnection::shutdown()
 
 void TcpConnection::cancel()
 {
+	impl_->cancelled = true;		
 	impl_->timer.cancel();
 	impl_->socket.cancel();
 }

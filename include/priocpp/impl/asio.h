@@ -72,6 +72,8 @@ public:
 	char data[max_length];
 
 	Timeout timer;
+
+	bool cancelled = false;
 };
 
 class SslConnectionImpl
@@ -90,6 +92,8 @@ public:
 	char data[max_length];
 
 	Timeout timer;
+
+	bool cancelled = false;
 };
 
 typedef boost::asio::posix::stream_descriptor stream_descriptor;
