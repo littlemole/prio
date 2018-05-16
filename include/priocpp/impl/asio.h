@@ -73,7 +73,7 @@ public:
 
 	Timeout timer;
 
-	bool cancelled = false;
+	bool closed = false;
 };
 
 class SslConnectionImpl
@@ -93,7 +93,7 @@ public:
 
 	Timeout timer;
 
-	bool cancelled = false;
+	bool closed = false;
 };
 
 typedef boost::asio::posix::stream_descriptor stream_descriptor;

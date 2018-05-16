@@ -102,8 +102,6 @@ Future<Connection::Ptr, std::string> TcpConnection::read()
 
 	auto ptr = shared_from_this();
 
-	impl_->cancelled = false;
-
 	impl_->timer.after(timeouts_.rw_timeout_s)
 	.then( [this,p]()
 	{
@@ -118,7 +116,7 @@ Future<Connection::Ptr, std::string> TcpConnection::read()
 		{
 			impl_->timer.cancel();
 
-			if(impl_->cancelled)
+			if(impl_->closed)
 			{
 				return;
 			}
@@ -148,8 +146,6 @@ Future<Connection::Ptr, std::string> TcpConnection::read(size_t s)
 
 	auto ptr = shared_from_this();
 
-	impl_->cancelled = false;
-
 	impl_->timer.after(timeouts_.rw_timeout_s)
 	.then( [this,p]()
 	{
@@ -166,7 +162,7 @@ Future<Connection::Ptr, std::string> TcpConnection::read(size_t s)
 		{
 			impl_->timer.cancel();
 
-			if(impl_->cancelled)
+			if(impl_->closed)
 			{
 				return;
 			}			
@@ -196,8 +192,6 @@ Future<Connection::Ptr> TcpConnection::write(const std::string& data)
 
 	auto ptr = shared_from_this();
 
-	impl_->cancelled = false;	
-
 	impl_->timer.after(timeouts_.rw_timeout_s)
 	.then( [this,p]()
 	{
@@ -214,7 +208,7 @@ Future<Connection::Ptr> TcpConnection::write(const std::string& data)
 		{
 			impl_->timer.cancel();
 			
-			if(impl_->cancelled)
+			if(impl_->closed)
 			{
 				return;
 			}
@@ -240,7 +234,7 @@ Future<Connection::Ptr> TcpConnection::write(const std::string& data)
 
 void TcpConnection::close()
 {
-	impl_->cancelled = true;	
+	impl_->closed = true;	
 	impl_->socket.close();	
 }
 
@@ -273,7 +267,6 @@ Future<> TcpConnection::shutdown()
 
 void TcpConnection::cancel()
 {
-	impl_->cancelled = true;		
 	impl_->timer.cancel();
 	impl_->socket.cancel();
 }
