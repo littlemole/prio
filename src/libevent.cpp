@@ -595,8 +595,8 @@ Future<socket_t> Resolver::connect(const std::string& host, int port)
 			struct sockaddr_in *sin = (struct sockaddr_in *)(rp->ai_addr);
 
 // to show DNS resolves:
-//			char * c = inet_ntoa(sin->sin_addr);
-//			std::cout << "DNS: " << c << std::endl;
+			char * c = inet_ntoa(sin->sin_addr);
+			std::cout << "DNS: " << c << std::endl;
 
 			sin->sin_port = htons(port);	
 
