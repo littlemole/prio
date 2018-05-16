@@ -251,6 +251,7 @@ Future<> TcpConnection::shutdown()
 
 void TcpConnection::cancel()
 {
+	impl_->timer.cancel();
 	impl_->socket.cancel();
 }
 
