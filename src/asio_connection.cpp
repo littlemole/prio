@@ -115,6 +115,11 @@ Future<Connection::Ptr, std::string> TcpConnection::read()
 		[this,ptr,p](const boost::system::error_code& error,std::size_t bytes_transferred)
 		{
 			impl_->timer.cancel();
+
+			if(impl_->closed)
+			{
+				return;
+			}
 			
 			if(error)
 			{
@@ -122,7 +127,7 @@ Future<Connection::Ptr, std::string> TcpConnection::read()
 				{
 					return;
 				}
-
+				std::cout << "read failed: " << error.value() << " == " << boost::system::errc::operation_canceled << std::endl;
 				p.reject(repro::Ex(std::string("read failed: ") + error.message()));
 			}
 			else
@@ -156,6 +161,11 @@ Future<Connection::Ptr, std::string> TcpConnection::read(size_t s)
 		[this,ptr,p,buffer](const boost::system::error_code& error,std::size_t bytes_transferred)
 		{
 			impl_->timer.cancel();
+
+			if(impl_->closed)
+			{
+				return;
+			}			
 
 			if(error)
 			{
@@ -198,6 +208,11 @@ Future<Connection::Ptr> TcpConnection::write(const std::string& data)
 		{
 			impl_->timer.cancel();
 			
+			if(impl_->closed)
+			{
+				return;
+			}
+			
 			if(error)
 			{
 				if(error.value() == boost::system::errc::operation_canceled)
@@ -219,7 +234,8 @@ Future<Connection::Ptr> TcpConnection::write(const std::string& data)
 
 void TcpConnection::close()
 {
-	impl_->socket.close();
+	impl_->closed = true;	
+	impl_->socket.close();	
 }
 
 
@@ -251,6 +267,7 @@ Future<> TcpConnection::shutdown()
 
 void TcpConnection::cancel()
 {
+	impl_->timer.cancel();
 	impl_->socket.cancel();
 }
 
