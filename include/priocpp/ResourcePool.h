@@ -81,15 +81,17 @@ public:
 	{
 		for( auto it = unused_.begin(); it != unused_.end(); it++)
 		{
-			for( auto jt = (*it).second.begin(); jt != (*it).second.end(); jt++)
+			while( (*it).second.size() > 0 )
 			{
+				auto jt = (*it).second.begin();
 				L::free(*jt);
 			}
 		}
 		for( auto it = used_.begin(); it != used_.end(); it++)
 		{
-			for( auto jt = (*it).second.begin(); jt != (*it).second.end(); jt++)
+			while( (*it).second.size() > 0 )
 			{
+				auto jt = (*it).second.begin();
 				L::free(*jt);
 			}
 		}

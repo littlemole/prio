@@ -255,6 +255,46 @@ repro::Future<> coroutine_example(std::string& result,Connection::Ptr& client)
 	co_return;
 }
 
+repro::Future<std::string> coro2()
+{
+	co_await nextTick();
+	co_return "success";
+}
+
+repro::Future<> coroutine_example2(std::string& result)
+{
+	try
+	{
+		result = co_await coro2();
+		result = co_await coro2();
+	}
+	catch (const std::exception& ex)
+	{
+		std::cout << "ex:t " << ex.what() << std::endl;
+		theLoop().exit();
+	}
+	co_return;
+}
+
+TEST_F(BasicTest, Coroutine2) {
+
+	std::string result;
+	{
+		signal(SIGINT).then([](int s) {theLoop().exit(); });
+
+		coroutine_example2(result)
+		.then([]() 
+		{
+			theLoop().exit();
+		});
+
+		theLoop().run();
+	}
+
+	EXPECT_EQ("success", result);
+	MOL_TEST_ASSERT_CNTS(0, 0);
+}
+
 #endif
 
 
