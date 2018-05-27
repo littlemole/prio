@@ -79,12 +79,14 @@ public:
 
 	void shutdown()
 	{
+		shutdown_ = true;
 		for( auto it = unused_.begin(); it != unused_.end(); it++)
 		{
 			while( (*it).second.size() > 0 )
 			{
 				auto jt = (*it).second.begin();
 				L::free(*jt);
+				(*it).second.erase(jt);
 			}
 		}
 		for( auto it = used_.begin(); it != used_.end(); it++)
@@ -93,6 +95,7 @@ public:
 			{
 				auto jt = (*it).second.begin();
 				L::free(*jt);
+				(*it).second.erase(jt);
 			}
 		}
 
@@ -144,6 +147,8 @@ private:
 
 	void collect(const std::string& url, Resource<type>* t)
 	{
+		if(shutdown_ == true) return;
+
 		if ( !waiting_.empty() )
 		{
 			PromiseType p = waiting_.front();
@@ -172,6 +177,8 @@ private:
 
 	void release(const std::string& url, Resource<type>* t)
 	{
+		if(shutdown_ == true) return;
+
 		if (used_[url].find(*t) != used_[url].end() )
 		{
 			used_[url].erase(*t);
@@ -199,6 +206,7 @@ private:
 		);
 	}
 
+	bool shutdown_ = false;
 	unsigned int min_capacity_ = 4;
 	int pending_ = 0;
 
