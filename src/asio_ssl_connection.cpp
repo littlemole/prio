@@ -278,7 +278,6 @@ Future<Connection::Ptr> SslConnection::write( const std::string& data)
 
 void SslConnection::close()
 {
-	std::cout << "SslCOnnection::close()" << std::endl;
 	if(impl_->socket.lowest_layer().is_open())
 	{
 		impl_->socket.lowest_layer().close();
@@ -287,7 +286,6 @@ void SslConnection::close()
 
 Future<> SslConnection::shutdown()
 {
-	std::cout << "SslCOnnection::shutdown()" << std::endl;
 	
 	if(!impl_->socket.lowest_layer().is_open())
 		return resolved<>();
@@ -313,7 +311,6 @@ Future<> SslConnection::shutdown()
 
 void SslConnection::cancel()
 {
-	std::cout << "SslCOnnection::cancel()" << std::endl;
 	try
 	{
 		impl_->timer.cancel();
