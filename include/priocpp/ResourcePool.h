@@ -107,8 +107,6 @@ public:
 	{
 		auto p = repro::promise<ResourcePtr>();
 
-std::cout << "resourcepool get pending: " << pending_ << std::endl;
-
 		if( unused_.count(url) > 0)
 		{
 			if(!unused_[url].empty())
