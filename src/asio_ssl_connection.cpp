@@ -168,7 +168,7 @@ Future<Connection::Ptr, std::string> SslConnection::read()
 			{
 				if(error.value() == boost::system::errc::operation_canceled)
 				{
-					std::cout << "cancel ssl::read()" << std::endl;
+//					std::cout << "cancel ssl::read()" << std::endl;
 					return;
 				}
 /*
@@ -217,7 +217,7 @@ Future<Connection::Ptr, std::string> SslConnection::read(size_t s)
 			{
 				if(error.value() == boost::system::errc::operation_canceled)
 				{
-					std::cout << "cancel ssl::read(n)" << std::endl;
+//					std::cout << "cancel ssl::read(n)" << std::endl;
 					return;
 				}
 				
@@ -259,7 +259,7 @@ Future<Connection::Ptr> SslConnection::write( const std::string& data)
 			{
 				if(error.value() == boost::system::errc::operation_canceled)
 				{
-					std::cout << "cancel ssl::write()" << std::endl;
+//					std::cout << "cancel ssl::write()" << std::endl;
 					return;
 				}
 				
