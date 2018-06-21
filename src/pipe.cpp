@@ -1,3 +1,5 @@
+#include <functional>
+
 #include "priocpp/pipe.h"
 #include "priocpp/loop.h"
 

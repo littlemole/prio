@@ -1,4 +1,5 @@
 #include "gtest/gtest.h"
+#include <functional>
 
 #include "reprocpp/after.h"
 #include "test.h"

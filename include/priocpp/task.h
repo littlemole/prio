@@ -9,11 +9,6 @@
 namespace prio  		{
 
 
-inline repro::WrappedEx task_wrap(const std::exception& ex)
-{
-	return repro::WrappedEx(ex);
-}
-
 inline void task_synchronize_thread(std::atomic<bool>& running)
 {
 	bool d = running.load();
@@ -71,15 +66,14 @@ public:
 				}
 				catch(std::exception& ex)
 				{
-					auto wrapped = task_wrap(ex);
+					std::exception_ptr eptr = std::current_exception();
 
 					task_synchronize_thread(*running);
 
-					nextTick( [p,wrapped,running] ()
+					nextTick( [p,eptr,running] ()
 					{
 						task_synchronize_main(*running);
-
-						p.reject(wrapped);
+						p.reject(eptr);
 					});
 				}
 			});
@@ -118,15 +112,15 @@ public:
 				}
 				catch(std::exception& ex)
 				{
-					auto wrapped = task_wrap(ex);
+					std::exception_ptr eptr = std::current_exception();
 
 					task_synchronize_thread(*running);
 
-					nextTick( [p,wrapped,running] ()
+					nextTick( [p,eptr,running] ()
 					{
 						task_synchronize_main(*running);
 
-						p.reject(wrapped);
+						p.reject(eptr);
 					});
 				}
 			});
