@@ -42,7 +42,7 @@ template<class R,class T>
 class Task<R(T)>
 {
 public:
-	static Future<R> exec(T t, ThreadPool& pool  )
+	static repro::Future<R> exec(T t, ThreadPool& pool  )
 	{
 		auto p = repro::promise<R>();
 		auto running = std::make_shared<std::atomic<bool>>(true);
@@ -88,7 +88,7 @@ class Task<void(T)>
 {
 public:
 
-	static Future<> exec(T t, ThreadPool& pool  )
+	static repro::Future<> exec(T t, ThreadPool& pool  )
 	{
 		auto p = repro::promise<>();
 		auto running = std::make_shared<std::atomic<bool>>(true);
@@ -132,13 +132,13 @@ public:
 
 
 template<class T, typename std::enable_if<!repro::ReturnsVoid<T>::value>::type* = nullptr>
-auto task(T t, ThreadPool& pool = thePool() ) -> Future<decltype(t())>
+auto task(T t, ThreadPool& pool = thePool() ) -> repro::Future<decltype(t())>
 {
 	return Task<decltype(t())(T)>::exec(t,pool);
 }
 
 template<class T, typename std::enable_if<repro::ReturnsVoid<T>::value>::type* = nullptr>
-auto task(T t, ThreadPool& pool = thePool() ) -> Future<>
+auto task(T t, ThreadPool& pool = thePool() ) -> repro::Future<>
 {
 	return Task<void(T)>::exec(t,pool);
 }

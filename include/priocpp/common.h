@@ -63,9 +63,6 @@ class SslCtx;
 
 typedef std::shared_ptr<Connection> ConnectionPtr;
 
-template<typename ... Args>
-using Future = ::repro::Future<Args...>;
- 
 }
 
 #endif

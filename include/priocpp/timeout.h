@@ -12,10 +12,10 @@ namespace prio      {
 // do something next on EventLoop
 //////////////////////////////////////////////////////////////
 
-Future<> timeout(int secs, int ms) noexcept;
-Future<> timeout(int secs) noexcept;
+repro::Future<> timeout(int secs, int ms) noexcept;
+repro::Future<> timeout(int secs) noexcept;
 
-Future<> nextTick() noexcept;
+repro::Future<> nextTick() noexcept;
 
 //////////////////////////////////////////////////////////////
 // timeout events.
@@ -37,7 +37,7 @@ public:
    Timeout();
    ~Timeout();
    
-   Future<> after(int ms);
+   repro::Future<> after(int ms);
    void after(const std::function<void()>& f,int ms);
    void after(std::function<void()>&& f, int ms);
 

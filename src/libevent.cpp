@@ -208,8 +208,7 @@ void nextTick(std::function<void()>&& f) noexcept
 		e->dispose();
 		tmp();
 	})
-	->add()
-	->activate();
+	->add(0,1);
 };
 
 Future<> nextTick() noexcept
@@ -223,8 +222,7 @@ Future<> nextTick() noexcept
 		e->dispose();
 		tmp.resolve();
 	})
-	->add()
-	->activate();
+	->add(0,1);
 
 	return p.future();
 };

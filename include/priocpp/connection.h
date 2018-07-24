@@ -21,14 +21,14 @@ public:
 	TcpConnection(TcpConnectionImpl*);
 	virtual ~TcpConnection();
 
-	static Future<Connection::Ptr> connect(const std::string& host, int port);
+	static repro::Future<Connection::Ptr> connect(const std::string& host, int port);
 
-	virtual Future<Connection::Ptr, std::string> read();
-	virtual Future<Connection::Ptr, std::string> read(size_t n);
-	virtual Future<Connection::Ptr> write(const std::string& data);
+	virtual repro::Future<Connection::Ptr, std::string> read();
+	virtual repro::Future<Connection::Ptr, std::string> read(size_t n);
+	virtual repro::Future<Connection::Ptr> write(const std::string& data);
 
 	virtual void close();
-	virtual Future<> shutdown();
+	virtual repro::Future<> shutdown();
 	virtual void cancel();
 
 	virtual connection_timeout_t& timeouts();

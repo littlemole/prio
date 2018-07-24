@@ -12,7 +12,7 @@ namespace prio      {
 // create signal handler
 //////////////////////////////////////////////////////////////
 
-Future<int> signal(int s) noexcept;
+repro::Future<int> signal(int s) noexcept;
 
 
 class Signal
@@ -22,7 +22,7 @@ public:
 	Signal();
 	~Signal();
 
-	Future<int> when(int s);
+	repro::Future<int> when(int s);
 
     void cancel();
 

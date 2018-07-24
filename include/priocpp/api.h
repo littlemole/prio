@@ -88,21 +88,21 @@ public:
 
 	virtual ~Connection() {}
    
-	virtual Future<Connection::Ptr, std::string> read() = 0;
-	virtual Future<Connection::Ptr, std::string> read(size_t n) = 0;
-	virtual Future<Connection::Ptr> write(const std::string& data) = 0;
+	virtual repro::Future<Connection::Ptr, std::string> read() = 0;
+	virtual repro::Future<Connection::Ptr, std::string> read(size_t n) = 0;
+	virtual repro::Future<Connection::Ptr> write(const std::string& data) = 0;
 
 	virtual bool isHttp2Requested() { return false; }	
 
 	virtual void close() = 0;
-	virtual Future<> shutdown() = 0;
+	virtual repro::Future<> shutdown() = 0;
 	virtual void cancel() = 0;
 
 	virtual connection_timeout_t& timeouts() = 0;
 
 
-	static Future<Connection::Ptr> connect(const std::string& host, int port);
-	static Future<Connection::Ptr> connect(const std::string& host, int port, SslCtx& ctx);
+	static repro::Future<Connection::Ptr> connect(const std::string& host, int port);
+	static repro::Future<Connection::Ptr> connect(const std::string& host, int port, SslCtx& ctx);
 };
 
 
@@ -142,7 +142,7 @@ public:
 
 	void cancel();
 
-	Future<ConnectionPtr> bind(int port);
+	repro::Future<ConnectionPtr> bind(int port);
 
 private:
   std::unique_ptr<ListenerImpl> impl_;
@@ -160,8 +160,8 @@ public:
 	IO();
 	~IO();
 
-	Future<> onRead(socket_t fd);
-	Future<> onWrite(socket_t fd);
+	repro::Future<> onRead(socket_t fd);
+	repro::Future<> onWrite(socket_t fd);
 
 	void cancel();
 

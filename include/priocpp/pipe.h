@@ -53,20 +53,20 @@ public:
 
 	Ptr stdin(const std::string& s);
 
-	Future<Pipe::Ptr> pipe(const std::string& path )
+	repro::Future<Pipe::Ptr> pipe(const std::string& path )
 	{
 		return pipe_impl( path );
 	}
 
 	template<class A>
-	Future<Pipe::Ptr> pipe(const std::string& path, A&& a )
+	repro::Future<Pipe::Ptr> pipe(const std::string& path, A&& a )
 	{
 		args_ = a.get();
 		return pipe_impl( path, ( char* const*) &(args_[0]) );
 	}
 
 	template<class A, class E>
-	Future<Pipe::Ptr> pipe(const std::string& path, A&& args, E&& env )
+	repro::Future<Pipe::Ptr> pipe(const std::string& path, A&& args, E&& env )
 	{
 		args_ = args.get();
 		env_ = env.get();
@@ -79,14 +79,14 @@ public:
 
 private:
 
-	Future<Pipe::Ptr> pipe_impl(const std::string& path,   char* const* args = NULL,  char* const* env = NULL);
+	repro::Future<Pipe::Ptr> pipe_impl(const std::string& path,   char* const* args = NULL,  char* const* env = NULL);
 
 	void run_child(const std::string& path,  char* const* args,  char* const* env);
 
 	void run_parent(repro::Promise<Pipe::Ptr> p);
 
-	Future<Pipe::Ptr> read();
-	Future<Pipe::Ptr> write();
+	repro::Future<Pipe::Ptr> read();
+	repro::Future<Pipe::Ptr> write();
 
 
 	int result_;

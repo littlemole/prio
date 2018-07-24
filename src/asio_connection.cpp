@@ -6,6 +6,8 @@
 #include "priocpp/connection.h"
 #include "priocpp/impl/asio.h"
 
+using namespace repro;
+
 namespace prio      {
 
 

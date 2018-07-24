@@ -21,7 +21,7 @@ public:
 
 	virtual bool isEventThread() const noexcept = 0;
 
-	virtual Future<int> signal(int s) noexcept = 0;
+	virtual repro::Future<int> signal(int s) noexcept = 0;
 };
 
 

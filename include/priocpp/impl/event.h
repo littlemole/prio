@@ -90,7 +90,7 @@ public:
 
 	virtual bool isEventThread() const noexcept;
 
-	virtual Future<int> signal(int s) noexcept;
+	virtual repro::Future<int> signal(int s) noexcept;
 
 	Event::Ptr on(socket_t fd, short what) const noexcept;
 
@@ -162,7 +162,7 @@ struct ListenerImpl
 
     virtual void accept_handler(repro::Promise<Connection::Ptr> p) = 0;
 
-	Future<ConnectionPtr> bind( int port );
+	repro::Future<ConnectionPtr> bind( int port );
 	void cancel();
 
 	socket_t fd;
@@ -176,8 +176,8 @@ struct IOImpl
 	IOImpl();
 	~IOImpl();
 
-	Future<> onRead(socket_t fd);
-	Future<> onWrite(socket_t fd);
+	repro::Future<> onRead(socket_t fd);
+	repro::Future<> onWrite(socket_t fd);
 
 	void cancel();
 
@@ -214,24 +214,12 @@ public:
 	Resolver();
 	~Resolver();
 
-	Future<socket_t> connect(const std::string& host, int port);
+	repro::Future<socket_t> connect(const std::string& host, int port);
 
 private:
 
-	Future<sockaddr_in*> resolve(const std::string host);
+	repro::Future<sockaddr_in*> resolve(const std::string host);
 
-	/*
-	struct ResolveData
-	{
-		repro::Promise<sockaddr_in*> p;
-	};
-
-	
-
-	static void callback(int errcode, struct evutil_addrinfo *addr, void *ptr);
-
-	evdns_base *dnsbase_;
-	*/
 };
 
 Resolver& dnsResolver();
