@@ -5,6 +5,7 @@
 #include "priocpp/impl/asio.h"
 #include "priocpp/connection.h"
 #include "priocpp/ssl_connection.h"
+#include <boost/asio/defer.hpp>
 
 using namespace repro;
 
