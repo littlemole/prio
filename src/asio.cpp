@@ -19,14 +19,14 @@ void nextTick(const std::function<void()>& f) noexcept
 
 void nextTick(std::function<void()>&& f) noexcept
 {
-	asioLoop().io().defer(std::move(f));
+	boost::asio::defer(asioLoop().io(),std::move(f));
 };
 
 Future<> nextTick() noexcept
 {
 	auto p = promise();
 
-	asioLoop().io().defer( [p]()
+	boost::asio::defer(asioLoop().io(), [p]()
 	{
 		p.resolve();
 	});
