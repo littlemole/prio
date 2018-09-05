@@ -589,7 +589,7 @@ Future<socket_t> Resolver::connect(const std::string& host, int port)
 
 		for (rp = result; rp != NULL; rp = rp->ai_next) 
 		{
-			fprintf(stderr,"next:\r\n");
+//			fprintf(stderr,"next:\r\n");
 			struct sockaddr_in *sin = (struct sockaddr_in *)(rp->ai_addr);
 
 // to show DNS resolves:
