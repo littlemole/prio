@@ -48,7 +48,7 @@ private:
 };
 
 
-class TimeoutEx : public repro::Ex {};
+class TimeoutEx : public repro::ReproEx<TimeoutEx> {};
 
 
 } // close namespaces

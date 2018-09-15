@@ -20,11 +20,11 @@ typedef unsigned short ushort;
 namespace prio  {
 
 
-class IoEx  : public repro::Ex { public : IoEx(const std::string& s) : repro::Ex(s) {} };
+class IoEx  : public repro::ReproEx<IoEx> { public : IoEx(const std::string& s) : repro::ReproEx<IoEx>(s) {} };
 
-class IoErr : public IoEx { public : IoErr(const std::string& s) : IoEx(s) {} };
-class IoEof : public IoEx { public : IoEof(const std::string& s) : IoEx(s) {} };
-class IoTimeout : public IoEx { public : IoTimeout(const std::string& s) : IoEx(s) {} };
+class IoErr : public repro::ReproEx<IoErr> { public : IoErr(const std::string& s) : repro::ReproEx<IoErr>(s) {} };
+class IoEof : public repro::ReproEx<IoEof> { public : IoEof(const std::string& s) : repro::ReproEx<IoEof>(s) {} };
+class IoTimeout : public repro::ReproEx<IoTimeout> { public : IoTimeout(const std::string& s) : repro::ReproEx<IoTimeout>(s) {} };
 
 
 std::string trim(const std::string& input);
