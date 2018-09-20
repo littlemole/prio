@@ -1,5 +1,5 @@
 CXX = g++
-BACKEND=libevent
+BACKEND = libevent
 DESTDIR=/
 PREFIX=/usr/local
 

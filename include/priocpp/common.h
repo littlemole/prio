@@ -41,7 +41,6 @@ typedef int socket_t;
 typedef intptr_t socket_t;
 #endif
 
-std::string version();
 
 //////////////////////////////////////////////////////////////
 // forwards
