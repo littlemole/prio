@@ -172,4 +172,19 @@ namespace prio {
 
 
 
+#define TO_STR_HELPER(x) #x
+#define TO_STR(x) TO_STR_HELPER(x)
+
+std::string version()
+{
+	std::ostringstream oss;
+
+	oss << TO_STR(CXX) << "|" << TO_STR(BACKEND) << "|" << TO_STR(BUILDCHAIN);
+
+	return oss.str();
 }
+
+
+}
+
+
