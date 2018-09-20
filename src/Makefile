@@ -8,7 +8,7 @@ ifneq ($(CXX),g++)
 DEFAULT_OPTS = -std=c++14 -stdlib=libc++ -fcoroutines-ts -D_RESUMABLE_FUNCTIONS_SUPPORTED 
 endif
 
-OPTIONS = -std=c++14 -fpic -Wno-write-strings -pthread -D_REENTRANT $(DEFAULT_OPTS)
+OPTIONS = -std=c++14 -fpic -Wno-write-strings -pthread -D_REENTRANT $(DEFAULT_OPTS) -DBACKEND=$(BACKEND) -DBUILDCHAIN=$(BUILDCHAIN)
 
 PROMISE_IMPL = -DPROMISE_USE_LIBEVENT
 #PROMISE_3DPARTY = -levent
