@@ -64,7 +64,7 @@ public:
 						p.resolve(std::move(*r));
 					});
 				}
-				catch(std::exception& ex)
+				catch(...)
 				{
 					std::exception_ptr eptr = std::current_exception();
 
@@ -110,7 +110,7 @@ public:
 						p.resolve();
 					});
 				}
-				catch(std::exception& ex)
+				catch(...)
 				{
 					std::exception_ptr eptr = std::current_exception();
 

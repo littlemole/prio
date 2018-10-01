@@ -367,13 +367,9 @@ void TcpListenerImpl::accept_handler(Promise<Connection::Ptr> p)
 
 			p.resolve(ptr);
 		}
-		catch(const std::exception& ex)
-		{
-			p.reject(ex);
-		}
 		catch(...)
 		{
-			std::terminate();
+			p.reject(std::current_exception());
 		}
 	});
 	e->add();
@@ -465,13 +461,9 @@ void SslListenerImpl::accept_handler(Promise<Connection::Ptr> p)
 			}		
 			do_ssl_accept(p,ptr,client,ssl,s,ctx.ctx->ctx);
 		}
-		catch(const std::exception& ex)
-		{
-			p.reject(ex);
-		}
 		catch(...)
 		{
-			std::terminate();
+			p.reject(std::current_exception());
 		}
 	});
 	e->add();
