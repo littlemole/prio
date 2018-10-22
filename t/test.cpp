@@ -28,6 +28,157 @@ class BasicTest : public ::testing::Test {
   }
 }; // end test setup
 
+#ifdef _RESUMABLE_FUNCTIONS_SUPPORTED
+
+Future<> coroReturnNoAsyncVoid(std::string& e)
+{
+	e = "test";
+	co_return;
+}
+
+TEST_F(BasicTest, coroReturnNoAsyncVoid) {
+
+	std::string e;
+
+	nextTick( [&e](){
+
+		coroReturnNoAsyncVoid(e);
+	
+	});
+
+	theLoop().run();
+
+	EXPECT_EQ("test", e);
+	MOL_TEST_ASSERT_CNTS(0, 0);
+}
+
+Future<std::string> coroReturnNoAsyncString()
+{
+	co_return "test";
+}
+
+Future<> coroReturnNoAsyncStringTrampoline(std::string& e)
+{
+	e = co_await coroReturnNoAsyncString();
+}
+
+TEST_F(BasicTest, coroReturnNoAsyncString) {
+
+	std::string e;
+
+	nextTick( [&e](){
+
+		coroReturnNoAsyncStringTrampoline(e);
+	});
+
+	theLoop().run();
+
+	EXPECT_EQ("test", e);
+	MOL_TEST_ASSERT_CNTS(0, 0);
+}
+
+
+Future<std::string> coroReturnNoAsyncStringThrow()
+{
+	throw std::exception();
+	co_return "test";
+}
+
+Future<> coroReturnNoAsyncStringThrowTrampoline(std::string& e)
+{
+	try
+	{
+		e = co_await coroReturnNoAsyncStringThrow();
+	}
+	catch(const std::exception& ex)
+	{
+		e = "ex";
+	}
+}
+
+TEST_F(BasicTest, coroReturnNoAsyncStringThrow) {
+
+	std::string e;
+
+	nextTick( [&e](){
+
+		coroReturnNoAsyncStringThrowTrampoline(e);
+	});
+
+	theLoop().run();
+
+	EXPECT_EQ("ex", e);
+	MOL_TEST_ASSERT_CNTS(0, 0);
+}
+
+
+Future<std::string> coroReturnNoAsyncStringThrowLate()
+{
+	co_await nextTick();
+	throw std::exception();
+	co_return "test";
+}
+
+Future<> coroReturnNoAsyncStringThrowLateTrampoline(std::string& e)
+{
+	try
+	{
+		e = co_await coroReturnNoAsyncStringThrowLate();
+	}
+	catch(const std::exception& ex)
+	{
+		e = "ex";
+	}
+}
+
+TEST_F(BasicTest, coroReturnNoAsyncStringThrowLate) {
+
+	std::string e;
+
+	nextTick( [&e](){
+
+		coroReturnNoAsyncStringThrowLateTrampoline(e);
+	});
+
+	theLoop().run();
+
+	EXPECT_EQ("ex", e);
+	MOL_TEST_ASSERT_CNTS(0, 0);
+}
+
+Future<std::string> coroReturnNoAsyncStringLate()
+{
+	co_await nextTick();
+	co_return "test";
+}
+
+Future<> coroReturnNoAsyncStringLateTrampoline(std::string& e)
+{
+	try
+	{
+		e = co_await coroReturnNoAsyncStringLate();
+	}
+	catch(const std::exception& ex)
+	{
+		e = "ex";
+	}
+}
+
+TEST_F(BasicTest, coroReturnNoAsyncStringLate) {
+
+	std::string e;
+
+	nextTick( [&e](){
+
+		coroReturnNoAsyncStringLateTrampoline(e);
+	});
+
+	theLoop().run();
+
+	EXPECT_EQ("test", e);
+	MOL_TEST_ASSERT_CNTS(0, 0);
+}
+#endif
 
 TEST_F(BasicTest, trimTest) {
 
