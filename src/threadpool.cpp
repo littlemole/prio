@@ -48,7 +48,7 @@ ThreadPool::~ThreadPool() noexcept
 
 void ThreadPool::start() noexcept
 {
-	stop_ = false;
+	stop_.store(false);
     for( int i = 0; i < nthreads_; ++i )
     {
         workers_.push_back(std::thread(impl::Worker(*this)));
@@ -57,12 +57,13 @@ void ThreadPool::start() noexcept
 
 void ThreadPool::stop() noexcept
 {
-	if ( stop_)
+	bool b = stop_.load();
+	if ( b )
 	{
 		return;
 	}
     // stop all threads
-    stop_ = true;
+    stop_.store(true);
     condition_.notify_all();
 
     // join them
@@ -88,12 +89,14 @@ void Worker::operator()() const noexcept
 				std::unique_lock<std::mutex>
 					lock(pool_.queue_mutex_);
 
-				while(!pool_.stop_ && pool_.tasks_.empty())
+				bool b = pool_.stop_.load();
+				while(!b && pool_.tasks_.empty())
 				{
 					pool_.condition_.wait(lock);
+					b = pool_.stop_.load();
 				}
 
-				if(pool_.stop_)
+				if(b)
 					break;
 
 				task = pool_.tasks_.front();

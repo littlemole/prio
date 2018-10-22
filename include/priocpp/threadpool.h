@@ -2,6 +2,7 @@
 #define INCLUDE_EVE_THREADPOOL_H_
 
 #include "priocpp/common.h"
+#include <atomic>
 
 //////////////////////////////////////////////////////////////
 
@@ -39,7 +40,7 @@ private:
 
     std::mutex queue_mutex_;
     std::condition_variable condition_;
-    bool stop_;
+    std::atomic<bool> stop_;
     int nthreads_;
 
     ThreadPool() = delete;
