@@ -36,7 +36,7 @@ Future<> nextTick() noexcept
 
 
 
-void init()
+EventLoop::EventLoop()
 {
 #ifdef _WIN32
 		WORD wVersionRequested;

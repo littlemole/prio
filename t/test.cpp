@@ -504,8 +504,9 @@ TEST_F(BasicTest, SimplePipeClassCat)
 
 int main(int argc, char **argv) 
 {
-	prio::init();
-	cryptoneat::SSLUser useSSL;
+	prio::Libraries<EventLoop,cryptoneat::SSLUser> init;
+//	prio::init();
+//	cryptoneat::SSLUser useSSL;
 
 	::testing::InitGoogleTest(&argc, argv);
     int r = RUN_ALL_TESTS();

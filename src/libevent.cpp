@@ -38,7 +38,7 @@ namespace prio      {
 
 int check_err_code(SSL* ssl, int len, int want);
 
-void init()
+EventLoop::EventLoop()
 {
 #ifdef _WIN32
 		WORD wVersionRequested;

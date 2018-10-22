@@ -7,7 +7,7 @@
 #include "priocpp/timeout.h"
 #include "priocpp/signal.h"
 #include "priocpp/url.h"
-
+#include <tuple>
 
 namespace prio      {
 
@@ -25,8 +25,18 @@ void nextTick(std::function<void()>&& f) noexcept;
 
 
 // init io loop libraries, ie make libevent threadsafe.
-void init();
+class EventLoop 
+{
+public:
+	EventLoop();
+};
 
+template<class ... Args>
+class Libraries 
+{
+private:
+	std::tuple<Args...> libs_;
+};
 
 //////////////////////////////////////////////////////////////
 // return a promise that will be resolved with given args
