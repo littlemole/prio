@@ -43,9 +43,7 @@ struct client_handler
 
 int main(int argc, char **argv) {
 
-	prio::init();
-	cryptoneat::SSLUser sslUser;
-
+	prio::Libraries<prio::EventLoop, cryptoneat::SSLUser> init;
 
 	{
 		prio::SslCtx ctx;

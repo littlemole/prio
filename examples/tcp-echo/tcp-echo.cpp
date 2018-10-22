@@ -42,7 +42,7 @@ struct client_handler
 
 int main(int argc, char **argv) {
 
-	prio::init();
+	prio::Libraries<prio::EventLoop> init;
 
 	{
 		Listener listener;
