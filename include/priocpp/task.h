@@ -5,6 +5,7 @@
 
 #include "priocpp/api.h"
 #include "priocpp/threadpool.h"
+#include <iostream>
 
 namespace prio  		{
 
@@ -14,6 +15,7 @@ inline void task_synchronize_thread(std::atomic<bool>& running)
 	bool d = running.load();
 	while (d)
 	{
+		std::cout << "task_synchronize_thread " << d << std::endl;
 		bool expected = true;
 		if (running.compare_exchange_weak(expected, false))
 		{
@@ -29,6 +31,7 @@ inline void task_synchronize_main(std::atomic<bool>& running)
 	bool d = running.load();
 	while (d)
 	{
+		std::cout << "task_synchronize_main " << d << std::endl;
 		d = running.load();
 	}
 }
