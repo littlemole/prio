@@ -63,9 +63,11 @@ public:
 
 					task_synchronize_thread(*running);
 
+					std::cout << "task next tick next" << *running << std::endl;
+					
 					nextTick( [p,r,running] ()
 					{
-						std::cout << "task next tick " << *running << std::endl;
+						std::cout << "task next tick inside" << *running << std::endl;
 						task_synchronize_main(*running);
 
 						std::cout << "task resolve " << typeid(R).name() << std::endl;
