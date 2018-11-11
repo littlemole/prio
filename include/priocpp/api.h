@@ -31,11 +31,19 @@ public:
 	EventLoop();
 };
 
-template<class ... Args>
-class Libraries 
+
+template<class T,class ... Args>
+class Libraries : public Libraries<Args...>
 {
 private:
-	std::tuple<Args...> libs_;
+	T lib_;
+};
+
+template<class T>
+class Libraries<T> 
+{
+private:
+	T lib_;
 };
 
 //////////////////////////////////////////////////////////////

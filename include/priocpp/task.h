@@ -5,7 +5,6 @@
 
 #include "priocpp/api.h"
 #include "priocpp/threadpool.h"
-#include <iostream>
 
 namespace prio  		{
 
@@ -15,7 +14,6 @@ inline void task_synchronize_thread(std::atomic<bool>& running)
 	bool d = running.load();
 	while (d)
 	{
-		std::cout << "task_synchronize_thread " << d << std::endl;
 		bool expected = true;
 		if (running.compare_exchange_weak(expected, false))
 		{
@@ -23,7 +21,6 @@ inline void task_synchronize_thread(std::atomic<bool>& running)
 		}
 		d = running.load();
 	}
-	std::cout << "task_synchronize_main done " << std::endl;
 }
 
 
@@ -32,11 +29,8 @@ inline void task_synchronize_main(std::atomic<bool>& running)
 	bool d = running.load();
 	while (d)
 	{
-		std::cout << "task_synchronize_main " << d << std::endl;
 		d = running.load();
 	}	
-
-	std::cout << "task_synchronize_main done"  << std::endl;	
 }
 
 
@@ -62,15 +56,11 @@ public:
 					std::shared_ptr<R> r = std::make_shared<R>(t());
 
 					task_synchronize_thread(*running);
-
-					std::cout << "task next tick next" << *running << std::endl;
 					
 					nextTick( [p,r,running] ()
 					{
-						std::cout << "task next tick inside" << *running << std::endl;
 						task_synchronize_main(*running);
 
-						std::cout << "task resolve " << typeid(R).name() << std::endl;
 						p.resolve(std::move(*r));
 					});
 				}
@@ -78,13 +68,10 @@ public:
 				{
 					std::exception_ptr eptr = std::current_exception();
 
-					std::cout << "task ex " << *running << std::endl;
-
 					task_synchronize_thread(*running);
 
 					nextTick( [p,eptr,running] ()
 					{
-						std::cout << "task ex nexttick " << *running << std::endl;
 						task_synchronize_main(*running);
 						p.reject(eptr);
 					});
