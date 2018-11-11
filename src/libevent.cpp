@@ -188,6 +188,7 @@ event* Event::handle()
 
 void nextTick( const std::function<void()>& f) noexcept
 {
+	std::cout << "nextTick const" << std::endl;
 	auto e = Event::create(eventLoop().base());
 	e->callback( [e,f] (socket_t fd, short what) 
 	{
@@ -201,6 +202,7 @@ void nextTick( const std::function<void()>& f) noexcept
 
 void nextTick(std::function<void()>&& f) noexcept
 {
+	std::cout << "nextTick" << std::endl;
 	auto e = Event::create(eventLoop().base());
 	e->callback([e, f](socket_t fd, short what)
 	{
