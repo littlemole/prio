@@ -129,12 +129,25 @@ Future<> coroReturnNoAsyncStringThrowLateTrampoline(std::string& e)
 	{
 		e = "ex";
 	}
+	co_return;
 }
 
 TEST_F(BasicTest, coroReturnNoAsyncStringThrowLate) {
 
 	std::string e;
+/*
+	signal(SIGINT)
+		.then([](int s) {
+		theLoop().exit();
+	});
+	*/
 
+	/*
+	prio::timeout([]() 
+	{ 
+		theLoop().exit(); 
+	},5,0);
+	*/
 	nextTick( [&e](){
 
 		coroReturnNoAsyncStringThrowLateTrampoline(e);
@@ -178,6 +191,7 @@ TEST_F(BasicTest, coroReturnNoAsyncStringLate) {
 	EXPECT_EQ("test", e);
 	MOL_TEST_ASSERT_CNTS(0, 0);
 }
+
 #endif
 
 TEST_F(BasicTest, trimTest) {
