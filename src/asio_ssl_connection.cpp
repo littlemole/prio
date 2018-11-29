@@ -338,7 +338,7 @@ bool SslConnection::isHttp2Requested()
 
 
 SslCtxImpl::SslCtxImpl()
-	  : ssl(asioLoop().io(), boost::asio::ssl::context::sslv23)
+	  : ssl( /*asioLoop().io(),*/ boost::asio::ssl::context::sslv23)
 {}
 
 SslCtx::SslCtx()
