@@ -166,6 +166,7 @@ private:
   std::unique_ptr<ListenerImpl> impl_;
 };
 
+#ifndef _WIN32
 //////////////////////////////////////////////////////////////
 // Wait on file descriptor IO helper
 // to integrate with 3dparty libs
@@ -188,6 +189,7 @@ private:
     std::unique_ptr<IOImpl> impl_;
 };
 
+#endif
 
 } // close namespaces
 

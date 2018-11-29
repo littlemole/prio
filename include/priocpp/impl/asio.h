@@ -124,6 +124,8 @@ struct ListenerImpl
 
 typedef boost::asio::posix::stream_descriptor stream_descriptor;
 
+#ifndef _WIN32
+
 struct IOImpl
 {
 	IOImpl();
@@ -140,6 +142,8 @@ private:
 
 	stream_descriptor sd_;
 };
+
+#endif
 
 struct TcpListenerImpl : public ListenerImpl
 {

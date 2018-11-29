@@ -205,6 +205,8 @@ void SslListenerImpl::accept_handler(Promise<Connection::Ptr> p)
 	);
 }
 
+#ifndef _WIN32
+
 IOImpl::IOImpl()
 	: sd_(asioLoop().io())
 {}
@@ -301,6 +303,7 @@ void IO::cancel()
 		impl_->cancel();
 }
 
+#endif
 
 } // close namespaces
 
