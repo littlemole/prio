@@ -124,10 +124,12 @@ Future<Connection::Ptr> SslConnection::connect(const std::string& host, int port
 										p.reject(Ex("ssl handshake client connect failed"));
 										return;		
 									}
-
+#if BOOST_VERSION < 106599
 									boost::asio::ip::tcp::socket::non_blocking_io non_blocking_io(true);
 									impl->socket.lowest_layer().io_control(non_blocking_io);
-
+#else
+									impl->socket.lowest_layer().non_blocking(true);
+#endif									
 									p.resolve(Connection::Ptr( c ));
 								}
 							);

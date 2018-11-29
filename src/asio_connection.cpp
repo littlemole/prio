@@ -81,8 +81,14 @@ Future<Connection::Ptr> TcpConnection::connect(const std::string& host, int port
 						}
 						else
 						{
+
+#if BOOST_VERSION < 106599
 							boost::asio::ip::tcp::socket::non_blocking_io non_blocking_io(true);
 							impl->socket.io_control(non_blocking_io);
+#else
+							impl->socket.non_blocking(true);
+#endif
+
 							p.resolve(ptr);
 						}
 					}
