@@ -15,9 +15,9 @@ LITTLE_MOLE_DECLARE_DEBUG_REF_CNT(timeouts);
 
 //////////////////////////////////////////////////////////////
 
-
+#ifndef _WIN32
 typedef boost::asio::posix::stream_descriptor stream_descriptor;
-
+#endif
 
 
 class AsioLoop : public Loop
@@ -95,8 +95,6 @@ public:
 
 	bool closed = false;
 };
-
-typedef boost::asio::posix::stream_descriptor stream_descriptor;
 
 
 
