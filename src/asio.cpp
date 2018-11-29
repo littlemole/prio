@@ -5,6 +5,7 @@
 #include "priocpp/impl/asio.h"
 #include "priocpp/connection.h"
 #include "priocpp/ssl_connection.h"
+#include <boost/version.hpp>
 
 using namespace repro;
 
@@ -143,7 +144,8 @@ void TcpListenerImpl::accept_handler(Promise<Connection::Ptr> p)
 			{	
 				return;
 			}
-#if BOOST_VERSION <= 106500
+
+#if BOOST_VERSION < 106599
 			boost::asio::ip::tcp::socket::non_blocking_io non_blocking_io(true);
 			impl->socket.io_control(non_blocking_io);
 #else
@@ -185,12 +187,11 @@ void SslListenerImpl::accept_handler(Promise<Connection::Ptr> p)
 				SslListenerImpl::accept_handler(p);
 				return;
 			}
-
-#if BOOST_VERSION <= 106500
+#if BOOST_VERSION < 106599
 			boost::asio::ip::tcp::socket::non_blocking_io non_blocking_io(true);
-			impl->socket.io_control(non_blocking_io);
+			impl->socket.lowest_layer().io_control(non_blocking_io);
 #else
-			impl->socket.non_blocking(true);
+			impl->socket.lowest_layer().non_blocking(true);
 #endif
 
 
