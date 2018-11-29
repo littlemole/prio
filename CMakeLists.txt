@@ -113,8 +113,11 @@ if(WITH_LIBEVENT)
     add_definitions(-DPROMISE_USE_LIBEVENT)    
     set(BACKEND ${LIBEVENT_LIBRARY})
 else()
+if (Win32)
+else()
     add_definitions(-DPROMISE_USE_BOOST_ASIO)
     set(BACKEND "boost_system")
+endif()
 endif()
 
 
