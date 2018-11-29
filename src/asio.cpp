@@ -143,10 +143,12 @@ void TcpListenerImpl::accept_handler(Promise<Connection::Ptr> p)
 			{	
 				return;
 			}
-
+#if BOOST_VERSION <= 106500
 			boost::asio::ip::tcp::socket::non_blocking_io non_blocking_io(true);
 			impl->socket.io_control(non_blocking_io);
-
+#else
+			impl->socket.non_blocking(true);
+#endif
 			p.resolve(ptr);
 			accept_handler(p);
 		}
@@ -184,8 +186,13 @@ void SslListenerImpl::accept_handler(Promise<Connection::Ptr> p)
 				return;
 			}
 
+#if BOOST_VERSION <= 106500
 			boost::asio::ip::tcp::socket::non_blocking_io non_blocking_io(true);
-    		impl->socket.lowest_layer().io_control(non_blocking_io);
+			impl->socket.io_control(non_blocking_io);
+#else
+			impl->socket.non_blocking(true);
+#endif
+
 
 			impl->socket.async_handshake(
 				boost::asio::ssl::stream_base::server,
