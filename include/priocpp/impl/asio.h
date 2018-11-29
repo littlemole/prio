@@ -120,7 +120,6 @@ struct ListenerImpl
 };
 
 
-typedef boost::asio::posix::stream_descriptor stream_descriptor;
 
 #ifndef _WIN32
 
