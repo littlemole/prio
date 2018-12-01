@@ -25,6 +25,7 @@ TcpConnection::TcpConnection(TcpConnectionImpl* impl)
 TcpConnection::~TcpConnection()
 {
 	LITTLE_MOLE_RELEASE_DEBUG_REF_CNT(tcp_connections);
+	cancel();
 	close();
 }
 

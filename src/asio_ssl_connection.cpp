@@ -65,6 +65,7 @@ SslConnection::SslConnection(SslConnectionImpl* impl)
 
 SslConnection::~SslConnection()
 {
+	cancel();
 	close();
 
 	LITTLE_MOLE_RELEASE_DEBUG_REF_CNT(ssl_connections);
