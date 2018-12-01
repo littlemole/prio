@@ -128,7 +128,7 @@ Future<> coroReturnNoAsyncStringThrowLateTrampoline(std::string& e)
 	catch(const std::exception& ex)
 	{
 		e = "ex";
-		theLoop().exit();
+		//theLoop().exit();
 	}
 	co_return;
 }
@@ -151,7 +151,17 @@ TEST_F(BasicTest, coroReturnNoAsyncStringThrowLate) {
 	*/
 	nextTick( [&e](){
 
-		coroReturnNoAsyncStringThrowLateTrampoline(e);
+		coroReturnNoAsyncStringThrowLateTrampoline(e)
+		.then([]() 
+		{
+			std::cout << "then" << std::endl;
+		})
+		.otherwise([](const std::exception& ex) 
+		{
+			std::cout << ex.what() << std::endl;
+		});
+		int i = 0;
+		i++;
 	});
 
 	theLoop().run();
@@ -184,7 +194,16 @@ TEST_F(BasicTest, coroReturnNoAsyncStringLate) {
 
 	nextTick( [&e](){
 
-		coroReturnNoAsyncStringLateTrampoline(e);
+		coroReturnNoAsyncStringLateTrampoline(e)
+		.then([]()
+		{
+			std::cout << "then" << std::endl;
+		})
+			.otherwise([](const std::exception& ex)
+		{
+			std::cout << ex.what() << std::endl;
+		});
+
 	});
 
 	theLoop().run();
