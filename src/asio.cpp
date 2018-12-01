@@ -13,17 +13,19 @@ namespace prio      {
 
 
 
-void nextTick(const std::function<void()>& f) noexcept
+void nextTick(const std::function<void()> f) noexcept
 {
-//	asioLoop().io().post(std::move(f));
+	asioLoop().io().post(std::move(f));
+/*	
 	timeout([f]()
 	{
 		f();
 
 	}, 0, 1);
-
+*/
 };
 
+/*
 void nextTick(std::function<void()>&& f) noexcept
 {
 //	asioLoop().io().post(std::move(f));
@@ -34,23 +36,21 @@ void nextTick(std::function<void()>&& f) noexcept
 
 	}, 0, 1);
 };
-
+*/
 Future<> nextTick() noexcept
 {
 	auto p = promise();
-
+/*
 	timeout([p]() 
 	{
 		p.resolve();
 
 	}, 0, 1);
-
-/*
+*/
 	asioLoop().io().post( [p]()
 	{
 		p.resolve();
 	});
-*/
 	return p.future();
 };
 

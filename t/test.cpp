@@ -128,6 +128,7 @@ Future<> coroReturnNoAsyncStringThrowLateTrampoline(std::string& e)
 	catch(const std::exception& ex)
 	{
 		e = "ex";
+		theLoop().exit();
 	}
 	co_return;
 }
@@ -140,8 +141,8 @@ TEST_F(BasicTest, coroReturnNoAsyncStringThrowLate) {
 		.then([](int s) {
 		theLoop().exit();
 	});
-	*/
-
+	
+*/
 	/*
 	prio::timeout([]() 
 	{ 

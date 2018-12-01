@@ -186,7 +186,7 @@ event* Event::handle()
 }
 
 
-void nextTick( const std::function<void()>& f) noexcept
+void nextTick( const std::function<void()> f) noexcept
 {
 	auto e = Event::create(eventLoop().base());
 	e->callback( [e,f] (socket_t fd, short what) 
@@ -199,6 +199,7 @@ void nextTick( const std::function<void()>& f) noexcept
 	->activate();
 };
 
+/*
 void nextTick(std::function<void()>&& f) noexcept
 {
 	auto e = Event::create(eventLoop().base());
@@ -210,7 +211,7 @@ void nextTick(std::function<void()>&& f) noexcept
 	})
 	->add(0,1);
 };
-
+*/
 Future<> nextTick() noexcept
 {
 	auto p = promise();

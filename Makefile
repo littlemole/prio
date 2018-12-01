@@ -88,7 +88,7 @@ clean-image: update-dockerfile ## rebuild the docker test image from scratch
 	docker build -t $(IMAGE) . --no-cache -fDockerfile --build-arg CXX=$(CXX) --build-arg BACKEND=$(BACKEND) --build-arg BUILDCHAIN=$(BUILDCHAIN) --build-arg TS=$(TS)
 			
 bash: rmc image ## run the docker image and open a shell
-	docker run --name $(CONTAINER) -ti $(IMAGE) bash
+	docker run --name $(CONTAINER) --security-opt seccomp=unconfined  -ti $(IMAGE)  bash
 
 stop: ## stop running docker image, if any
 	-docker stop $(CONTAINER)

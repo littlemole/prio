@@ -20,8 +20,8 @@ namespace prio      {
 *
 *  This function will invoke the callback asybchronously on the main event loop.
 */
-void nextTick(const std::function<void()>& f) noexcept;
-void nextTick(std::function<void()>&& f) noexcept;
+void nextTick(const std::function<void()> f) noexcept;
+//void nextTick(std::function<void()>&& f) noexcept;
 
 
 // init io loop libraries, ie make libevent threadsafe.
