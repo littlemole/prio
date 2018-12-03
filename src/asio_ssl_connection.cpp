@@ -153,20 +153,22 @@ Future<Connection::Ptr, std::string> SslConnection::read()
 	auto p = promise<Connection::Ptr,std::string>();
 	auto ptr = shared_from_this();
 
-
+#ifndef _WIN32
 	impl_->timer.after(timeouts_.rw_timeout_s)
 	.then( [this,p]()
 	{
-		impl_->socket.lowest_layer().cancel();
+		impl_->socket.lowest_layer().close();
 		p.reject(IoTimeout("ssl read cancelled due to timeout"));
 	});	
+#endif
 
 	impl_->socket.async_read_some(
 		boost::asio::buffer(impl_->data,impl_->max_length),
 		[this,ptr,p](const boost::system::error_code& error,std::size_t bytes_transferred)
 		{
+#ifndef _WIN32
 			impl_->timer.cancel();
-
+#endif
 			if(error)
 			{
 				if(error.value() == boost::system::errc::operation_canceled)
@@ -199,13 +201,15 @@ Future<Connection::Ptr, std::string> SslConnection::read(size_t s)
 {
 	auto p = promise<Connection::Ptr,std::string>();
 	auto ptr = shared_from_this();
-
+	
+#ifndef _WIN32
 	impl_->timer.after(timeouts_.rw_timeout_s)
 	.then( [this,p]()
 	{
-		impl_->socket.lowest_layer().cancel();
+		impl_->socket.lowest_layer().close();
 		p.reject(IoTimeout("ssl read(n) cancelled due to timeout"));
 	});	
+#endif
 
 	std::shared_ptr<std::vector<char>> buffer = std::make_shared<std::vector<char>>(s,0);
 
@@ -214,8 +218,9 @@ Future<Connection::Ptr, std::string> SslConnection::read(size_t s)
 		boost::asio::buffer(&(buffer->at(0)),s),
 		[this,ptr,p,buffer](const boost::system::error_code& error,std::size_t bytes_transferred)
 		{
+#ifndef _WIN32
 			impl_->timer.cancel();
-
+#endif
 			if(error)
 			{
 				if(error.value() == boost::system::errc::operation_canceled)
@@ -242,12 +247,14 @@ Future<Connection::Ptr> SslConnection::write( const std::string& data)
 	auto p = promise<Connection::Ptr>();
 	auto ptr = shared_from_this();
 
+#ifndef _WIN32
 	impl_->timer.after(timeouts_.rw_timeout_s)
 	.then( [this,p]()
 	{
-		impl_->socket.lowest_layer().cancel();
+		impl_->socket.lowest_layer().close();
 		p.reject(IoTimeout("ssl write cancelled due to timeout"));
-	});	
+	});
+#endif
 
 	std::shared_ptr<std::string> buffer = std::make_shared<std::string>(data);
 
@@ -256,8 +263,10 @@ Future<Connection::Ptr> SslConnection::write( const std::string& data)
 		boost::asio::buffer(buffer->data(),buffer->size()),
 		[this,p,ptr,buffer](const boost::system::error_code& error,std::size_t bytes_transferred)
 		{
+#ifndef _WIN32
 			impl_->timer.cancel();
-			
+#endif
+
 			if(error)
 			{
 				if(error.value() == boost::system::errc::operation_canceled)
@@ -316,7 +325,9 @@ void SslConnection::cancel()
 {
 	try
 	{
+#ifndef _WIN32
 		impl_->timer.cancel();
+#endif
 		if(impl_->socket.lowest_layer().is_open())
 		{
 			impl_->socket.lowest_layer().cancel();
