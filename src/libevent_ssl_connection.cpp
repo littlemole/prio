@@ -167,8 +167,16 @@ void SslConnection::do_ssl_read(Promise<Connection::Ptr,std::string> p, short wh
 			return;
 		}
 		do_ssl_read(p,s);
-	})
-	->add(timeouts().rw_timeout_s,0);
+	});
+
+	if (timeouts().rw_timeout_s != 0)
+	{
+		impl_->e_->add(timeouts().rw_timeout_s, 0);
+	}
+	else
+	{
+		impl_->e_->add();
+	}
 }
 
 
@@ -242,8 +250,16 @@ void SslConnection::do_ssl_read( Promise<Connection::Ptr,std::string> p, short w
 			do_ssl_read(p,s,buffer,want);
 			return;
 		}
-	})
-	->add(timeouts().rw_timeout_s,0);
+	});
+
+	if (timeouts().rw_timeout_s != 0)
+	{
+		impl_->e_->add(timeouts().rw_timeout_s, 0);
+	}
+	else
+	{
+		impl_->e_->add();
+	}
 }
 
 Future<Connection::Ptr, std::string> SslConnection::read(size_t s)
@@ -324,8 +340,16 @@ void SslConnection::do_ssl_write(Promise<Connection::Ptr> p, std::string data, s
 			do_ssl_write(p,data,written,s);
 			return;
 		}
-	})
-	->add(timeouts().rw_timeout_s,0);
+	});
+
+	if (timeouts().rw_timeout_s != 0)
+	{
+		impl_->e_->add(timeouts().rw_timeout_s, 0);
+	}
+	else
+	{
+		impl_->e_->add();
+	}
 }
 
 Future<Connection::Ptr> SslConnection::write( const std::string& data)

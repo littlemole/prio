@@ -111,7 +111,10 @@ Future<Connection::Ptr, std::string> TcpConnection::read()
 
 	auto ptr = shared_from_this();
 
-	impl_->timer.after(timeouts_.rw_timeout_s).then(cancellation(p, impl_->socket));
+	if (timeouts_.rw_timeout_s != 0)
+	{
+		impl_->timer.after(timeouts_.rw_timeout_s).then(cancellation(p, impl_->socket));
+	}
 
 	impl_->socket
 	.async_read_some(
@@ -144,7 +147,10 @@ Future<Connection::Ptr, std::string> TcpConnection::read(size_t s)
 
 	auto ptr = shared_from_this();
 
-	impl_->timer.after(timeouts_.rw_timeout_s).then(cancellation(p, impl_->socket));
+	if (timeouts_.rw_timeout_s != 0)
+	{
+		impl_->timer.after(timeouts_.rw_timeout_s).then(cancellation(p, impl_->socket));
+	}
 
 	std::shared_ptr<std::vector<char>> buffer = std::make_shared<std::vector<char>>(s,0);
 
@@ -179,7 +185,10 @@ Future<Connection::Ptr> TcpConnection::write(const std::string& data)
 
 	auto ptr = shared_from_this();
 
-	impl_->timer.after(timeouts_.rw_timeout_s).then(cancellation(p, impl_->socket));
+	if (timeouts_.rw_timeout_s != 0)
+	{
+		impl_->timer.after(timeouts_.rw_timeout_s).then(cancellation(p, impl_->socket));
+	}
 
 	std::shared_ptr<std::string> buffer = std::make_shared<std::string>(data);
 

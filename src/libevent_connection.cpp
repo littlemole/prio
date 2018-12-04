@@ -108,8 +108,16 @@ Future<Connection::Ptr, std::string> TcpConnection::read()
 				p.reject(Ex("IO ex in Event.read"));
 			}
 		}
-	})
-	->add(timeouts_.rw_timeout_s,0);
+	});
+
+	if (timeouts_.rw_timeout_s != 0)
+	{
+		impl_->e_read->add(timeouts_.rw_timeout_s, 0);
+	}
+	else
+	{
+		impl_->e_read->add();
+	}
 
 	return p.future();
 }
@@ -157,8 +165,16 @@ Future<Connection::Ptr, std::string> TcpConnection::read(size_t s)
 			*want -= len;
 			impl_->e_read->add(timeouts_.rw_timeout_s,0);
 		}
-	})
-	->add(timeouts_.rw_timeout_s,0);
+	});
+
+	if (timeouts_.rw_timeout_s != 0)
+	{
+		impl_->e_read->add(timeouts_.rw_timeout_s, 0);
+	}
+	else
+	{
+		impl_->e_read->add();
+	}
 
 	return p.future();
 }
@@ -234,8 +250,16 @@ Future<Connection::Ptr> TcpConnection::write(const std::string& data)
 		{
 			impl_->e_write->add(timeouts_.rw_timeout_s,0);
 		}
-	})
-	->add(timeouts_.rw_timeout_s,0);
+	});
+
+	if (timeouts_.rw_timeout_s != 0)
+	{
+		impl_->e_write->add(timeouts_.rw_timeout_s, 0);
+	}
+	else
+	{
+		impl_->e_write->add();
+	}
 
 	return p.future();
 }

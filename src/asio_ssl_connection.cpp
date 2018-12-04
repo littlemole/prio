@@ -154,7 +154,10 @@ Future<Connection::Ptr, std::string> SslConnection::read()
 	auto p = promise<Connection::Ptr,std::string>();
 	auto ptr = shared_from_this();
 
-	impl_->timer.after(timeouts_.rw_timeout_s).then(cancellation(p, impl_->socket.lowest_layer()));
+	if (timeouts_.rw_timeout_s != 0)
+	{
+		impl_->timer.after(timeouts_.rw_timeout_s).then(cancellation(p, impl_->socket.lowest_layer()));
+	}
 
 	impl_->socket.async_read_some(
 		boost::asio::buffer(impl_->data,impl_->max_length),
@@ -183,7 +186,10 @@ Future<Connection::Ptr, std::string> SslConnection::read(size_t s)
 	auto p = promise<Connection::Ptr,std::string>();
 	auto ptr = shared_from_this();
 	
-	impl_->timer.after(timeouts_.rw_timeout_s).then(cancellation(p, impl_->socket.lowest_layer()));
+	if (timeouts_.rw_timeout_s != 0)
+	{
+		impl_->timer.after(timeouts_.rw_timeout_s).then(cancellation(p, impl_->socket.lowest_layer()));
+	}
 
 	std::shared_ptr<std::vector<char>> buffer = std::make_shared<std::vector<char>>(s,0);
 
@@ -216,7 +222,10 @@ Future<Connection::Ptr> SslConnection::write( const std::string& data)
 	auto p = promise<Connection::Ptr>();
 	auto ptr = shared_from_this();
 
-	impl_->timer.after(timeouts_.rw_timeout_s).then(cancellation(p, impl_->socket.lowest_layer()));
+	if (timeouts_.rw_timeout_s != 0)
+	{
+		impl_->timer.after(timeouts_.rw_timeout_s).then(cancellation(p, impl_->socket.lowest_layer()));
+	}
 
 	std::shared_ptr<std::string> buffer = std::make_shared<std::string>(data);
 
