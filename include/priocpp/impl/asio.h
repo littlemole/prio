@@ -167,8 +167,8 @@ struct SslListenerImpl : public ListenerImpl
 
 bool is_io_cancelled(const boost::system::error_code& error);
 
-template<class P> 
-auto cancellation( P p, boost::asio::basic_socket<boost::asio::ip::tcp>& s)
+template<class P, class S> 
+auto cancellation( P p, S& s)
 {
 	return [p,&s]() 
 	{
