@@ -165,7 +165,17 @@ struct SslListenerImpl : public ListenerImpl
 	SslCtx& ctx;
 };
 
+bool is_io_cancelled(const boost::system::error_code& error);
 
+template<class P> 
+auto cancellation( P p, boost::asio::basic_socket<boost::asio::ip::tcp>& s)
+{
+	return [p,&s]() 
+	{
+		s.cancel();
+		p.reject(IoTimeout("socket cancelled due to timeout"));
+	};
+}
 
 } // close namespaces
 

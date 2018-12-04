@@ -332,6 +332,26 @@ void IO::cancel()
 
 #endif
 
+bool is_io_cancelled(const boost::system::error_code& error)
+{
+#ifdef _WIN32
+
+#define E_ERROR_OPERATION_ABORTED          995L
+
+	if (error.value() == E_ERROR_OPERATION_ABORTED)
+	{
+		return true;
+	}
+#endif
+
+	if (error.value() == boost::system::errc::operation_canceled)
+	{
+		return true;
+	}
+
+	return false;
+}
+
 } // close namespaces
 
 #endif

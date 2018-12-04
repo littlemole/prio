@@ -111,35 +111,21 @@ Future<Connection::Ptr, std::string> TcpConnection::read()
 
 	auto ptr = shared_from_this();
 
-#ifndef _WIN32
-	impl_->timer.after(timeouts_.rw_timeout_s)
-	.then( [this,p]()
-	{
-		impl_->socket.cancel();
-		p.reject(IoTimeout("read cancelled due to timeout"));
-	});
-#endif
+	impl_->timer.after(timeouts_.rw_timeout_s).then(cancellation(p, impl_->socket));
 
 	impl_->socket
 	.async_read_some(
 		boost::asio::buffer(impl_->data,impl_->max_length),
 		[this,ptr,p](const boost::system::error_code& error,std::size_t bytes_transferred)
 		{
-#ifndef _WIN32
 			impl_->timer.cancel();
-#endif
-			if(impl_->closed)
-			{
-				return;
-			}
+
+			if (impl_->closed) return;
 			
 			if(error)
 			{
-				if(error.value() == boost::system::errc::operation_canceled)
-				{
-					return;
-				}
-				std::cout << "read failed: " << error.value() << " == " << boost::system::errc::operation_canceled << std::endl;
+				if (is_io_cancelled(error)) return;
+
 				p.reject(repro::Ex(std::string("read failed: ") + error.message()));
 			}
 			else
@@ -158,14 +144,7 @@ Future<Connection::Ptr, std::string> TcpConnection::read(size_t s)
 
 	auto ptr = shared_from_this();
 
-#ifndef _WIN32
-	impl_->timer.after(timeouts_.rw_timeout_s)
-	.then( [this,p]()
-	{
-		impl_->socket.cancel();
-		p.reject(IoTimeout("read(n) cancelled due to timeout"));
-	});	
-#endif
+	impl_->timer.after(timeouts_.rw_timeout_s).then(cancellation(p, impl_->socket));
 
 	std::shared_ptr<std::vector<char>> buffer = std::make_shared<std::vector<char>>(s,0);
 
@@ -174,21 +153,13 @@ Future<Connection::Ptr, std::string> TcpConnection::read(size_t s)
 		boost::asio::buffer(&(buffer->at(0)),s),
 		[this,ptr,p,buffer](const boost::system::error_code& error,std::size_t bytes_transferred)
 		{
-#ifndef _WIN32
 			impl_->timer.cancel();
-#endif
 
-			if(impl_->closed)
-			{
-				return;
-			}			
+			if (impl_->closed) return;
 
 			if(error)
 			{
-				if(error.value() == boost::system::errc::operation_canceled)
-				{
-					return;
-				}
+				if (is_io_cancelled(error)) return;
 
 				p.reject(repro::Ex(std::string("read failed: ") + error.message()) );
 			}
@@ -208,14 +179,7 @@ Future<Connection::Ptr> TcpConnection::write(const std::string& data)
 
 	auto ptr = shared_from_this();
 
-#ifndef _WIN32
-	impl_->timer.after(timeouts_.rw_timeout_s)
-	.then( [this,p]()
-	{
-		impl_->socket.cancel();
-		p.reject(IoTimeout("write cancelled due to timeout"));
-	});
-#endif
+	impl_->timer.after(timeouts_.rw_timeout_s).then(cancellation(p, impl_->socket));
 
 	std::shared_ptr<std::string> buffer = std::make_shared<std::string>(data);
 
@@ -224,20 +188,13 @@ Future<Connection::Ptr> TcpConnection::write(const std::string& data)
 		boost::asio::buffer(buffer->data(),buffer->size()),
 		[this,p,ptr,buffer](const boost::system::error_code& error,std::size_t bytes_transferred)
 		{
-#ifndef _WIN32
 			impl_->timer.cancel();
-#endif			
-			if(impl_->closed)
-			{
-				return;
-			}
+
+			if (impl_->closed) return;
 			
 			if(error)
 			{
-				if(error.value() == boost::system::errc::operation_canceled)
-				{
-					return;
-				}
+				if (is_io_cancelled(error)) return;
 
 				p.reject(repro::Ex(std::string("write failed: ") + error.message()));
 			}
