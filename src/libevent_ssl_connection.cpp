@@ -522,7 +522,7 @@ int check_err_code(SSL* ssl, int len, int want)
 
 SslCtxImpl::SslCtxImpl()
 {
-	ctx = SSL_CTX_new(SSLv23_method());
+	ctx = SSL_CTX_new(TLSv1_2_method()); //SSLv23_method());
 
 	EC_KEY *ecdh;
   
