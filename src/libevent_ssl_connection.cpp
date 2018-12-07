@@ -524,7 +524,7 @@ SslCtxImpl::SslCtxImpl()
 {
 	ctx = SSL_CTX_new(TLSv1_2_method()); //SSLv23_method());
 
-	EC_KEY *ecdh;
+	
   
 //	ssl_ctx = SSL_CTX_new(SSLv23_server_method());
 	if (!ctx) 
@@ -568,6 +568,7 @@ void SslCtxImpl::loadKeys( const std::string& keyfile )
 	  	SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION
 	);
   
+    EC_KEY *ecdh;
 	ecdh = EC_KEY_new_by_curve_name(NID_X9_62_prime256v1);
 	if (!ecdh) 
 	{
