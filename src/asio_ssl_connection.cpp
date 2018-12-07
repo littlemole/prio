@@ -320,7 +320,6 @@ SslCtxImpl::SslCtxImpl()
 SslCtx::SslCtx()
 	: ctx(new SslCtxImpl)
 {
-	EC_KEY *ecdh = 0;
 	SSL_CTX* sslCtx = ctx->ssl.native_handle();
 	SSL_CTX_set_options(
 		sslCtx,
@@ -329,15 +328,6 @@ SslCtx::SslCtx()
 	  	SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION
 	);
   
-	ecdh = EC_KEY_new_by_curve_name(NID_X9_62_prime256v1);
-	if (!ecdh) 
-	{
-		throw(Ex("EC_KEY curvename failed "));
-	}
-	SSL_CTX_set_tmp_ecdh(sslCtx, ecdh);
-	EC_KEY_free(ecdh);	
-
-	//SSL_CTX_set_cipher_list(sslCtx,"ECDH+AESGCM:ECDH+CHACHA20:DH+AESGCM:ECDH+AES256:DH+AES256:ECDH+AES128:DH+AES:RSA+AESGCM:RSA+AES:!aNULL:!MD5:!DSS");
 
 }
 
@@ -349,8 +339,25 @@ SslCtx::~SslCtx()
 
 void SslCtx::load_cert_pem(const std::string& file)
 {
+	std::cout << "load cer " << file << std::endl;
 	ctx->ssl.use_certificate_chain_file(file);
 	ctx->ssl.use_private_key_file(file, boost::asio::ssl::context::pem);
+
+	SSL_CTX* sslCtx = ctx->ssl.native_handle();
+
+	EC_KEY *ecdh = 0;
+	ecdh = EC_KEY_new_by_curve_name(NID_X9_62_prime256v1);
+	if (!ecdh) 
+	{
+		throw(Ex("EC_KEY curvename failed "));
+	}
+	SSL_CTX_set_tmp_ecdh(sslCtx, ecdh);
+	EC_KEY_free(ecdh);	
+
+	int r = SSL_CTX_set_cipher_list(sslCtx,"ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!3DES:!MD5:!PSK");
+
+	std::cout << "set cipher: " << r << std::endl;
+
 }
 
 } // close namespaces

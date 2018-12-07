@@ -532,22 +532,8 @@ SslCtxImpl::SslCtxImpl()
 	  throw(Ex("Could not create SSL/TLS context"));
 	}
 
-	SSL_CTX_set_options(
-		ctx,
-		SSL_OP_ALL | SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3 |
-	  	SSL_OP_NO_COMPRESSION |
-	  	SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION
-	);
-  
-	ecdh = EC_KEY_new_by_curve_name(NID_X9_62_prime256v1);
-	if (!ecdh) 
-	{
-		throw(Ex("EC_KEY curvename failed "));
-	}
-	SSL_CTX_set_tmp_ecdh(ctx, ecdh);
-	EC_KEY_free(ecdh);	
 
-	//SSL_CTX_set_cipher_list(ctx,"ECDH+AESGCM:ECDH+CHACHA20:DH+AESGCM:ECDH+AES256:DH+AES256:ECDH+AES128:DH+AES:RSA+AESGCM:RSA+AES:!aNULL:!MD5:!DSS");
+
 
 }
 
@@ -567,12 +553,33 @@ int alpn_select_proto_cb(SSL *ssl, const unsigned char **out,
 
 void SslCtxImpl::loadKeys( const std::string& keyfile )
 {
+	std::cout << "Load cer " << keyfile << std::endl;
+
 	if(!(SSL_CTX_use_certificate_chain_file(ctx,	keyfile.c_str())))
 		throw Ex("Can't read certificate file");
 
 	if(!(SSL_CTX_use_PrivateKey_file(ctx,keyfile.c_str(),SSL_FILETYPE_PEM)))
 		throw Ex("Can't read key file");
+
+	SSL_CTX_set_options(
+		ctx,
+		SSL_OP_ALL | SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3 |
+	  	SSL_OP_NO_COMPRESSION |
+	  	SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION
+	);
+  
+	ecdh = EC_KEY_new_by_curve_name(NID_X9_62_prime256v1);
+	if (!ecdh) 
+	{
+		throw(Ex("EC_KEY curvename failed "));
+	}
+	SSL_CTX_set_tmp_ecdh(ctx, ecdh);
+	EC_KEY_free(ecdh);	
 	  
+	int r = SSL_CTX_set_cipher_list(ctx,"ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!3DES:!MD5:!PSK");
+
+	std::cout << "set cipher: " << r << std::endl;
+    
 }
 
 /*
