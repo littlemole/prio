@@ -134,7 +134,7 @@ class SslCtx
 {
 public:
 	SslCtx();
-	~SslCtx();
+	virtual ~SslCtx();
 
 	void load_cert_pem(const std::string& file);
 	//void enableHttp2();
@@ -190,6 +190,52 @@ private:
 };
 
 #endif
+
+
+
+template<class I,class F>
+repro::Future<> forEach( I begin, I end, F f )
+{
+	auto p = repro::promise<>();
+
+	if ( begin == end)
+	{
+		prio::nextTick([p]()
+		{
+			p.resolve();
+		});
+		
+		return p.future();
+	}
+
+	I step = begin;
+	step++;
+
+	f(*begin)
+	.then([step,end,f]()
+	{
+		return forEach(step,end,f);
+	})
+	.then([p]()
+	{
+		p.resolve();
+	})
+	.otherwise(reject(p));
+
+	return p.future();
+}
+
+template<class C,class F>
+repro::Future<> forEach(C& c, F f )
+{
+	auto container = std::make_shared<C>(c);
+
+	return forEach( container->begin(), container->end(), [container,f](typename C::value_type i)
+	{
+		return f(i);
+	});
+}
+
 
 } // close namespaces
 
