@@ -522,19 +522,12 @@ int check_err_code(SSL* ssl, int len, int want)
 
 SslCtxImpl::SslCtxImpl()
 {
-	ctx = SSL_CTX_new(TLSv1_2_method()); //SSLv23_method());
-
-	
-  
-//	ssl_ctx = SSL_CTX_new(SSLv23_server_method());
+	ctx = SSL_CTX_new(TLS_method());
 	if (!ctx) 
 	{
 	  throw(Ex("Could not create SSL/TLS context"));
 	}
-
-
-
-
+	SSL_CTX_set_min_proto_version(ctx, TLS1_2_VERSION);
 }
 
 SslCtxImpl::~SslCtxImpl()
@@ -583,50 +576,6 @@ void SslCtxImpl::loadKeys( const std::string& keyfile )
     
 }
 
-/*
-
-void SslCtxImpl::enableHttp2(  )
-{
-	next_proto_list[0] = NGHTTP2_PROTO_VERSION_ID_LEN;
-	memcpy(&next_proto_list[1], NGHTTP2_PROTO_VERSION_ID,
-	NGHTTP2_PROTO_VERSION_ID_LEN);
-	next_proto_list_len = 1 + NGHTTP2_PROTO_VERSION_ID_LEN;
-	
-	SSL_CTX_set_next_protos_advertised_cb(ctx, next_proto_cb, NULL);
-	
-#if OPENSSL_VERSION_NUMBER >= 0x10002000L
-	SSL_CTX_set_alpn_select_cb(ctx, alpn_select_proto_cb, NULL);
-#endif // OPENSSL_VERSION_NUMBER >= 0x10002000L
-	  
-}
-
-static int select_next_proto_cb(SSL *ssl, unsigned char **out,
-	unsigned char *outlen, const unsigned char *in,
-	unsigned int inlen, void *arg) 
-{
-	if (nghttp2_select_next_protocol(out, outlen, in, inlen) <= 0) 
-	{
-		std::cout << "err select_next_proto_cb ACK failed -no http2" << std::endl;
-		return SSL_TLSEXT_ERR_NOACK;
-	}
-	return SSL_TLSEXT_ERR_OK;
-}
-
-void SslCtxImpl::enableHttp2Client(  )
-{
-	next_proto_list[0] = NGHTTP2_PROTO_VERSION_ID_LEN;
-	memcpy(&next_proto_list[1], NGHTTP2_PROTO_VERSION_ID,
-	NGHTTP2_PROTO_VERSION_ID_LEN);
-	next_proto_list_len = 1 + NGHTTP2_PROTO_VERSION_ID_LEN;
-
-	SSL_CTX_set_next_proto_select_cb(ctx, select_next_proto_cb, NULL);
-	
-#if OPENSSL_VERSION_NUMBER >= 0x10002000L
-	  SSL_CTX_set_alpn_protos(ctx, (const unsigned char *)"\x02h2", 3);
-#endif // OPENSSL_VERSION_NUMBER >= 0x10002000L	  
-}
-
-*/
 
 SslCtx::SslCtx()
 	: ctx(new SslCtxImpl)
@@ -644,18 +593,6 @@ void SslCtx::load_cert_pem(const std::string& file)
 	ctx->loadKeys(file);
 }
 
-/*
-void SslCtx::enableHttp2()
-{
-	ctx->enableHttp2();
-}
-
-
-void SslCtx::enableHttp2Client()
-{
-	ctx->enableHttp2Client();
-}
-*/
 
 } // close namespaces
 

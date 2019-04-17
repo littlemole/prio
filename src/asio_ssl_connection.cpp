@@ -314,7 +314,7 @@ bool SslConnection::isHttp2Requested()
 
 
 SslCtxImpl::SslCtxImpl()
-	  : ssl( boost::asio::ssl::context::tlsv12 ) //sslv23)
+	  : ssl( boost::asio::ssl::context::tlsv12 ) 
 {}
 
 SslCtx::SslCtx()
@@ -327,15 +327,10 @@ SslCtx::SslCtx()
 	  	SSL_OP_NO_COMPRESSION |
 	  	SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION
 	);
-  
-
 }
-
 
 SslCtx::~SslCtx()
-{
-}
-
+{}
 
 void SslCtx::load_cert_pem(const std::string& file)
 {
