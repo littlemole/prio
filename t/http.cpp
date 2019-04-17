@@ -230,7 +230,7 @@ repro::Future<> coroutine_example(std::string& result,Connection::Ptr& client)
 	try
 	{
 		client = co_await TcpConnection::connect("amazon.de",80);
-		co_await client->write("GET / HTTP/1.0\r\n\r\n");
+		(void) co_await client->write("GET / HTTP/1.0\r\n\r\n");
 
 		client->read()
 		.then( [&result](Connection::Ptr con, std::string data)
