@@ -549,7 +549,7 @@ TEST_F(BasicTest, SimplePdf2)
 }
 */
 
-
+/*
 TEST_F(BasicTest, SimplePdf)
 {
 	std::string cmd = "wkhtmltopdf /tmp/filekxCTjX.html tmp.pdf";// /home/mike/workspace/knitbiz/htdocs/pdf/99-2019-04-19.pdf";
@@ -577,7 +577,7 @@ TEST_F(BasicTest, SimplePdf)
 	MOL_TEST_ASSERT_CNTS(0,0);
 
 }
-
+*/
 
 #endif
 
