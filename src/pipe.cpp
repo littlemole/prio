@@ -88,7 +88,6 @@ void Pipe::run_child(const std::string& path, char* const* args, char* const* en
 	  close(STDIN_FILENO);
 	  close(STDERR_FILENO);
 
-	  std::cout << "exec chld " << path << std::endl;
 	  execve(path.c_str(), args, env);
 
 	  throw Ex("execl child failed");
@@ -126,14 +125,11 @@ Future<> Pipe::read(repro::Promise<> p)
 	{
 		while(true)
 		{
-			std::cout << "READ " << std::endl;
-
 			char buf[1024];
 			auto len = ::read(filedes_[0],buf,1024);
 
 			if(len > 0)
 			{
-				std::cout << "READ " << len << std::endl;
 				stdout_oss_.write(buf,len);
 				continue;
 			}
@@ -141,22 +137,15 @@ Future<> Pipe::read(repro::Promise<> p)
 			{
 				if( (len == -1) && (errno == EWOULDBLOCK) )
 				{
-					std::cout << "EWOULDBLOCK " << std::endl;
 					this->read(p);
 				}
 				else
 				{
-					std::cout << "DOME READ " << len << " " << errno << std::endl;
-
 					waitpid(this->pid_, NULL, 0);
-
-					std::cout << "WAITPID READ " << std::endl;
 
 					close(this->filedes_[0]);
 
 					p.resolve();
-
-					//ptr.reset();
 				}
 			}
 			break;
@@ -179,7 +168,6 @@ Future<> Pipe::write(repro::Promise<> p)
 	{
 		while(true)
 		{
-			std::cout << "writing " << std::endl;
 			auto len = ::write(filedes_[1],this->stdin_.c_str()+this->written_, this->stdin_.size()-this->written_);
 
 			if(len > 0)
@@ -187,7 +175,6 @@ Future<> Pipe::write(repro::Promise<> p)
 				this->written_ += len;
 				if ( this->written_ >= this->stdin_.size() )
 				{
-					std::cout << "written " << std::endl;
 					p.resolve();
 					break;
 				}
@@ -197,23 +184,16 @@ Future<> Pipe::write(repro::Promise<> p)
 			{
 				if( (len == -1) && (errno == EWOULDBLOCK) )
 				{
-					std::cout << "EWOULDBLOCK " << std::endl;
-
 					this->write(p);
-					// do nothing
 				}
 				else
 				{
-					std::cout << "E WRITE " << std::endl;
-
 					waitpid(this->pid_, NULL, 0);
 
 					close(this->filedes_[0]);
 					close(this->filedes_[1]);
 
 					p.reject(Ex("IoEx in Pipe::write"));
-
-					//ptr->e_->dispose();
 				}
 			}
 			break;
