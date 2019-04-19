@@ -13,7 +13,7 @@ template<class ... Args>
 class Arguments
 {
 public:
-	Arguments(Args&& ... args)
+	Arguments(Args ... args)
 		: args_{args...,(const char*)NULL}
 	{
 	}
@@ -29,13 +29,13 @@ private:
 
 
 template<class ... Args>
-auto arguments(Args&& ... args)
+auto arguments(Args ... args)
 {
 	return Arguments<Args...>(args...);
 }
 
 template<class ... Args>
-auto environment(Args&& ... args)
+auto environment(Args ... args)
 {
 	return Arguments<Args...>(args...);
 }
