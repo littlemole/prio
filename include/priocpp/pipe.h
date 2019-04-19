@@ -18,7 +18,7 @@ public:
 	{
 	}
 
-	std::vector<const char*> get()
+	std::vector<const char*> get() const
 	{
 		return args_;
 	}
@@ -63,6 +63,13 @@ public:
 	{
 		args_ = a.get();
 		return pipe_impl( path, ( char* const*) &(args_[0]) );
+	}
+
+	template<class A>
+	repro::Future<Pipe::Ptr> pipe(const std::string& path, A&& a, char ** env )
+	{
+		args_ = a.get();
+		return pipe_impl( path, ( char* const*) &(args_[0]), env );
 	}
 
 	template<class A, class E>

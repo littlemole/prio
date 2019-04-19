@@ -533,6 +533,52 @@ TEST_F(BasicTest, SimplePipeClassCat)
 	MOL_TEST_ASSERT_CNTS(0,0);
 
 }
+
+/*
+TEST_F(BasicTest, SimplePdf2)
+{
+	{
+		timeout( []()
+		{
+			::system("wkhtmltopdf /tmp/filekxCTjX.html /home/mike/workspace/knitbiz/htdocs/pdf/99-2019-04-19.pdf");
+		},1,0);
+		theLoop().run();
+	}
+	MOL_TEST_ASSERT_CNTS(0,0);
+
+}
+*/
+
+
+TEST_F(BasicTest, SimplePdf)
+{
+	std::string cmd = "wkhtmltopdf /tmp/filekxCTjX.html tmp.pdf";// /home/mike/workspace/knitbiz/htdocs/pdf/99-2019-04-19.pdf";
+	std::string tmpfile = "/tmp/filekxCTjX.html";
+	std::string pdffile = "/home/mike/workspace/knitbiz/htdocs/pdf/99-2019-04-19.pdf";
+	auto args = arguments("wkhtmltopdf", tmpfile.c_str(),pdffile.c_str());
+	{
+		timeout( [tmpfile,pdffile,args]()
+		{
+	
+			Pipe::create()
+			->pipe("/usr/bin/wkhtmltopdf",args,environ)
+			.then([](Pipe::Ptr pipe)
+			{
+				std::cout << pipe->stdout() << std::endl;
+				::sleep(2);
+			})
+			.otherwise([](const std::exception& ex)
+			{
+				std::cout << ex.what() << std::endl;
+			});
+		},1,0);
+		theLoop().run();
+	}
+	MOL_TEST_ASSERT_CNTS(0,0);
+
+}
+
+
 #endif
 
 

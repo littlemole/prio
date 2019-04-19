@@ -87,6 +87,8 @@ void Pipe::run_child(const std::string& path, char* const* args, char* const* en
 	  close(filedes_[1]);
 	  close(STDIN_FILENO);
 	  close(STDERR_FILENO);
+
+	  std::cout << "exec chld " << path << std::endl;
 	  execve(path.c_str(), args, env);
 
 	  throw Ex("execl child failed");
@@ -144,9 +146,11 @@ Future<> Pipe::read(repro::Promise<> p)
 				}
 				else
 				{
-					std::cout << "DOME READ " << std::endl;
+					std::cout << "DOME READ " << len << " " << errno << std::endl;
 
 					waitpid(this->pid_, NULL, 0);
+
+					std::cout << "WAITPID READ " << std::endl;
 
 					close(this->filedes_[0]);
 
