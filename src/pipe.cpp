@@ -3,19 +3,21 @@
 #include "priocpp/pipe.h"
 #include "priocpp/loop.h"
 
-#ifdef _WIN32_xx_DISABLED
+#ifndef _WIN32
 
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <fcntl.h>
 #include <signal.h>
 
+using namespace repro;
+
 namespace prio      {
 
 
 
 Pipe::Pipe()
-	: result_(0), pid_(0),written_(0)
+	: result_(0), pid_(0),written_(0), promise_(promise<Pipe::Ptr>())
 {}
 
 Pipe::~Pipe()
@@ -25,27 +27,28 @@ Pipe::~Pipe()
 Pipe::Ptr Pipe::create()
 {
 	auto ptr = std::make_shared<Pipe>();
+	ptr->self_ = ptr;
 	return ptr;
 }
 
 Pipe::Ptr Pipe::stdin(const std::string& s)
 {
 	stdin_ = s;
-	return shared_from_this();
+	return self_;
 }
 
 
 Future<Pipe::Ptr> Pipe::pipe_impl(const std::string& path, char* const* args, char* const* env)
 {
-	auto p = promise<Pipe::Ptr>();
-
 	if (pipe2(filedes_, O_NONBLOCK|O_CLOEXEC) == -1)
 	{
+		self_.reset();
 		throw Ex("create pipe failed");
 	}
 	pid_ = fork();
 	if (pid_ == -1)
 	{
+		self_.reset();
 		throw Ex("fork failed");
 	}
 	else if (pid_ == 0)
@@ -54,10 +57,10 @@ Future<Pipe::Ptr> Pipe::pipe_impl(const std::string& path, char* const* args, ch
 	}
 	else
 	{
-		run_parent(p);
+		run_parent();
 	}
 
-	return p.future();
+	return promise_.future();
 }
 
 std::string Pipe::stdout()
@@ -89,107 +92,99 @@ void Pipe::run_child(const std::string& path, char* const* args, char* const* en
 	  throw Ex("execl child failed");
 }
 
-void Pipe::run_parent(Promise<Pipe::Ptr> p)
+void Pipe::run_parent()
 {
-	write()
-	.then( [] (Pipe::Ptr pipe)
+	written_ = 0;
+
+	auto pw = promise<>();
+	auto pr = promise<>();
+
+	write(pw)
+	.then( [this,pr] ()
 	{
-		return pipe->read();
+		close(filedes_[1]);
+		return read(pr);
 	})
-	.then( [p] (Pipe::Ptr pipe)
+	.then( [this] ()
 	{
-		p.resolve(pipe);
+		promise_.resolve(self_);
+		self_.reset();
 	})
-	.otherwise([p](const std::exception& ex)
+	.otherwise([this](const std::exception& ex)
 	{
-		p.reject(ex);
+		promise_.reject(ex);
+		self_.reset();
 	});
 }
 
-Future<Pipe::Ptr> Pipe::read()
+Future<> Pipe::read(repro::Promise<> p)
 {
-	auto p = promise<Pipe::Ptr>();
-
-	auto ptr = shared_from_this();
-
-	close(filedes_[1]);
-
-	e_ = onEvent((socket_t)(filedes_[0]),(short)EV_READ|EV_PERSIST)
-	->callback( [p,ptr] (int fd, short what)
+	io_.onRead((socket_t)(filedes_[0]))
+	.then([this,p]()
 	{
-		if(what == EV_TIMEOUT)
-		{
-			p.reject(IoTimeout("IO timeout in Pipe::read"));
-			return;
-		}
-
 		while(true)
 		{
+			std::cout << "READ " << std::endl;
+
 			char buf[1024];
-			auto len = Socket(fd).read(	buf , 1024);
+			auto len = ::read(filedes_[0],buf,1024);
 
 			if(len > 0)
 			{
-				ptr->stdout_oss_.write(buf,len);
+				std::cout << "READ " << len << std::endl;
+				stdout_oss_.write(buf,len);
 				continue;
 			}
 			else if(len<=0)
 			{
 				if( (len == -1) && (errno == EWOULDBLOCK) )
 				{
-					// do nothing
+					std::cout << "EWOULDBLOCK " << std::endl;
+					this->read(p);
 				}
 				else
 				{
-					waitpid(ptr->pid_, NULL, 0);
+					std::cout << "DOME READ " << std::endl;
 
-					close(ptr->filedes_[0]);
+					waitpid(this->pid_, NULL, 0);
 
-					p.resolve(ptr);
+					close(this->filedes_[0]);
 
-					ptr->e_->dispose();
+					p.resolve();
+
+					//ptr.reset();
 				}
 			}
 			break;
 		}
-	})
-	->add();
-	return p->future();
+
+	});
+
+	return p.future();
 }
 
-Future<Pipe::Ptr>::Ptr Pipe::write()
+Future<> Pipe::write(repro::Promise<> p)
 {
-	auto ptr = shared_from_this();
-
 	if(stdin_.empty())
 	{
-		return resolved<Pipe::Ptr>(ptr);
+		return resolved<>();
 	}
 
-	auto p = promise<Pipe::Ptr>();
-
-	written_ = 0;
-
-	e_ = onEvent((socket_t)(filedes_[1]),(short)EV_WRITE|EV_PERSIST)
-	->callback( [p,ptr] (int fd, short what)
+	io_.onWrite(filedes_[1])
+	.then([this,p]()
 	{
-		if(what == EV_TIMEOUT)
-		{
-			p.reject(IoTimeout("IO timeout in Pipe::write"));
-			return;
-		}
-
 		while(true)
 		{
-			auto len = Socket(fd).write(ptr->stdin_.c_str(), ptr->stdin_.size()-ptr->written_);
+			std::cout << "writing " << std::endl;
+			auto len = ::write(filedes_[1],this->stdin_.c_str()+this->written_, this->stdin_.size()-this->written_);
 
 			if(len > 0)
 			{
-				ptr->written_ += len;
-				if ( ptr->written_ >= ptr->stdin_.size() )
+				this->written_ += len;
+				if ( this->written_ >= this->stdin_.size() )
 				{
-					auto tmp = ptr->e_;
-					p.resolve(ptr);
+					std::cout << "written " << std::endl;
+					p.resolve();
 					break;
 				}
 				continue;
@@ -198,24 +193,29 @@ Future<Pipe::Ptr>::Ptr Pipe::write()
 			{
 				if( (len == -1) && (errno == EWOULDBLOCK) )
 				{
+					std::cout << "EWOULDBLOCK " << std::endl;
+
+					this->write(p);
 					// do nothing
 				}
 				else
 				{
-					waitpid(ptr->pid_, NULL, 0);
+					std::cout << "E WRITE " << std::endl;
 
-					close(ptr->filedes_[0]);
-					close(ptr->filedes_[1]);
+					waitpid(this->pid_, NULL, 0);
+
+					close(this->filedes_[0]);
+					close(this->filedes_[1]);
 
 					p.reject(Ex("IoEx in Pipe::write"));
 
-					ptr->e_->dispose();
+					//ptr->e_->dispose();
 				}
 			}
 			break;
 		}
-	})
-	->add();
+	});
+
 	return p.future();
 }
 

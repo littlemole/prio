@@ -83,10 +83,10 @@ private:
 
 	void run_child(const std::string& path,  char* const* args,  char* const* env);
 
-	void run_parent(repro::Promise<Pipe::Ptr> p);
+	void run_parent();
 
-	repro::Future<Pipe::Ptr> read();
-	repro::Future<Pipe::Ptr> write();
+	repro::Future<> read(repro::Promise<>);
+	repro::Future<> write(repro::Promise<>);
 
 
 	int result_;
@@ -99,6 +99,10 @@ private:
 
 	std::vector<const char*> args_;
 	std::vector<const char*> env_;
+
+	IO io_;
+	std::shared_ptr<Pipe> self_;
+	repro::Promise<Pipe::Ptr> promise_;
 };
 
 

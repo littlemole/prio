@@ -484,7 +484,7 @@ TEST_F(BasicTest, TcpServerBoth) {
 }
 */
 
-#ifdef _WIN32_xx_DISABLED
+#ifndef _WIN32
 
 TEST_F(BasicTest, SimplePipeClass)
 {
@@ -495,11 +495,11 @@ TEST_F(BasicTest, SimplePipeClass)
 
 			Pipe::create()
 			->pipe("/bin/ls",args)
-			->then([](Pipe::Ptr pipe)
+			.then([](Pipe::Ptr pipe)
 			{
 				std::cout << pipe->stdout() << std::endl;
 			})
-			->otherwise([](const std::exception& ex)
+			.otherwise([](const std::exception& ex)
 			{
 				std::cout << ex.what() << std::endl;
 			});
@@ -519,11 +519,11 @@ TEST_F(BasicTest, SimplePipeClassCat)
 			Pipe::create()
 			->stdin("HELLO CAT")
 			->pipe("/bin/cat") //,arguments("cat"))
-			->then([](Pipe::Ptr pipe)
+			.then([](Pipe::Ptr pipe)
 			{
 				std::cout << pipe->stdout() << std::endl;
 			})
-			->otherwise([](const std::exception& ex)
+			.otherwise([](const std::exception& ex)
 			{
 				std::cout << ex.what() << std::endl;
 			});
