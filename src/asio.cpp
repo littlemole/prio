@@ -159,7 +159,7 @@ void TcpListenerImpl::accept_handler(Promise<Connection::Ptr> p)
 		impl->socket,
 		[this,impl,p,ptr](const boost::system::error_code& error)
 		{
-			if ( error ==  boost::asio::error::operation_aborted )
+			if(is_io_cancelled(error))
 			{	
 				return;
 			}
@@ -196,7 +196,7 @@ void SslListenerImpl::accept_handler(Promise<Connection::Ptr> p)
 		impl->socket.lowest_layer(),
 		[this,impl,ptr,p](const boost::system::error_code& error)
 		{
-			if ( error ==  boost::asio::error::operation_aborted )
+			if(is_io_cancelled(error))
 			{	
 				return;
 			}
@@ -284,12 +284,12 @@ void IOImpl::handle_callback( const Promise<>& p, boost::system::error_code erro
 {
 	if(error)
 	{
-		if(error.value() == boost::system::errc::operation_canceled)
+		if(is_io_cancelled(error))
 		{
 			return;
 		}
 
-		p.reject(Ex(std::string("wait read failed: ") + error.message()));
+		p.reject(Ex(std::string("wait failed: ") + error.message()));
 	}
 	else
 	{

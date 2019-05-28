@@ -18,7 +18,7 @@ ifeq ($(BACKEND),boost_asio)
 endif
 
 # compile flags
-CPPFLAGS = -Wall -I../include $(DEBUG) $(INCLUDE) $(OPTIONS) $(PROMISE_IMPL)
+CPPFLAGS = -Wall -I/opt/boost/include -I../include $(DEBUG) $(INCLUDE) $(OPTIONS) $(PROMISE_IMPL)
 
 
 # library flags

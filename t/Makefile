@@ -20,12 +20,12 @@ PROMISE_3DPARTY = $(LIBEVENT) $(DEFAULT_LIBS)
 
 ifeq ($(BACKEND),boost_asio)
         PROMISE_IMPL = -DPROMISE_USE_BOOST_ASIO
-        PROMISE_3DPARTY = -lboost_system $(DEFAULT_LIBS)
+        PROMISE_3DPARTY = -L/opt/boost/lib -lboost_system $(DEFAULT_LIBS)
 endif
 
 #final cpp options
 OPTIONS = -g -fpic -Wno-write-strings -pthread -D_REENTRANT $(DEFAULT_OPTS) $(PKG_INC)
-CPPFLAGS = -Wall -I../include $(DEBUG) $(OPTIONS) $(PROMISE_IMPL)
+CPPFLAGS = -Wall -I/opt/boost/include -I../include $(DEBUG) $(OPTIONS) $(PROMISE_IMPL)
 
 # target
 LIB = ../src/build/libpriocppd.a

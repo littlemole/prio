@@ -60,14 +60,18 @@ public:
 	typedef repro::Promise<ResourcePtr> PromiseType;
 	typedef repro::Future<ResourcePtr> FutureType;
 
+	int MAX_AGE;
+
 	ResourcePool()
-		:min_capacity_(4)
+		: MAX_AGE(20),
+		  min_capacity_(4)
 	{
 
 	}
 
 	ResourcePool(int c)
-		:min_capacity_(c)
+		: MAX_AGE(20),
+		  min_capacity_(c)
 	{
 
 	}
@@ -109,10 +113,20 @@ public:
 
 		if( unused_.count(url) > 0)
 		{
-			if(!unused_[url].empty())
+			while(!unused_[url].empty())
 			{
 				type* r = *(unused_[url].begin());
 				unused_[url].erase(r);
+
+				if(timestamps_[r] + MAX_AGE < unix_timestamp())
+				{
+					timestamps_.erase(r);
+					L::free(r);
+					continue;
+				}
+
+				timestamps_[r] = unix_timestamp();
+
 				used_[url].insert(r);
 
 				return resolved<ResourcePtr>( make_ptr(url, r) );
@@ -126,6 +140,7 @@ public:
 			.then([this,p,url](type* r)
 			{
 				used_[url].insert(r);
+				timestamps_[r] = unix_timestamp();
 				p.resolve( make_ptr(url,r) );
 				pending_--;
 			})
@@ -153,6 +168,7 @@ private:
 		{
 			PromiseType p = waiting_.front();
 			waiting_.pop_front();
+			timestamps_[*t] = unix_timestamp();
 			p.resolve(make_ptr(url,*t));
 			return;
 		}
@@ -166,6 +182,11 @@ private:
 			{
 				type* tmp = *(unused_[url].begin());
 				unused_[url].erase(tmp);
+				if(timestamps_.count(tmp) != 0)
+				{
+					timestamps_.erase(tmp);
+				}
+
 				L::free(tmp);
 			}
 		}
@@ -182,6 +203,10 @@ private:
 		if (used_[url].find(*t) != used_[url].end() )
 		{
 			used_[url].erase(*t);
+		}
+		if(timestamps_.count(*t) != 0)
+		{
+			timestamps_.erase(*t);
 		}
 		L::free(*t);
 	}
@@ -212,6 +237,7 @@ private:
 
 	std::map<std::string,std::set<type*>> used_;
 	std::map<std::string,std::set<type*>> unused_;
+	std::map<type*,int> timestamps_;
 	std::list<PromiseType> waiting_;
 };
 

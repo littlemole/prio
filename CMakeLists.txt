@@ -37,6 +37,7 @@ find_package(OpenSSL REQUIRED)
 set(LINKERFLAGS "")
 set(STDLIB "")
 set(FLAGS "")
+set(INC_DIRS include)
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     set(STDLIB "c++abi")
@@ -108,7 +109,7 @@ set(CMAKE_CXX_FLAGS  		"${CMAKE_CXX_FLAGS} ${BUILDFLAGS}")
 ############################################
 
 
-option(WITH_LIBEVENT "use libevent (default:on)" OFF)
+option(WITH_LIBEVENT "use libevent (default:off)" OFF)
 if(WITH_LIBEVENT)
     add_definitions(-DPROMISE_USE_LIBEVENT)    
     set(BACKEND ${LIBEVENT_LIBRARY})
@@ -118,6 +119,8 @@ if (WIN32)
 find_package( Boost COMPONENTS system date_time  REQUIRED )
     set(BACKEND "Boost::system" "Boost::date_time")
 else()
+    set(CMAKE_EXE_LINKER_FLAGS  "-L/opt/boost/lib ${CMAKE_EXE_LINKER_FLAGS}" )
+    set(INC_DIRS "/opt/boost/include"  "${INC_DIRS}" )
     set(BACKEND "boost_system")
 endif()
 endif()
@@ -127,7 +130,7 @@ endif()
 # include directories
 ############################################
 
-include_directories(include)
+include_directories(${INC_DIRS})
 include_directories(${OPENSSL_INCLUDE_DIR} ${GTEST_INCLUDE_DIR} ${CRYPTONEAT_INCLUDE_DIR} )
 
 

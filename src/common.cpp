@@ -19,6 +19,11 @@
 
 namespace prio {
 
+	int unix_timestamp()
+	{
+		return std::time(0);
+	}
+
 
 	std::string trim(const std::string& input)
 	{
