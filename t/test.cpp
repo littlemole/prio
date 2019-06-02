@@ -582,6 +582,38 @@ TEST_F(BasicTest, SimplePdf)
 #endif
 
 
+//Ecma Style test function
+Future<int> test(int i)
+{
+	return future<int>( [i]( auto resolve, auto reject )
+	{
+		nextTick([i,resolve]()
+		{
+			resolve(42+i);
+		});
+	});
+}
+
+TEST_F(BasicTest, EcmaStyle) 
+{
+	int c = 0;
+
+	test(0)
+	.then( [&c](int i)
+	{
+		c = i;
+		EXPECT_EQ(c,42);
+		c++;
+	});
+
+	theLoop().run();
+
+    EXPECT_EQ(c,43);
+    MOL_TEST_ASSERT_CNTS(0,0);
+}
+
+
+
 int main(int argc, char **argv) 
 {
 	prio::Libraries<EventLoop,cryptoneat::SSLUser> init;

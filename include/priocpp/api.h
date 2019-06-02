@@ -236,6 +236,37 @@ repro::Future<> forEach(C& c, F f )
 	});
 }
 
+/// ES6 Ecma Script promise style (syntactic sugar)
+template<class ...Args,class T>
+repro::Future<Args...> future( T cb )    
+{
+    auto p = repro::promise<Args...>();
+
+		nextTick( [p,cb]()
+		{
+				try
+				{
+					auto resolve = [p]( Args... args) 
+					{
+						p.resolve(args...);
+					};
+
+					auto reject = [p]( const std::exception& ex) 
+					{
+						p.reject(ex);
+					};
+
+						cb(resolve,reject);
+				}
+				catch(...)
+				{
+					auto ex = std::current_exception();
+					p.reject(ex);
+				}
+		});
+
+    return p.future();
+}
 
 } // close namespaces
 
