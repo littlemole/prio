@@ -21,7 +21,6 @@ namespace prio      {
 *  This function will invoke the callback asybchronously on the main event loop.
 */
 void nextTick(const std::function<void()> f) noexcept;
-//void nextTick(std::function<void()>&& f) noexcept;
 
 
 // init io loop libraries, ie make libevent threadsafe.
@@ -137,8 +136,6 @@ public:
 	virtual ~SslCtx();
 
 	void load_cert_pem(const std::string& file);
-	//void enableHttp2();
-	//void enableHttp2Client();
 	
 	std::unique_ptr<SslCtxImpl> ctx;
 };
