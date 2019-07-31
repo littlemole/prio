@@ -20,11 +20,9 @@
 #ifdef _WIN32
 #include <inttypes.h>
 typedef int ssize_t;
-//#include <nghttp2/nghttp2.h>
 #define close_socket ::closesocket
 #define SHUT_WR SD_SEND 
 #else
-//#include <nghttp2/nghttp2.h>
 #define close_socket ::close
 #endif
 
