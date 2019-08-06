@@ -1,6 +1,10 @@
 # prio
 promising reactive io
 
+# doxygen documentation
+
+[doxydocs](https://littlemole.github.io/prio/index.html)
+
 # dependencies
 
 repro header library for promises
