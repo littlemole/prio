@@ -1,0 +1,11 @@
+<map id="include/priocpp/pipe.h" name="include/priocpp/pipe.h">
+<area shape="rect" id="node2" href="/home/mike/workspace/repro/repro.tag$promise_8h.html" title="reprocpp/promise.h" alt="" coords="5,379,139,405"/>
+<area shape="rect" id="node4" href="$api_8h.html" title="priocpp/api.h" alt="" coords="319,80,415,107"/>
+<area shape="rect" id="node3" href="/home/mike/workspace/repro/repro.tag$future_8h.html" title="reprocpp/future.h" alt="" coords="12,453,132,480"/>
+<area shape="rect" id="node5" href="$common_8h.html" title="priocpp/common.h" alt="" coords="389,304,518,331"/>
+<area shape="rect" id="node13" href="$loop_8h.html" title="priocpp/loop.h" alt="" coords="146,155,249,181"/>
+<area shape="rect" id="node16" href="$timeout_8h.html" title="priocpp/timeout.h" alt="" coords="257,229,380,256"/>
+<area shape="rect" id="node17" href="$signal_8h.html" title="priocpp/signal.h" alt="" coords="405,229,518,256"/>
+<area shape="rect" id="node18" href="$url_8h.html" title="priocpp/url.h" alt="" coords="404,155,497,181"/>
+<area shape="rect" id="node14" href="$threadpool_8h_source.html" title="priocpp/threadpool.h" alt="" coords="95,229,233,256"/>
+</map>

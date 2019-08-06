@@ -1,6 +1,10 @@
 #ifndef _MOL_DEF_GUARD_DEFINE_MOD_HTTP_REQUEST_HANDLER_TASK_DEF_GUARD_
 #define _MOL_DEF_GUARD_DEFINE_MOD_HTTP_REQUEST_HANDLER_TASK_DEF_GUARD_
 
+/**
+ * \file task.h
+ */
+
 #include <atomic>
 
 #include "priocpp/api.h"
@@ -8,7 +12,7 @@
 
 namespace prio  		{
 
-
+/// @private
 inline void task_synchronize_thread(std::atomic<bool>& running)
 {
 	bool d = running.load();
@@ -23,7 +27,7 @@ inline void task_synchronize_thread(std::atomic<bool>& running)
 	}
 }
 
-
+/// @private
 inline void task_synchronize_main(std::atomic<bool>& running)
 {
 	bool d = running.load();
@@ -37,6 +41,7 @@ inline void task_synchronize_main(std::atomic<bool>& running)
 template<class T>
 class Task
 {};
+
 
 template<class R,class T>
 class Task<R(T)>
@@ -130,6 +135,14 @@ public:
 };
 
 
+/**
+ * \brief asynchronous task executed on threadpool.
+ * must return void or a single value-type holding result
+ * param T is a lambda with no arguments returning void or the single result
+ * after completion of T on the threadpool control will be passed back
+ * to main event thread and the return future will be called
+ * with the result from the task, if any.
+ */
 
 template<class T, typename std::enable_if<!repro::ReturnsVoid<T>::value>::type* = nullptr>
 auto task(T t, ThreadPool& pool = thePool() ) -> repro::Future<decltype(t())>
