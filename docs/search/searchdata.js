@@ -7,7 +7,7 @@ var indexSectionsWithContent =
   4: "bcefilmnoprstuw",
   5: "cmr",
   6: "p",
-  7: "pr"
+  7: "p"
 };
 
 var indexSectionNames =
