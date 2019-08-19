@@ -366,28 +366,28 @@ repro::Future<Args...> future( T cb )
 {
     auto p = repro::promise<Args...>();
 
-		nextTick( [p,cb]()
+	nextTick( [p,cb]()
+	{
+		try
 		{
-				try
-				{
-					auto resolve = [p]( Args... args) 
-					{
-						p.resolve(args...);
-					};
+			auto resolve = [p]( Args... args) 
+			{
+				p.resolve(args...);
+			};
 
-					auto reject = [p]( const std::exception& ex) 
-					{
-						p.reject(ex);
-					};
+			auto reject = [p]( const std::exception& ex) 
+			{
+				p.reject(ex);
+			};
 
-						cb(resolve,reject);
-				}
-				catch(...)
-				{
-					auto ex = std::current_exception();
-					p.reject(ex);
-				}
-		});
+				cb(resolve,reject);
+		}
+		catch(...)
+		{
+			auto ex = std::current_exception();
+			p.reject(ex);
+		}
+	});
 
     return p.future();
 }
