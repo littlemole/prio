@@ -491,7 +491,7 @@ TEST_F(BasicTest, SimplePipeClass)
 	{
 		timeout( []()
 		{
-			auto args = arguments("ls","-lah");
+			auto args = PipedProcess::arguments("ls","-lah");
 
 			PipedProcess::create()
 			->pipe("/bin/ls",args)

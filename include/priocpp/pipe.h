@@ -13,36 +13,6 @@
 namespace prio      {
 
 
-template<class ... Args>
-class Arguments
-{
-public:
-	Arguments(Args ... args)
-		: args_{args...,(const char*)NULL}
-	{
-	}
-
-	std::vector<const char*> get() const
-	{
-		return args_;
-	}
-
-private:
-	std::vector<const char*> args_;
-};
-
-
-template<class ... Args>
-auto arguments(Args ... args)
-{
-	return Arguments<Args...>(args...);
-}
-
-template<class ... Args>
-auto environment(Args ... args)
-{
-	return Arguments<Args...>(args...);
-}
 
 /**
  * \brief unix PipedProcess implementation 
@@ -55,6 +25,38 @@ public:
 
 	//! a PipedProcess::Ptr is a std::shared_ptr<PipedProcess>
 	typedef std::shared_ptr<PipedProcess> Ptr;
+
+
+	template<class ... Args>
+	class Arguments
+	{
+	public:
+		Arguments(Args ... args)
+			: args_{args...,(const char*)NULL}
+		{
+		}
+
+		std::vector<const char*> get() const
+		{
+			return args_;
+		}
+
+	private:
+		std::vector<const char*> args_;
+	};
+
+
+	template<class ... Args>
+	static auto arguments(Args ... args)
+	{
+		return Arguments<Args...>(args...);
+	}
+
+	template<class ... Args>
+	static auto environment(Args ... args)
+	{
+		return Arguments<Args...>(args...);
+	}	
 
 	PipedProcess();
 	~PipedProcess();
