@@ -493,9 +493,9 @@ TEST_F(BasicTest, SimplePipeClass)
 		{
 			auto args = arguments("ls","-lah");
 
-			Pipe::create()
+			PipedProcess::create()
 			->pipe("/bin/ls",args)
-			.then([](Pipe::Ptr pipe)
+			.then([](PipedProcess::Ptr pipe)
 			{
 				std::cout << pipe->stdout() << std::endl;
 			})
@@ -516,10 +516,10 @@ TEST_F(BasicTest, SimplePipeClassCat)
 	{
 		timeout( []()
 		{
-			Pipe::create()
+			PipedProcess::create()
 			->stdin("HELLO CAT")
 			->pipe("/bin/cat") //,arguments("cat"))
-			.then([](Pipe::Ptr pipe)
+			.then([](PipedProcess::Ptr pipe)
 			{
 				std::cout << pipe->stdout() << std::endl;
 			})

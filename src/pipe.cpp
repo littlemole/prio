@@ -16,34 +16,34 @@ namespace prio      {
 
 
 
-Pipe::Pipe()
-	: result_(0), pid_(0),written_(0), promise_(promise<Pipe::Ptr>())
+PipedProcess::PipedProcess()
+	: result_(0), pid_(0),written_(0), promise_(promise<PipedProcess::Ptr>())
 {}
 
-Pipe::~Pipe()
+PipedProcess::~PipedProcess()
 {}
 
 
-Pipe::Ptr Pipe::create()
+PipedProcess::Ptr PipedProcess::create()
 {
-	auto ptr = std::make_shared<Pipe>();
+	auto ptr = std::make_shared<PipedProcess>();
 	ptr->self_ = ptr;
 	return ptr;
 }
 
-Pipe::Ptr Pipe::stdin(const std::string& s)
+PipedProcess::Ptr PipedProcess::stdin(const std::string& s)
 {
 	stdin_ = s;
 	return self_;
 }
 
 
-Future<Pipe::Ptr> Pipe::pipe_impl(const std::string& path, char* const* args, char* const* env)
+Future<PipedProcess::Ptr> PipedProcess::PipedProcess_impl(const std::string& path, char* const* args, char* const* env)
 {
 	if (pipe2(filedes_, O_NONBLOCK|O_CLOEXEC) == -1)
 	{
 		self_.reset();
-		throw Ex("create pipe failed");
+		throw Ex("create PipedProcess failed");
 	}
 	pid_ = fork();
 	if (pid_ == -1)
@@ -63,23 +63,23 @@ Future<Pipe::Ptr> Pipe::pipe_impl(const std::string& path, char* const* args, ch
 	return promise_.future();
 }
 
-std::string Pipe::stdout()
+std::string PipedProcess::stdout()
 {
 	return stdout_oss_.str();
 }
 
-std::string Pipe::stderr()
+std::string PipedProcess::stderr()
 {
 	return stderr_oss_.str();
 }
 
-int Pipe::result()
+int PipedProcess::result()
 {
 	return result_;
 }
 
 
-void Pipe::run_child(const std::string& path, char* const* args, char* const* env)
+void PipedProcess::run_child(const std::string& path, char* const* args, char* const* env)
 {
 	  while ((dup2(filedes_[0], STDIN_FILENO)  == -1) && (errno == EINTR)) {}
 	  while ((dup2(filedes_[1], STDOUT_FILENO) == -1) && (errno == EINTR)) {}
@@ -93,7 +93,7 @@ void Pipe::run_child(const std::string& path, char* const* args, char* const* en
 	  throw Ex("execl child failed");
 }
 
-void Pipe::run_parent()
+void PipedProcess::run_parent()
 {
 	written_ = 0;
 
@@ -118,7 +118,7 @@ void Pipe::run_parent()
 	});
 }
 
-Future<> Pipe::read(repro::Promise<> p)
+Future<> PipedProcess::read(repro::Promise<> p)
 {
 	io_.onRead((socket_t)(filedes_[0]))
 	.then([this,p]()
@@ -156,7 +156,7 @@ Future<> Pipe::read(repro::Promise<> p)
 	return p.future();
 }
 
-Future<> Pipe::write(repro::Promise<> p)
+Future<> PipedProcess::write(repro::Promise<> p)
 {
 	if(stdin_.empty())
 	{
@@ -193,7 +193,7 @@ Future<> Pipe::write(repro::Promise<> p)
 					close(this->filedes_[0]);
 					close(this->filedes_[1]);
 
-					p.reject(Ex("IoEx in Pipe::write"));
+					p.reject(Ex("IoEx in PipedProcess::write"));
 				}
 			}
 			break;

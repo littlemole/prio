@@ -1,8 +1,8 @@
-#ifndef MOL_PROMISE_LIBEVENT_PIPE_DEF_GUARD_DEFINE_
-#define MOL_PROMISE_LIBEVENT_PIPE_DEF_GUARD_DEFINE_
+#ifndef MOL_PROMISE_LIBEVENT_PipedProcess_DEF_GUARD_DEFINE_
+#define MOL_PROMISE_LIBEVENT_PipedProcess_DEF_GUARD_DEFINE_
 
 /**
- * \file pipe.h
+ * \file PipedProcess.h
  */
 
 #ifndef _WIN32
@@ -45,73 +45,73 @@ auto environment(Args ... args)
 }
 
 /**
- * \brief unix pipe implementation 
+ * \brief unix PipedProcess implementation 
  *
  * open a process and control its input and output asynchronously.
  **/
-class Pipe : public std::enable_shared_from_this<Pipe>
+class PipedProcess : public std::enable_shared_from_this<PipedProcess>
 {
 public:
 
-	//! a Pipe::Ptr is a std::shared_ptr<Pipe>
-	typedef std::shared_ptr<Pipe> Ptr;
+	//! a PipedProcess::Ptr is a std::shared_ptr<PipedProcess>
+	typedef std::shared_ptr<PipedProcess> Ptr;
 
-	Pipe();
-	~Pipe();
+	PipedProcess();
+	~PipedProcess();
 
-	//! create a Pipe as a shared ptr
+	//! create a PipedProcess as a shared ptr
 	static Ptr create();
 
-	//! specify stdin for piped process
+	//! specify stdin for PipedProcessd process
 	Ptr stdin(const std::string& s);
 
 	//! specify path for subprocess to execute
-	//! once the piped process has finished, the future will be resolved
-	repro::Future<Pipe::Ptr> pipe(const std::string& path )
+	//! once the PipedProcessd process has finished, the future will be resolved
+	repro::Future<PipedProcess::Ptr> pipe(const std::string& path )
 	{
-		return pipe_impl( path );
+		return PipedProcess_impl( path );
 	}
 
 
 	//! specify path for subprocess to execute and add arguments
-	//! once the piped process has finished, the future will be resolved
+	//! once the PipedProcessd process has finished, the future will be resolved
 	template<class A>
-	repro::Future<Pipe::Ptr> pipe(const std::string& path, A&& a )
+	repro::Future<PipedProcess::Ptr> pipe(const std::string& path, A&& a )
 	{
 		args_ = a.get();
-		return pipe_impl( path, ( char* const*) &(args_[0]) );
+		return PipedProcess_impl( path, ( char* const*) &(args_[0]) );
 	}
 
 	//! specify path for subprocess to execute, add arguments and specify env** vector
-	//! once the piped process has finished, the future will be resolved
+	//! once the PipedProcessd process has finished, the future will be resolved
 	template<class A>
-	repro::Future<Pipe::Ptr> pipe(const std::string& path, A&& a, char ** env )
+	repro::Future<PipedProcess::Ptr> pipe(const std::string& path, A&& a, char ** env )
 	{
 		args_ = a.get();
-		return pipe_impl( path, ( char* const*) &(args_[0]), env );
+		return PipedProcess_impl( path, ( char* const*) &(args_[0]), env );
 	}
 
 	//! specify path for subprocess to execute, add arguments and specify environment as std::vector
-	//! once the piped process has finished, the future will be resolved
+	//! once the PipedProcessd process has finished, the future will be resolved
 	template<class A, class E>
-	repro::Future<Pipe::Ptr> pipe(const std::string& path, A&& args, E&& env )
+	repro::Future<PipedProcess::Ptr> pipe(const std::string& path, A&& args, E&& env )
 	{
 		args_ = args.get();
 		env_ = env.get();
-		return pipe_impl( path,  (char* const*) &(args_[0]),  (char* const*) &(env_[0]) );
+		return PipedProcess_impl( path,  (char* const*) &(args_[0]),  (char* const*) &(env_[0]) );
 	}
 
-	//! get the piped processes stdout
+	//! get the PipedProcessd processes stdout
 	std::string stdout();
-	//! get the piped processes stderr
+	//! get the PipedProcessd processes stderr
 	std::string stderr();
 
-	//! exit code from piped process
+	//! exit code from PipedProcessd process
 	int result();
 
 private:
 
-	repro::Future<Pipe::Ptr> pipe_impl(const std::string& path,   char* const* args = NULL,  char* const* env = NULL);
+	repro::Future<PipedProcess::Ptr> PipedProcess_impl(const std::string& path,   char* const* args = NULL,  char* const* env = NULL);
 
 	void run_child(const std::string& path,  char* const* args,  char* const* env);
 
@@ -133,8 +133,8 @@ private:
 	std::vector<const char*> env_;
 
 	IO io_;
-	std::shared_ptr<Pipe> self_;
-	repro::Promise<Pipe::Ptr> promise_;
+	std::shared_ptr<PipedProcess> self_;
+	repro::Promise<PipedProcess::Ptr> promise_;
 };
 
 
