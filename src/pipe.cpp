@@ -15,6 +15,23 @@ using namespace repro;
 namespace prio      {
 
 
+void set_blocking(socket_t fd)
+{
+#ifndef _WIN32
+	// set non blocking
+	int flags;
+	if ( -1 == (flags = fcntl(fd, F_GETFL, 0)) )
+	{
+		flags = 0;        
+	}
+	flags  &= ~O_NONBLOCK;
+	fcntl(fd, F_SETFL, flags);  
+#else
+	u_long iMode = 0;
+	ioctlsocket(fd, FIONBIO, &iMode);
+#endif
+}
+
 
 PipedProcess::PipedProcess()
 	: result_(0), pid_(0),written_(0), promise_(promise<PipedProcess::Ptr>())

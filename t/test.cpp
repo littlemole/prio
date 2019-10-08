@@ -534,6 +534,184 @@ TEST_F(BasicTest, SimplePipeClassCat)
 
 }
 
+
+TEST_F(BasicTest, Pipe1)
+{
+	bool done = false;
+	{
+		{
+			auto pipe = Pipe::create();
+
+			timeout(1,0)
+			.then( [pipe]()
+			{
+				return pipe->write("line 1\nline 2\nquit\n");
+			})
+			.then([](){});
+ 
+			pipe->readLine()
+			.then([pipe](std::string line)
+			{
+				EXPECT_STREQ(line.c_str(), "line 1");
+				return pipe->readLine();
+			})
+			.then([pipe](std::string line)
+			{
+				EXPECT_STREQ(line.c_str(), "line 2");			
+				return pipe->readLine();
+			})
+			.then([pipe,&done](std::string line)
+			{
+				EXPECT_STREQ(line.c_str(), "quit");
+				done = true;
+				return nextTick();
+			})
+			.then([]()
+			{
+				theLoop().exit();
+			});
+		}
+		theLoop().run();
+	}
+	EXPECT_EQ(done,true);
+	MOL_TEST_ASSERT_CNTS(0,0);
+}
+  
+
+TEST_F(BasicTest, Pipe1Async)
+{
+	bool done = false;
+
+	signal(SIGINT)
+		.then([](int s) {
+		theLoop().exit();
+	});
+
+	{
+		{	
+			auto pipe = Pipe::create();
+
+			timeout(1,0)
+			.then( [pipe]()
+			{
+				return pipe->write("line 1\nline 2\nquit\n");
+			})
+			.then([](){});
+ 
+			pipe->asyncReader([&done,pipe](std::string s)
+			{
+				std::cout << "read: " << s << std::endl;
+				EXPECT_STREQ(s.c_str(), "line 1\nline 2\nquit\n");
+				nextTick([&done,pipe]()
+				{
+					std::cout << "QUIT" << std::endl;
+					done = true;
+					pipe->close();
+					theLoop().exit();
+				});
+			});
+		}
+		theLoop().run();
+	}
+	EXPECT_EQ(done,true);
+	MOL_TEST_ASSERT_CNTS(0,0);
+}
+
+TEST_F(BasicTest, Pipe1AsyncLine)
+{
+	bool done = false;
+
+	signal(SIGINT)
+		.then([](int s) {
+		theLoop().exit();
+	});
+		
+	{ 
+		{	
+			auto pipe = Pipe::create();
+
+			timeout(1,0)
+			.then( [pipe]()
+			{
+				return pipe->write("line 1\nline 2\nquit\n");
+			})
+			.then([](){});
+ 
+			pipe->asyncLineReader([&done,pipe](std::string s)
+			{
+				static std::string buf;
+
+				std::cout << "read: " << s << std::endl;
+				buf.append(s);
+
+				if(s=="quit")
+				{
+					EXPECT_STREQ(buf.c_str(), "line 1line 2quit");
+					nextTick([&done,pipe]()
+					{
+						std::cout << "QUIT" << std::endl;
+						done = true;
+						pipe->close();
+						theLoop().exit();
+					});
+				}
+			});
+		}
+		theLoop().run();
+	}
+	EXPECT_EQ(done,true);
+	MOL_TEST_ASSERT_CNTS(0,0);
+}
+
+TEST_F(BasicTest, Pipe1AsyncLine2)
+{
+	bool done = false;
+
+	signal(SIGINT)
+		.then([](int s) {
+		theLoop().exit();
+	});
+		
+	{ 
+		{	
+			auto pipe = Pipe::create();
+
+			timeout(1,0)
+			.then( [pipe]()
+			{
+				return pipe->write("line 1\nline 2\nquit\n");
+			})
+			.then([](){});
+
+			timeout(2,0)
+			.then( [pipe]()
+			{
+				std::cout << "CLOSE" << std::endl;
+				pipe->close();
+				theLoop().exit();
+			});
+
+			pipe->asyncLineReader([&done,pipe](std::string s)
+			{
+				static std::string buf;
+
+				std::cout << "read: " << s << std::endl;
+				buf.append(s);
+
+				if(s=="quit")
+				{
+					EXPECT_STREQ(buf.c_str(), "line 1line 2quit");
+					std::cout << "QUIT" << std::endl;
+					done = true;
+				}
+			});
+		}
+		theLoop().run();
+	}
+	EXPECT_EQ(done,true);
+	MOL_TEST_ASSERT_CNTS(0,0);
+}
+
 /*
 TEST_F(BasicTest, SimplePdf2)
 {

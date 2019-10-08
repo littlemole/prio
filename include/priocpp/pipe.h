@@ -9,10 +9,232 @@
 
 #include "reprocpp/promise.h"
 #include "priocpp/api.h"
-
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <fcntl.h>
 namespace prio      {
 
+void set_blocking(socket_t fd);	
 
+class Pipe: public std::enable_shared_from_this<Pipe>
+{
+public:
+
+	~Pipe()
+	{}
+
+	static std::shared_ptr<Pipe> create()
+	{
+		auto ptr = std::shared_ptr<Pipe>(new Pipe());
+		ptr->pipe();
+
+		return ptr;
+	}
+
+	void close()
+	{
+		io_write_.cancel();
+		io_read_.cancel();
+		closeFd(0);
+		closeFd(1);
+
+		if(t_)
+		{
+			t_->join();
+			t_.reset();
+		}
+	}
+
+	repro::Future<> write(std::string data)
+	{
+		auto p = repro::promise();
+
+		io_write_
+		.onWrite(filedes_[1])
+		.then([this,p,data]()
+		{
+			::write(filedes_[1],data.c_str(),data.size());
+			io_write_.cancel();
+			p.resolve();
+		})
+		.otherwise(reject(p));
+
+		return p.future();
+	}
+
+	void asyncReader( std::function<void(std::string)> fun)
+	{
+		set_blocking(filedes_[0]);
+
+		t_.reset( new std::thread( [this,fun]()
+		{
+			while(true)
+			{
+				char buf[1024];
+				int n = ::read(filedes_[0],buf,1024);
+				if(n>0)
+				{
+					std::string tmp(buf,n);
+					fun(tmp);
+				}
+				if(n<1)
+				{
+					break;
+				}
+			}
+		}) );
+	}
+
+	void asyncLineReader( std::function<void(std::string)> fun)
+	{
+		set_blocking(filedes_[0]);
+
+		t_.reset( new std::thread( [this,fun]()
+		{
+			std::string line_buf;
+
+			while(true)
+			{
+				char buf[1024];
+				int n = ::read(filedes_[0],buf,1024);
+				if(n>0)
+				{
+					std::string tmp(buf,n);
+					line_buf.append(tmp);
+
+					auto pos = line_buf.find("\n");
+
+					while(pos!=std::string::npos)
+					{
+						std::string line = line_buf.substr(0,pos);
+						if(pos+1>line_buf.size())
+						{
+							line_buf = "";
+						}
+						else 
+						{
+							line_buf = line_buf.substr(pos+1);
+						}
+						fun(line);
+
+						pos = line_buf.find("\n");
+					}					
+					continue;
+				}
+				if(n<1)
+				{
+					break;
+				}
+			}
+		}) );
+	}
+
+	repro::Future<std::string> read()
+	{
+		auto p =repro::promise<std::string>();
+
+		io_read_
+		.onRead(filedes_[0])
+		.then([this,p]()
+		{
+			char buf[1024];
+			int n = ::read(filedes_[0],buf,1024);
+			io_read_.cancel();
+			p.resolve(std::string(buf,n));
+		})
+		.otherwise(reject(p));
+
+		return p.future();
+	}	
+	
+
+private:
+
+	void closeFd(int i)
+	{
+		if(filedes_[i] != -1)
+		{
+			::close(filedes_[i]);
+			filedes_[i] = -1;
+		}
+	}
+
+	void readLine(repro::Promise<std::string> p)
+	{
+		auto pos = line_buffer_.find("\n");
+		if(pos!=std::string::npos)
+		{
+			std::string line = line_buffer_.substr(0,pos);
+			if(pos+1>line_buffer_.size())
+			{
+				line_buffer_ = "";
+			}
+			else 
+			{
+				line_buffer_ = line_buffer_.substr(pos+1);
+			}
+			nextTick([this,p,line]()
+			{
+				io_read_.cancel();
+				p.resolve(line);				
+			});
+			return;
+		}
+
+		io_read_
+		.onRead(filedes_[0])
+		.then([this,p]()
+		{
+			char buf[1024];
+			int n = ::read(filedes_[0],buf,1024);
+			line_buffer_.append(std::string(buf,n));
+
+			readLine(p);
+		})
+		.otherwise(reject(p));
+
+		return;
+	}	
+
+public:
+
+
+	repro::Future<std::string> readLine()
+	{
+		auto p = repro::promise<std::string>();
+
+		readLine(p);
+
+		return p.future();
+	}
+
+private:
+
+	std::unique_ptr<std::thread> t_;
+	std::string line_buffer_;
+
+	IO io_write_;
+	IO io_read_;
+
+	int filedes_[2];
+
+	Pipe()
+	{
+		filedes_[0] = -1;
+		filedes_[1] = -1;
+	}
+
+	Pipe& operator=(const Pipe& rhs) = delete;
+	Pipe(const Pipe& rhs) = delete;
+
+	void pipe()
+	{
+		if (pipe2(filedes_, O_NONBLOCK|O_CLOEXEC) == -1)
+		{
+			throw repro::Ex("create Pipe failed");
+		}		
+	}
+};
 
 /**
  * \brief unix PipedProcess implementation 
