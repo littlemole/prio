@@ -18,15 +18,12 @@ struct TimeoutImpl
 
 Timeout::Timeout()
 : impl_(new TimeoutImpl)
-{
-	LITTLE_MOLE_ADDREF_DEBUG_REF_CNT(prio::timeouts);
-}
+{}
 
 Timeout::~Timeout()
 {
 	cancel();
-	LITTLE_MOLE_RELEASE_DEBUG_REF_CNT(timeouts);	
-}
+
 
 Future<> Timeout::after(int ms)
 {

@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
 #include <functional>
 #include "reprocpp/after.h"
-#include "test.h"
+#include "reprocpp/test.h"
 
 #include "priocpp/api.h"
 #include "priocpp/task.h"

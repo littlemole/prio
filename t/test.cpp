@@ -1,14 +1,17 @@
 #include "gtest/gtest.h"
+#include "gtest/gtest.h"
+//#include "gtest/gtest-matcher.h"
 #include <functional>
 
 #include "reprocpp/after.h"
-#include "test.h"
+#include "reprocpp/test.h"
 
 #include "priocpp/api.h"
 #include "priocpp/task.h"
 #include "priocpp/connection.h"
 #include "priocpp/ssl_connection.h"
 #include "priocpp/pipe.h"
+#include "priocpp/logger.h"
 #include "cryptoneat/cryptoneat.h"
 #include <signal.h>
 
@@ -543,12 +546,12 @@ TEST_F(BasicTest, Pipe1)
 			auto pipe = Pipe::create();
 
 			timeout(1,0)
-			.then( [pipe]()
+			.then( [pipe]()  
 			{
 				return pipe->write("line 1\nline 2\nquit\n");
 			})
-			.then([](){});
- 
+			.then([](){}); 
+    
 			pipe->readLine()
 			.then([pipe](std::string line)
 			{
@@ -587,7 +590,7 @@ TEST_F(BasicTest, Pipe1Async)
 		theLoop().exit();
 	});
 
-	{
+	{ 
 		{	
 			auto pipe = Pipe::create();
 
@@ -711,7 +714,55 @@ TEST_F(BasicTest, Pipe1AsyncLine2)
 	EXPECT_EQ(done,true);
 	MOL_TEST_ASSERT_CNTS(0,0);
 }
+ 
 
+TEST_F(BasicTest, Logger)
+{  
+	bool done = false; 
+	std::string result;
+
+	signal(SIGINT) 
+	.then([](int s) {
+		theLoop().exit(); 
+	});    
+		     
+	{  
+
+		auto logConf = std::make_shared<LogConfig>();
+		logConf->appender.push_back( [&done,&result](std::string line)
+		{
+			done = true;
+			result.append(line.substr(35));
+			std::cout << line << std::endl;
+		}); 
+
+		auto logging = std::make_shared<Logging>(logConf);
+		
+		Logger logger("MyLogger",logging);
+
+		logger.log(LOG_ERROR("error \"#%\" ", 1));
+		logger.log(LOG_ERROR("error #%", 2));
+		logger(LOG_ERROR("error"));
+		logger(LOG_DEBUG("won't show"));
+		
+		timeout(1,0)
+		.then( []() 
+		{
+			theLoop().exit();
+		});
+
+		theLoop().run();
+	}
+	EXPECT_EQ(done,true);
+	/*
+	EXPECT_THAT(result, MatchesRegex("error"));
+	EXPECT_THAT(result, MatchesRegex("test.cpp:740"));
+	EXPECT_THAT(result, MatchesRegex("test.cpp:741"));
+	EXPECT_THAT(result, MatchesRegex("test.cpp:742"));
+*/
+//	EXPECT_STREQ(result.c_str(), "\"error #1error\" in TestBody at test.cpp:740\"error #2error\" in TestBody at test.cpp:741\"error\" in TestBody at test.cpp:742");
+	MOL_TEST_ASSERT_CNTS(0,0);
+}
 /*
 TEST_F(BasicTest, SimplePdf2)
 {

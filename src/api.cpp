@@ -101,30 +101,7 @@ Future<Connection::Ptr> Connection::connect(const std::string& host, int port, S
 	return SslConnection::connect(host,port,ctx);
 }
 
-/*
-int next_proto_cb(SSL *ssl, const unsigned char **data,unsigned int *len, void *arg) 
-{
-  *data = next_proto_list;
-  *len = (unsigned int)next_proto_list_len;
-  return SSL_TLSEXT_ERR_OK;
-}
 
-#if OPENSSL_VERSION_NUMBER >= 0x10002000L
-int alpn_select_proto_cb(SSL *ssl, const unsigned char **out,
-          unsigned char *outlen, const unsigned char *in,
-		  unsigned int inlen, void *arg) 
-{
-  int rv = nghttp2_select_next_protocol((unsigned char **)out, outlen, in, inlen);
-
-  if (rv != 1) {
-    return SSL_TLSEXT_ERR_NOACK;
-  }
-
-  return SSL_TLSEXT_ERR_OK;
-}
-#endif // OPENSSL_VERSION_NUMBER >= 0x10002000L
-
-*/
 
 } // close namespaces
 

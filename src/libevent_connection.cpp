@@ -24,10 +24,6 @@ using namespace repro;
 namespace prio      {
 
 
-LITTLE_MOLE_DECLARE_DEBUG_REF_CNT(sockets);
-
-
-
 TcpConnectionImpl::TcpConnectionImpl()
 	: fd(-1)
 {}
@@ -35,12 +31,10 @@ TcpConnectionImpl::TcpConnectionImpl()
 TcpConnection::TcpConnection(TcpConnectionImpl* impl)
 	: impl_(impl), timeouts_(connection_timeouts())
 {
-	LITTLE_MOLE_ADDREF_DEBUG_REF_CNT(tcp_connections);
 }
 
 TcpConnection::~TcpConnection()
 {
-	LITTLE_MOLE_RELEASE_DEBUG_REF_CNT(tcp_connections);
 	close();
 }
 
@@ -269,7 +263,6 @@ void TcpConnection::close()
 	cancel();
 	if(impl_->fd != -1)
 	{
-		LITTLE_MOLE_RELEASE_DEBUG_REF_CNT(sockets);
 		close_socket(impl_->fd);
 		impl_->fd = -1;
 	}

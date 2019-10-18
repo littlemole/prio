@@ -12,12 +12,6 @@
 
 namespace prio  		{
 
-
-LITTLE_MOLE_DECLARE_DEBUG_REF_CNT(events);
-LITTLE_MOLE_DECLARE_DEBUG_REF_CNT(sockets);
-LITTLE_MOLE_DECLARE_DEBUG_REF_CNT(timeouts);
-
-
 bool would_block();
 
 //////////////////////////////////////////////////////////////
@@ -31,12 +25,11 @@ typedef struct ssl_st SSL;
 namespace prio      {
 
 
-LITTLE_MOLE_DECLARE_DEBUG_REF_CNT(events);
-
-
 class Event : public std::enable_shared_from_this<Event>
 {
 public:
+
+	LITTLE_MOLE_MONITOR(Events);
 
 	typedef std::shared_ptr<Event> Ptr;
 	typedef std::function<void(socket_t fd,short what)> callback_t;
@@ -147,8 +140,6 @@ struct SslCtxImpl
 	~SslCtxImpl();
 	
 	void loadKeys( const std::string& keyfile );
-	//void enableHttp2();
-	//void enableHttp2Client();
 	
 	SSL_CTX* ctx;
 };

@@ -7,14 +7,13 @@
 namespace prio      {
 
 
-LITTLE_MOLE_DECLARE_DEBUG_REF_CNT(tcp_connections);
-
-
 class TcpConnectionImpl;
 
 class TcpConnection : public Connection
 {
 public:
+
+	LITTLE_MOLE_MONITOR(TcpConnections);
 
 	typedef std::shared_ptr<Connection> Ptr;
 

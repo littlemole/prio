@@ -52,19 +52,13 @@ SslConnectionImpl::~SslConnectionImpl()
 SslConnection::SslConnection(SslConnectionImpl* impl)
 	: impl_(impl)
 {
-	//std::cout << "SslConnection()" << std::endl;	
-	LITTLE_MOLE_ADDREF_DEBUG_REF_CNT(ssl_connections);
-
 	timeouts_ = connection_timeouts();
 }
 
 
 SslConnection::~SslConnection()
 {
-	//std::cout << "~SslConnection()" << std::endl;
 	close();
-
-	LITTLE_MOLE_RELEASE_DEBUG_REF_CNT(ssl_connections);
 }
 
 connection_timeout_t& SslConnection::timeouts()
@@ -399,7 +393,6 @@ void SslConnection::close()
 	{
 		close_socket(impl_->fd);
 		impl_->fd = -1;
-		LITTLE_MOLE_RELEASE_DEBUG_REF_CNT(sockets);
 	}
 	if(impl_->ssl)
 	{

@@ -118,15 +118,12 @@ Event::Ptr Event::create(::event_base* loop, socket_t fd, short what) noexcept
 
 Event::Event() noexcept
 {
-	LITTLE_MOLE_ADDREF_DEBUG_REF_CNT(events);
-
 	e = nullptr;
 	cb_ = [](socket_t fd, short what){};
 }
 
 Event::~Event()
 {
-	LITTLE_MOLE_RELEASE_DEBUG_REF_CNT(events);
 	cancel();
 }
 
@@ -262,8 +259,6 @@ Future<ConnectionPtr> Listener::bind( int port )
 
 	set_non_blocking(fd);
 
-	LITTLE_MOLE_ADDREF_DEBUG_REF_CNT(sockets);
-
 	impl_->fd = fd;
 
 	return impl_->bind(port);
@@ -322,7 +317,6 @@ TcpListenerImpl::TcpListenerImpl()
 TcpListenerImpl::~TcpListenerImpl()
 {
 	close_socket(fd);
-	LITTLE_MOLE_RELEASE_DEBUG_REF_CNT(sockets);
 	if(e)
 		e->cancel();
 }
@@ -347,8 +341,6 @@ void TcpListenerImpl::accept_handler(Promise<Connection::Ptr> p)
 				throw Ex("server: failed to accept socket");
 			}
 			
-			LITTLE_MOLE_ADDREF_DEBUG_REF_CNT(sockets);
-
 			set_non_blocking(client);
 
 			impl->fd = client;
@@ -371,7 +363,6 @@ SslListenerImpl::SslListenerImpl(SslCtx& ssl)
 SslListenerImpl::~SslListenerImpl()
 {
 	close_socket(fd);
-	LITTLE_MOLE_RELEASE_DEBUG_REF_CNT(sockets);
 	if(e)
 		e->cancel();
 }
@@ -424,8 +415,6 @@ void SslListenerImpl::accept_handler(Promise<Connection::Ptr> p)
 				throw Ex("server: failed to accept socket");
 			}
 			
-			LITTLE_MOLE_ADDREF_DEBUG_REF_CNT(sockets);
-
 			set_non_blocking(client);
 
 			SSL* ssl = SSL_new(ctx.ctx->ctx);
@@ -580,7 +569,6 @@ Future<socket_t> Resolver::connect(const std::string& host, int port)
 			socket_t fd;
 			// create the socket
 			fd = ::socket( AF_INET,SOCK_STREAM, IPPROTO_TCP);
-			LITTLE_MOLE_ADDREF_DEBUG_REF_CNT(sockets);
 
 			set_non_blocking(fd);
 

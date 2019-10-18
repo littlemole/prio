@@ -20,6 +20,8 @@ class Pipe: public std::enable_shared_from_this<Pipe>
 {
 public:
 
+	LITTLE_MOLE_MONITOR(Pipes);
+
 	~Pipe()
 	{}
 
@@ -49,20 +51,51 @@ public:
 	{
 		auto p = repro::promise();
 
-		io_write_
-		.onWrite(filedes_[1])
-		.then([this,p,data]()
+		int r = ::write(filedes_[1],data.c_str(),data.size());
+		if( r == EWOULDBLOCK || r == EAGAIN)
 		{
-			::write(filedes_[1],data.c_str(),data.size());
-			io_write_.cancel();
-			p.resolve();
-		})
-		.otherwise(reject(p));
+			io_write_
+			.onWrite(filedes_[1])
+			.then([this,p,data]()
+			{
+				this->write(data)
+				.then([this,p]()
+				{
+					p.resolve();
+				})
+				.otherwise(reject(p));
+			})
+			.otherwise(reject(p));
+			return  p.future();
+		}
+
+		if( ((unsigned int)r) == data.size())
+		{
+			nextTick([this,p]()
+			{
+				p.resolve();
+			});
+		}
+		else
+		{
+			this->write(data.substr(r))
+			.then([this,p]()
+			{
+				p.resolve();
+			})
+			.otherwise(reject(p));
+		}
 
 		return p.future();
 	}
 
 	void asyncReader( std::function<void(std::string)> fun)
+	{
+		std::vector<std::function<void(std::string)>> f{fun};
+		asyncReader(f);
+	}
+
+	void asyncReader( std::vector<std::function<void(std::string)>> fun)
 	{
 		set_blocking(filedes_[0]);
 
@@ -75,7 +108,10 @@ public:
 				if(n>0)
 				{
 					std::string tmp(buf,n);
-					fun(tmp);
+					for( auto& f: fun)
+					{
+						f(tmp);
+					}
 				}
 				if(n<1)
 				{
@@ -86,6 +122,12 @@ public:
 	}
 
 	void asyncLineReader( std::function<void(std::string)> fun)
+	{
+		std::vector<std::function<void(std::string)>> f{fun};
+		asyncLineReader(f);
+	}
+
+	void asyncLineReader( std::vector<std::function<void(std::string)>> fun)
 	{
 		set_blocking(filedes_[0]);
 
@@ -115,7 +157,11 @@ public:
 						{
 							line_buf = line_buf.substr(pos+1);
 						}
-						fun(line);
+
+						for(auto& f : fun)
+						{
+							f(line);
+						}
 
 						pos = line_buf.find("\n");
 					}					
@@ -139,7 +185,6 @@ public:
 		{
 			char buf[1024];
 			int n = ::read(filedes_[0],buf,1024);
-			io_read_.cancel();
 			p.resolve(std::string(buf,n));
 		})
 		.otherwise(reject(p));
@@ -161,6 +206,8 @@ private:
 
 	void readLine(repro::Promise<std::string> p)
 	{
+		io_read_.cancel();
+
 		auto pos = line_buffer_.find("\n");
 		if(pos!=std::string::npos)
 		{
@@ -175,7 +222,6 @@ private:
 			}
 			nextTick([this,p,line]()
 			{
-				io_read_.cancel();
 				p.resolve(line);				
 			});
 			return;
@@ -236,6 +282,7 @@ private:
 	}
 };
 
+
 /**
  * \brief unix PipedProcess implementation 
  *
@@ -244,6 +291,8 @@ private:
 class PipedProcess : public std::enable_shared_from_this<PipedProcess>
 {
 public:
+
+	LITTLE_MOLE_MONITOR(PipedProcesses);
 
 	//! a PipedProcess::Ptr is a std::shared_ptr<PipedProcess>
 	typedef std::shared_ptr<PipedProcess> Ptr;

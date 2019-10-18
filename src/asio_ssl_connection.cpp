@@ -59,7 +59,6 @@ SslConnection::SslConnection(SslConnectionImpl* impl)
 	: timeouts_(connection_timeouts()),
 	  impl_(impl)
 {
-	LITTLE_MOLE_ADDREF_DEBUG_REF_CNT(ssl_connections);
 }
 
 
@@ -67,8 +66,6 @@ SslConnection::~SslConnection()
 {
 	cancel();
 	close();
-
-	LITTLE_MOLE_RELEASE_DEBUG_REF_CNT(ssl_connections);
 }
 
 connection_timeout_t& SslConnection::timeouts()

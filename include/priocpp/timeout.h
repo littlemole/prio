@@ -59,6 +59,8 @@ class Timeout
 {
 public:
 
+   LITTLE_MOLE_MONITOR(Timeouts);
+
    Timeout();
    ~Timeout();
    

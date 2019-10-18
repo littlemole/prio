@@ -8,13 +8,13 @@
 namespace prio      {
 
 
-LITTLE_MOLE_DECLARE_DEBUG_REF_CNT(ssl_connections);
-
 class SslConnectionImpl;
 
 class SslConnection : public Connection
 {
 public:
+
+	LITTLE_MOLE_MONITOR(SSLConnections);
 
 	typedef std::shared_ptr<Connection> Ptr;
 

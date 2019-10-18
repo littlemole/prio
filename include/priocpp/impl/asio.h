@@ -102,7 +102,6 @@ struct SslCtxImpl
 {
 	SslCtxImpl();
 
-	//void enableHttp2Client();
 	boost::asio::ssl::context ssl;
 };
 
