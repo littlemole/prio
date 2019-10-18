@@ -23,7 +23,7 @@ Timeout::Timeout()
 Timeout::~Timeout()
 {
 	cancel();
-
+}
 
 Future<> Timeout::after(int ms)
 {

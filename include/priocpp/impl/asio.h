@@ -9,10 +9,6 @@
 
 namespace prio	 	{
 
-LITTLE_MOLE_DECLARE_DEBUG_REF_CNT(events);
-LITTLE_MOLE_DECLARE_DEBUG_REF_CNT(sockets);
-LITTLE_MOLE_DECLARE_DEBUG_REF_CNT(timeouts);
-
 //////////////////////////////////////////////////////////////
 
 #ifndef _WIN32

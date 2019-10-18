@@ -19,12 +19,10 @@ TcpConnectionImpl::TcpConnectionImpl()
 TcpConnection::TcpConnection(TcpConnectionImpl* impl)
 	: impl_(impl), timeouts_(connection_timeouts())
 {
-	LITTLE_MOLE_ADDREF_DEBUG_REF_CNT(tcp_connections);
 }
 
 TcpConnection::~TcpConnection()
 {
-	LITTLE_MOLE_RELEASE_DEBUG_REF_CNT(tcp_connections);
 	cancel();
 	close();
 }
