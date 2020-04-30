@@ -106,12 +106,34 @@ struct ListenerImpl
 	ListenerImpl();
 	virtual ~ListenerImpl();
 
-    virtual void accept_handler(repro::Promise<Connection::Ptr> p) = 0;
+    virtual void accept_handler() = 0;
 
-	repro::Future<ConnectionPtr> bind( int port );
+	void bind( int port );
 	void cancel();
 
+
+	template<class E>
+	void reject( const E& e) const
+	{
+		if(onError)
+		{
+			auto eptr = std::make_exception_ptr(e);
+			onError(eptr);
+		}
+	}
+
+	void reject(const std::exception_ptr& eptr) const
+	{
+		if(onError)
+		{
+			onError(eptr);
+		}
+	}
+
 	boost::asio::ip::tcp::acceptor acceptor;
+
+	std::function<void(Connection::Ptr)> onAccept;
+	std::function<bool(const std::exception_ptr&)> onError;	
 };
 
 
@@ -142,7 +164,7 @@ struct TcpListenerImpl : public ListenerImpl
 	TcpListenerImpl();	
 	~TcpListenerImpl();
 
-    void accept_handler(repro::Promise<Connection::Ptr> p);
+    void accept_handler();
 
 	boost::asio::ip::tcp::socket socket;
 };
@@ -154,7 +176,7 @@ struct SslListenerImpl : public ListenerImpl
 	SslListenerImpl(SslCtx& ssl);	
 	~SslListenerImpl();
 
-    void accept_handler(repro::Promise<Connection::Ptr> p);
+    void accept_handler();
 
 	boost::asio::ssl::stream<boost::asio::ip::tcp::socket> socket;
 	SslCtx& ctx;

@@ -144,13 +144,13 @@ public:
  * with the result from the task, if any.
  */
 
-template<class T, typename std::enable_if<!repro::ReturnsVoid<T>::value>::type* = nullptr>
+template<class T, typename std::enable_if<!repro::traits::returns_void<T>::value>::type* = nullptr>
 auto task(T t, ThreadPool& pool = thePool() ) -> repro::Future<decltype(t())>
 {
 	return Task<decltype(t())(T)>::exec(t,pool);
 }
 
-template<class T, typename std::enable_if<repro::ReturnsVoid<T>::value>::type* = nullptr>
+template<class T, typename std::enable_if<repro::traits::returns_void<T>::value>::type* = nullptr>
 auto task(T t, ThreadPool& pool = thePool() ) -> repro::Future<>
 {
 	return Task<void(T)>::exec(t,pool);

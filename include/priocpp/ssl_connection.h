@@ -14,8 +14,6 @@ class SslConnection : public Connection
 {
 public:
 
-	LITTLE_MOLE_MONITOR(SSLConnections);
-
 	typedef std::shared_ptr<Connection> Ptr;
 
 	SslConnection(SslConnectionImpl* impl);
@@ -36,6 +34,9 @@ public:
 	virtual bool isHttp2Requested();
 	
 protected:
+
+	SslConnection(SslConnection&) = delete;
+	SslConnection& operator=(SslConnection&) = delete;
 
 	void ssl_do_connect(repro::Promise<Connection::Ptr> p);
 	void do_ssl_read(repro::Promise<Connection::Ptr,std::string> p, short what);

@@ -14,17 +14,20 @@ namespace prio      {
 TcpConnectionImpl::TcpConnectionImpl()
 	: socket(asioLoop().io()), 
 	  resolver(asioLoop().io())
-{}
+{
+}
 
 TcpConnection::TcpConnection(TcpConnectionImpl* impl)
 	: impl_(impl), timeouts_(connection_timeouts())
 {
+	REPRO_MONITOR_INCR(TcpConnection);
 }
 
 TcpConnection::~TcpConnection()
 {
 	cancel();
 	close();
+	REPRO_MONITOR_DECR(TcpConnection);
 }
 
 connection_timeout_t& TcpConnection::timeouts()

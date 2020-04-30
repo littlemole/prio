@@ -29,8 +29,6 @@ class Event : public std::enable_shared_from_this<Event>
 {
 public:
 
-	LITTLE_MOLE_MONITOR(Events);
-
 	typedef std::shared_ptr<Event> Ptr;
 	typedef std::function<void(socket_t fd,short what)> callback_t;
 
@@ -151,14 +149,33 @@ struct ListenerImpl
 	ListenerImpl();
 	virtual ~ListenerImpl();
 
-    virtual void accept_handler(repro::Promise<Connection::Ptr> p) = 0;
+    virtual void accept_handler() = 0;
 
-	repro::Future<ConnectionPtr> bind( int port );
+	void bind( int port );
 	void cancel();
+
+	template<class E>
+	void reject( const E& e) const
+	{
+		if(onError)
+		{
+			auto eptr = std::make_exception_ptr(e);
+			onError(eptr);
+		}
+	}
+
+	void reject(const std::exception_ptr& eptr) const
+	{
+		if(onError)
+		{
+			onError(eptr);
+		}
+	}
 
 	socket_t fd;
 	Event::Ptr e;
-	repro::Promise<Connection::Ptr> promise_; 
+	std::function<void(Connection::Ptr)> onAccept;
+	std::function<bool(const std::exception_ptr&)> onError;
 };
 
 
@@ -182,7 +199,7 @@ struct TcpListenerImpl : public ListenerImpl
 	TcpListenerImpl();	
 	~TcpListenerImpl();
 
-    void accept_handler(repro::Promise<Connection::Ptr> p);
+    void accept_handler();
 };
 
 
@@ -192,7 +209,7 @@ struct SslListenerImpl : public ListenerImpl
 	SslListenerImpl(SslCtx& ssl);	
 	~SslListenerImpl();
 
-    void accept_handler(repro::Promise<Connection::Ptr> p);
+    void accept_handler();
 
 	SslCtx& ctx;
 };

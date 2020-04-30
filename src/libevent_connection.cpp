@@ -26,16 +26,19 @@ namespace prio      {
 
 TcpConnectionImpl::TcpConnectionImpl()
 	: fd(-1)
-{}
+{
+}
 
 TcpConnection::TcpConnection(TcpConnectionImpl* impl)
 	: impl_(impl), timeouts_(connection_timeouts())
 {
+	REPRO_MONITOR_INCR(TcpConnection);
 }
 
 TcpConnection::~TcpConnection()
 {
 	close();
+	REPRO_MONITOR_DECR(TcpConnection);
 }
 
 connection_timeout_t& TcpConnection::timeouts()

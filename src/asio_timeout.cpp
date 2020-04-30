@@ -18,11 +18,15 @@ struct TimeoutImpl
 
 Timeout::Timeout()
 : impl_(new TimeoutImpl)
-{}
+{
+	REPRO_MONITOR_INCR(timeout);
+}
 
 Timeout::~Timeout()
 {
 	cancel();
+	REPRO_MONITOR_DECR(timeout);
+
 }
 
 Future<> Timeout::after(int ms)

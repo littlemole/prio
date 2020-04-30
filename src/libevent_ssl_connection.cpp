@@ -53,12 +53,14 @@ SslConnection::SslConnection(SslConnectionImpl* impl)
 	: impl_(impl)
 {
 	timeouts_ = connection_timeouts();
+	REPRO_MONITOR_INCR(SslConnection);
 }
 
 
 SslConnection::~SslConnection()
 {
 	close();
+	REPRO_MONITOR_DECR(SslConnection);
 }
 
 connection_timeout_t& SslConnection::timeouts()
@@ -540,7 +542,12 @@ void SslCtxImpl::loadKeys( const std::string& keyfile )
 	std::cout << "Load cer " << keyfile << std::endl;
 
 	if(!(SSL_CTX_use_certificate_chain_file(ctx,	keyfile.c_str())))
+	{
+		auto e = ERR_get_error();
+		auto s = ERR_error_string(e,0);
+		std::cout << e << ":" << s << std::endl;
 		throw Ex("Can't read certificate file");
+	}
 
 	if(!(SSL_CTX_use_PrivateKey_file(ctx,keyfile.c_str(),SSL_FILETYPE_PEM)))
 		throw Ex("Can't read key file");

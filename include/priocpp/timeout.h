@@ -59,8 +59,6 @@ class Timeout
 {
 public:
 
-   LITTLE_MOLE_MONITOR(Timeouts);
-
    Timeout();
    ~Timeout();
    
@@ -71,6 +69,8 @@ public:
    void cancel();
    
 private:
+   Timeout(const Timeout&) = delete;
+   Timeout& operator=(const Timeout&) = delete;
    std::unique_ptr<TimeoutImpl> impl_;
 };
 

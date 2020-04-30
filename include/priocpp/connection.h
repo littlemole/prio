@@ -13,8 +13,6 @@ class TcpConnection : public Connection
 {
 public:
 
-	LITTLE_MOLE_MONITOR(TcpConnections);
-
 	typedef std::shared_ptr<Connection> Ptr;
 
 	TcpConnection(TcpConnectionImpl*);
@@ -33,6 +31,9 @@ public:
 	virtual connection_timeout_t& timeouts();
 
 protected:
+
+	TcpConnection(const TcpConnection&) = delete;
+	TcpConnection& operator=(TcpConnection&) = delete;
 
 	std::unique_ptr<TcpConnectionImpl> impl_;
 	connection_timeout_t timeouts_;

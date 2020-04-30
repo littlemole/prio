@@ -59,9 +59,10 @@ Listener::~Listener()
 {}
 
 
-Future<ConnectionPtr> Listener::bind( int port )
+Listener& Listener::bind( int port )
 {
-	return impl_->bind(port);
+	impl_->bind(port);
+	return *this;
 }
 
 
@@ -70,6 +71,17 @@ void Listener::cancel()
 	return impl_->cancel();
 }
 
+
+std::function<bool(const std::exception_ptr&)>& Listener::getErrorChain()
+{
+	return impl_->onError;
+}
+
+Listener& Listener::onAccept(std::function<void(Connection::Ptr)> handler)
+{
+	impl_->onAccept = handler;
+	return *this;
+}
 
 
 
@@ -89,7 +101,7 @@ ListenerImpl::~ListenerImpl()
 {}
 
 
-Future<ConnectionPtr> ListenerImpl::bind( int port )
+void ListenerImpl::bind( int port )
 {
 	auto p = promise<Connection::Ptr>();
 
@@ -105,9 +117,7 @@ Future<ConnectionPtr> ListenerImpl::bind( int port )
 	acceptor.bind(endpoint);
 	acceptor.listen();
 
-	accept_handler(p);
-
-	return p.future();
+	accept_handler();
 }
 
 void ListenerImpl::cancel()
@@ -125,19 +135,24 @@ TcpListenerImpl::~TcpListenerImpl()
 	socket.close();
 }
 
-void TcpListenerImpl::accept_handler(Promise<Connection::Ptr> p)
+void TcpListenerImpl::accept_handler()
 {
 	auto impl = new TcpConnectionImpl;
 	Connection::Ptr ptr( new TcpConnection(impl) );		
 
 	acceptor.async_accept(
 		impl->socket,
-		[this,impl,p,ptr](const boost::system::error_code& error)
+		[this,impl,ptr](const boost::system::error_code& error)
 		{
 			if(is_io_cancelled(error))
 			{	
 				return;
 			}
+			if(error)
+			{
+				TcpListenerImpl::accept_handler();
+				return;
+			}			
 
 #if BOOST_VERSION < 106599
 			boost::asio::ip::tcp::socket::non_blocking_io non_blocking_io(true);
@@ -145,8 +160,9 @@ void TcpListenerImpl::accept_handler(Promise<Connection::Ptr> p)
 #else
 			impl->socket.non_blocking(true);
 #endif
-			p.resolve(ptr);
-			accept_handler(p);
+			//p.resolve(ptr);
+			this->onAccept(ptr);
+			accept_handler();
 		}
 	);
 }
@@ -162,14 +178,14 @@ SslListenerImpl::~SslListenerImpl()
 		socket.lowest_layer().close();
 }
 
-void SslListenerImpl::accept_handler(Promise<Connection::Ptr> p)
+void SslListenerImpl::accept_handler()
 {
 	auto impl = new SslConnectionImpl(ctx);
 	Connection::Ptr ptr( new SslConnection(impl) );		
 
 	acceptor.async_accept(
 		impl->socket.lowest_layer(),
-		[this,impl,ptr,p](const boost::system::error_code& error)
+		[this,impl,ptr](const boost::system::error_code& error)
 		{
 			if(is_io_cancelled(error))
 			{	
@@ -178,7 +194,7 @@ void SslListenerImpl::accept_handler(Promise<Connection::Ptr> p)
 
 			if(error)
 			{
-				SslListenerImpl::accept_handler(p);
+				SslListenerImpl::accept_handler();
 				return;
 			}
 #if BOOST_VERSION < 106599
@@ -191,16 +207,16 @@ void SslListenerImpl::accept_handler(Promise<Connection::Ptr> p)
 
 			impl->socket.async_handshake(
 				boost::asio::ssl::stream_base::server,
-				[this,p,ptr](const boost::system::error_code& error)
+				[this,ptr](const boost::system::error_code& error)
 				{
 					if ( error  )
 					{	
-						p.reject(Ex("SSL HANDSHAKE FAILED"));
+						this->reject(Ex("SSL HANDSHAKE FAILED"));
 						return;
 					}
 
-					p.resolve(ptr);
-					SslListenerImpl::accept_handler(p);
+					this->onAccept(ptr);
+					SslListenerImpl::accept_handler();
 				}
 			);
 		}

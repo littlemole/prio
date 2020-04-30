@@ -20,10 +20,10 @@ class Pipe: public std::enable_shared_from_this<Pipe>
 {
 public:
 
-	LITTLE_MOLE_MONITOR(Pipes);
-
 	~Pipe()
-	{}
+	{
+			REPRO_MONITOR_DECR(Pipe);
+	}
 
 	static std::shared_ptr<Pipe> create()
 	{
@@ -268,6 +268,7 @@ private:
 	{
 		filedes_[0] = -1;
 		filedes_[1] = -1;
+		REPRO_MONITOR_INCR(Pipe);
 	}
 
 	Pipe& operator=(const Pipe& rhs) = delete;
@@ -291,8 +292,6 @@ private:
 class PipedProcess : public std::enable_shared_from_this<PipedProcess>
 {
 public:
-
-	LITTLE_MOLE_MONITOR(PipedProcesses);
 
 	//! a PipedProcess::Ptr is a std::shared_ptr<PipedProcess>
 	typedef std::shared_ptr<PipedProcess> Ptr;

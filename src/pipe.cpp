@@ -35,10 +35,14 @@ void set_blocking(socket_t fd)
 
 PipedProcess::PipedProcess()
 	: result_(0), pid_(0),written_(0), promise_(promise<PipedProcess::Ptr>())
-{}
+{
+	REPRO_MONITOR_INCR(PipedProcess);
+}
 
 PipedProcess::~PipedProcess()
-{}
+{
+	REPRO_MONITOR_DECR(PipedProcess);
+}
 
 
 PipedProcess::Ptr PipedProcess::create()

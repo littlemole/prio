@@ -109,6 +109,7 @@ auto rejected(P p, E ex) noexcept
 * when otherwise() will be called
 */
 
+/*
 template<class P>
 auto reject(P p)
 {
@@ -117,7 +118,7 @@ auto reject(P p)
 		p.reject(ex);
 	};
 }
-
+*/
 
 
 /**
@@ -240,9 +241,22 @@ public:
 
 	//! \brief open server socket
 	//! bind a tcp/tls socket to port and start accepting incoming connections
-	repro::Future<ConnectionPtr> bind(int port);
+	Listener& bind(int port);
+	Listener& onAccept(std::function<void(Connection::Ptr)>);
+
+	template<class E>
+	Listener& onError(E& handler)
+	{
+		auto& chain = this->getErrorChain();
+		repro::otherwise_chain(chain,handler);		
+		return *this;
+	}
+
 
 private:
+
+	std::function<bool(const std::exception_ptr&)>& getErrorChain();
+
   std::unique_ptr<ListenerImpl> impl_;
 };
 
@@ -360,7 +374,7 @@ repro::Future<> forEach(C& c, F f )
 *    })
 * \endcode
 */
-
+/*
 template<class ...Args,class T>
 repro::Future<Args...> future( T cb )    
 {
@@ -391,6 +405,7 @@ repro::Future<Args...> future( T cb )
 
     return p.future();
 }
+*/
 
 } // close namespaces
 

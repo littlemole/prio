@@ -120,11 +120,13 @@ Event::Event() noexcept
 {
 	e = nullptr;
 	cb_ = [](socket_t fd, short what){};
+	REPRO_MONITOR_INCR(Event);
 }
 
 Event::~Event()
 {
 	cancel();
+	REPRO_MONITOR_DECR(Event);
 }
 
 void Event::cancel() noexcept
@@ -228,7 +230,7 @@ Listener::~Listener()
 {}
 
 
-Future<ConnectionPtr> Listener::bind( int port )
+Listener& Listener::bind( int port )
 {
 	socket_t fd;
 
@@ -261,7 +263,9 @@ Future<ConnectionPtr> Listener::bind( int port )
 
 	impl_->fd = fd;
 
-	return impl_->bind(port);
+	impl_->bind(port);
+
+	return *this;
 }
 
 
@@ -270,7 +274,16 @@ void Listener::cancel()
 	return impl_->cancel();
 }
 
+std::function<bool(const std::exception_ptr&)>& Listener::getErrorChain()
+{
+	return impl_->onError;
+}
 
+Listener& Listener::onAccept(std::function<void(Connection::Ptr)> handler)
+{
+	impl_->onAccept = handler;
+	return *this;
+}
 
 
 SslCtx& theSslCtx()
@@ -282,23 +295,20 @@ SslCtx& theSslCtx()
 
 
 ListenerImpl::ListenerImpl()
-	: promise_(promise<Connection::Ptr>())
 {}
 
 ListenerImpl::~ListenerImpl()
 {}
 
 
-Future<ConnectionPtr> ListenerImpl::bind( int port )
+void ListenerImpl::bind( int port )
 {
 	if (::listen(fd, SOMAXCONN ) == -1) 
 	{
 		throw Ex("server: failed to listen");
 	}   
 
-	accept_handler(promise_);
-
-	return promise_.future();
+	accept_handler();
 }
 
 void ListenerImpl::cancel()
@@ -321,11 +331,11 @@ TcpListenerImpl::~TcpListenerImpl()
 		e->cancel();
 }
 
-void TcpListenerImpl::accept_handler(Promise<Connection::Ptr> p)
+void TcpListenerImpl::accept_handler()
 {
 	e = onEvent(fd, EV_READ|EV_PERSIST);
 
-	e->callback( [p](socket_t fd, short what )
+	e->callback( [this](socket_t fd, short what )
 	{
 		try
 		{
@@ -345,11 +355,11 @@ void TcpListenerImpl::accept_handler(Promise<Connection::Ptr> p)
 
 			impl->fd = client;
 
-			p.resolve(ptr);
+			this->onAccept(ptr);
 		}
 		catch(...)
 		{
-			p.reject(std::current_exception());
+			this->reject(std::current_exception());
 		}
 	});
 	e->add();
@@ -367,39 +377,39 @@ SslListenerImpl::~SslListenerImpl()
 		e->cancel();
 }
 
-void do_ssl_accept(Promise<Connection::Ptr> p, Connection::Ptr ptr, socket_t sock_fd, SSL* ssl, short what, SSL_CTX* ctx)
+void do_ssl_accept(SslListenerImpl& listener, Connection::Ptr ptr, socket_t sock_fd, SSL* ssl, short what, SSL_CTX* ctx)
 {
 	Event::Ptr e  = onEvent(sock_fd,what);
-	e->callback( [e,p,ptr,sock_fd,ssl,what,ctx](socket_t fd, short w)
+	e->callback( [e,&listener,ptr,sock_fd,ssl,what,ctx](socket_t fd, short w)
 	{
 		int r = ::SSL_accept(ssl);
 		int s = check_err_code(ssl,r,what);
 
 		if ( s == SSL_ERROR_NONE )
 		{
-			p.resolve(ptr);
+			listener.onAccept(ptr);
 			e->dispose();
 			return;
 		}
 
 		if ( s < 0 )
 		{
-			p.reject(Ex("SSL accept failed"));
+			listener.reject(Ex("SSL accept failed"));
 			e->dispose();
 			return;
 		}
 
-		do_ssl_accept(p,ptr,sock_fd,ssl,s,ctx);
+		do_ssl_accept(listener,ptr,sock_fd,ssl,s,ctx);
 		e->dispose();
 	})
 	->add();
 }
 
-void SslListenerImpl::accept_handler(Promise<Connection::Ptr> p)
+void SslListenerImpl::accept_handler()
 {
 	e = onEvent(fd, EV_READ|EV_PERSIST);
 
-	e->callback( [this,p](socket_t fd, short what )
+	e->callback( [this](socket_t fd, short what )
 	{
 		auto impl = new SslConnectionImpl;
 		Connection::Ptr ptr( new SslConnection(impl) );		
@@ -428,19 +438,19 @@ void SslListenerImpl::accept_handler(Promise<Connection::Ptr> p)
 			int s = check_err_code(ssl,r,what);
 			if ( s == SSL_ERROR_NONE)
 			{
-				p.resolve(ptr);
+				this->onAccept(ptr);
 				return;
 			}
 			if ( s < 0)
 			{
-				p.reject(Ex("SSL accept failed"));
+				reject(Ex("SSL accept failed"));
 				return;
 			}		
-			do_ssl_accept(p,ptr,client,ssl,s,ctx.ctx->ctx);
+			do_ssl_accept(*this,ptr,client,ssl,s,ctx.ctx->ctx);
 		}
 		catch(...)
 		{
-			p.reject(std::current_exception());
+			reject(std::current_exception());
 		}
 	});
 	e->add();

@@ -21,6 +21,7 @@ typedef unsigned short ushort;
 #include <condition_variable>
 
 #include "reprocpp/promise.h"
+#include "reprocpp/ex.h"
    
 namespace prio  {
 

@@ -293,7 +293,7 @@ TEST_F(BasicTest, TcpServer) {
 
 		Listener listener;
 		listener.bind(9876)
-		.then([&c](Connection::Ptr client)
+		.onAccept([&c](Connection::Ptr client)
 		{
 			c = client;
 			client->read()
@@ -345,7 +345,7 @@ TEST_F(BasicTest, TcpServerReadN) {
 
 		Listener listener;
 		listener.bind(9876)
-		.then([&c](Connection::Ptr client)
+		.onAccept([&c](Connection::Ptr client)
 		{
 			c = client;
 			client->read()

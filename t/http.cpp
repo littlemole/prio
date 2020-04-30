@@ -24,11 +24,15 @@ class BasicTest : public ::testing::Test {
  protected:
 
   virtual void SetUp() {
+	  std::cout << "---------" << std::endl;
 	  MOL_TEST_PRINT_CNTS();
+	  std::cout << "---------" << std::endl;
   }
 
   virtual void TearDown() {
+	  std::cout << "++++++++" << std::endl;
 	  MOL_TEST_PRINT_CNTS();
+	  std::cout << "++++++++" << std::endl;
   }
 }; // end test setup
 
@@ -126,7 +130,7 @@ TEST_F(BasicTest, SSlClient2) {
 TEST_F(BasicTest, SSlClient3) 
 {
 	SslCtx ssl;
-	ssl.load_cert_pem("pem/server.pem");
+	ssl.load_cert_pem("pem/server.pem"); 
 
 	std::string result;
 	{
@@ -136,30 +140,30 @@ TEST_F(BasicTest, SSlClient3)
 
 		Listener listener(ssl);
 		listener.bind(8765)
-		.then( [&c](Connection::Ptr con)
+		.onAccept( [&c,&listener](Connection::Ptr con)
 		{ 
 			std::cout << "server connected ex!" << std::endl;
 			c =con;
-			return con->read();
-		})
-		.then( [](Connection::Ptr con, std::string data)
-		{
-			std::cout << "server has read" << std::endl;
-			return con->write(data);
-		})
-		.then( [](Connection::Ptr con)
-		{
-			std::cout << "server has written" << std::endl;
-			return con->read();
-		})
-		.otherwise([&listener](const std::exception& ex)
-		{
-			std::cout << "ex!" << ex.what() << std::endl;
-			listener.cancel();
+			con->read()
+			.then( [](Connection::Ptr con, std::string data)
+			{
+				std::cout << "server has read" << std::endl;
+				return con->write(data);
+			})
+			.then( [](Connection::Ptr con)
+			{
+				std::cout << "server has written" << std::endl;
+				return con->read();
+			})
+			.otherwise([&listener](const std::exception& ex)
+			{
+				std::cout << "ex!" << ex.what() << std::endl;
+				listener.cancel();
 
-			timeout( []() {
-				theLoop().exit();			
-			},1,100);
+				timeout( []() {
+					theLoop().exit();			
+				},1,100);
+			});
 		});
 		
 		SslCtx ctx;

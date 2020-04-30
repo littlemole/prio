@@ -27,7 +27,8 @@ SslConnectionImpl::SslConnectionImpl(SslCtx& ssl)
 	: socket(asioLoop().io(), ssl.ctx->ssl), 
 	  resolver(asioLoop().io()),
 	  ctx(ssl.ctx->ssl)
-{}
+{
+}
 
 bool SslConnectionImpl::isHttp2Requested()
 {
@@ -59,6 +60,7 @@ SslConnection::SslConnection(SslConnectionImpl* impl)
 	: timeouts_(connection_timeouts()),
 	  impl_(impl)
 {
+	REPRO_MONITOR_INCR(SslConnection);
 }
 
 
@@ -66,6 +68,7 @@ SslConnection::~SslConnection()
 {
 	cancel();
 	close();
+	REPRO_MONITOR_DECR(SslConnection);	
 }
 
 connection_timeout_t& SslConnection::timeouts()
