@@ -181,7 +181,10 @@ Future<> PipedProcess::write(repro::Promise<> p)
 {
 	if(stdin_.empty())
 	{
-		return resolved<>();
+		auto p = promise();
+		nextTick([p](){p.resolve();});
+		return p.future();
+//		return p.resolved();
 	}
 
 	io_.onWrite(filedes_[1])

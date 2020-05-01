@@ -276,7 +276,7 @@ Future<> TcpConnection::shutdown()
 	auto p = promise<>();
 
 	if(impl_->fd == -1)
-		return resolved();
+		return p.resolved();
 
 	::shutdown(impl_->fd,SHUT_RDWR);
 	read()

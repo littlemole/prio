@@ -410,7 +410,7 @@ Future<> SslConnection::shutdown()
 	auto p = promise<>();
 
 	if(impl_->fd == -1)
-		return resolved();
+		return p.resolved();
 
 	int s = SSL_get_shutdown(impl_->ssl);
 
@@ -419,7 +419,7 @@ Future<> SslConnection::shutdown()
 	{
 		r = SSL_shutdown(impl_->ssl);
 		close();
-		return resolved();
+		return p.resolved();
 	}
 	else
 	{
@@ -430,7 +430,7 @@ Future<> SslConnection::shutdown()
 			r = SSL_shutdown(impl_->ssl) == 1;
 			close();
 		}
-		return resolved();
+		return p.resolved();
 	}
 
 	return p.future();

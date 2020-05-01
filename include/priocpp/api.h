@@ -70,7 +70,7 @@ private:
 * return a future that will be resolved with given args
 * on next tick event loop
 */
-
+/*
 template<class ...VArgs>
 auto resolved(VArgs ... vargs) noexcept
 {
@@ -80,7 +80,7 @@ auto resolved(VArgs ... vargs) noexcept
 	});
 	return p.future();
 }
-
+*/
 //////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
@@ -92,7 +92,7 @@ auto resolved(VArgs ... vargs) noexcept
 * on next tick event loop
 *
 */
-
+/*
 template<class P, class E>
 auto rejected(P p, E ex) noexcept
 {
@@ -101,7 +101,7 @@ auto rejected(P p, E ex) noexcept
 	});
 	return p.future();
 }
-
+*/
 /**
 * \brief return a lambda then can be passed to Promise::otherwise()
 *
