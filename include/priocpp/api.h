@@ -58,67 +58,9 @@ private:
 	T lib_;
 };
 
-//////////////////////////////////////////////////////////////
-// return a promise that will be resolved with given args
-// on next tick event loop
-//////////////////////////////////////////////////////////////
 
-/**
-* \brief return a resolved promise
-* \param variadic list of parameters to be passed to Promise::resolve()
-*
-* return a future that will be resolved with given args
-* on next tick event loop
-*/
-/*
-template<class ...VArgs>
-auto resolved(VArgs ... vargs) noexcept
-{
-	auto p = repro::promise<VArgs...>();
-	nextTick( [p,vargs...]{
-		p.resolve(vargs...);
-	});
-	return p.future();
-}
-*/
 //////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
-
-/**
-* \brief return a rejected future
-* \param promise to be rejected
-*
-* reject the passed promise P using Exception E
-* on next tick event loop
-*
-*/
-/*
-template<class P, class E>
-auto rejected(P p, E ex) noexcept
-{
-	nextTick( [p,ex]{
-		p.reject(ex);
-	});
-	return p.future();
-}
-*/
-/**
-* \brief return a lambda then can be passed to Promise::otherwise()
-*
-* will reject the passed promise with the exception that gets passed to the lambda
-* when otherwise() will be called
-*/
-
-/*
-template<class P>
-auto reject(P p)
-{
-	return [p](const std::exception& ex)
-	{
-		p.reject(ex);
-	};
-}
-*/
 
 
 /**
@@ -355,57 +297,7 @@ repro::Future<> forEach(C& c, F f )
 	});
 }
 
-/**
-* \brief ECMA6 style promise
-* \param lambda with two auto params (resolve and reject)
-*
-* usage: 
-* \code{.cpp}
-*    future<int>( [](auto resolve, auto reject)
-*    {
-*        timeout( [resolve] () 
-*        {
-*            resolve(42);
-*        },1);
-*    })
-*    .then( [](int i) 
-*    {
-*        // std::cout << i << std::endl;		
-*    })
-* \endcode
-*/
-/*
-template<class ...Args,class T>
-repro::Future<Args...> future( T cb )    
-{
-    auto p = repro::promise<Args...>();
 
-	nextTick( [p,cb]()
-	{
-		try
-		{
-			auto resolve = [p]( Args... args) 
-			{
-				p.resolve(args...);
-			};
-
-			auto reject = [p]( const std::exception& ex) 
-			{
-				p.reject(ex);
-			};
-
-				cb(resolve,reject);
-		}
-		catch(...)
-		{
-			auto ex = std::current_exception();
-			p.reject(ex);
-		}
-	});
-
-    return p.future();
-}
-*/
 
 } // close namespaces
 

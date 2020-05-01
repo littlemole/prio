@@ -229,10 +229,10 @@ void TcpConnection::close()
 
 Future<> TcpConnection::shutdown()
 {
-	if(!impl_->socket.is_open())
-		return resolved<>();
-
 	auto p = repro::promise<>();
+
+	if(!impl_->socket.is_open())
+		return p.resolved();
 
 	impl_->socket.shutdown(boost::asio::ip::tcp::socket::shutdown_type::shutdown_send);
 

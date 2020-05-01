@@ -263,11 +263,10 @@ void SslConnection::close()
 
 Future<> SslConnection::shutdown()
 {
+	auto p = promise<>();
 	
 	if(!impl_->socket.lowest_layer().is_open())
-		return resolved<>();
-
-	auto p = promise<>();
+		return p.resolved();
 
 	impl_->socket.shutdown();
 
