@@ -59,7 +59,7 @@ public:
 			.then([this,p,data]()
 			{
 				this->write(data)
-				.then([this,p]()
+				.then([p]()
 				{
 					p.resolve();
 				})
@@ -71,7 +71,7 @@ public:
 
 		if( ((unsigned int)r) == data.size())
 		{
-			nextTick([this,p]()
+			nextTick([p]()
 			{
 				p.resolve();
 			});
@@ -79,7 +79,7 @@ public:
 		else
 		{
 			this->write(data.substr(r))
-			.then([this,p]()
+			.then([p]()
 			{
 				p.resolve();
 			})
@@ -220,7 +220,7 @@ private:
 			{
 				line_buffer_ = line_buffer_.substr(pos+1);
 			}
-			nextTick([this,p,line]()
+			nextTick([p,line]()
 			{
 				p.resolve(line);				
 			});
