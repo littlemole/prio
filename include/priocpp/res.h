@@ -6,13 +6,9 @@
 #include <list>
 #include <ctime>
 #include "reprocpp/promise.h"
+#include "priocpp/common.h"
 
 namespace prio {
-
-long long unix_timestamp()
-{
-	return std::time(0);
-}
 
 namespace Resource {
 
@@ -51,8 +47,8 @@ namespace Resource {
 
 		typedef typename L::type type;
 		typedef std::shared_ptr<std::remove_pointer_t<type>> ResourcePtr;
-		typedef Promise<ResourcePtr> PromiseType;
-		typedef Future<ResourcePtr> FutureType;
+		typedef repro::Promise<ResourcePtr> PromiseType;
+		typedef repro::Future<ResourcePtr> FutureType;
 
 		int MAX_AGE;
 
@@ -103,7 +99,7 @@ namespace Resource {
 
 		FutureType get(const std::string url)
 		{
-			auto p = Promise<ResourcePtr>();
+			auto p = repro::Promise<ResourcePtr>();
 
 			if (unused_.count(url) > 0)
 			{
