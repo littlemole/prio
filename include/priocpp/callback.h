@@ -30,7 +30,7 @@ public:
         cb_(std::forward<VArgs>(args)...);
     }
 
-    void reject(std::exception_ptr eptr) const
+    void reject(const std::exception_ptr& eptr) const
     {
         if (err_)
         {
@@ -47,7 +47,7 @@ public:
     }    
 
     template<class E>
-    void reject(E&& e)
+    void reject(E&& e) const
     {
         auto eptr = std::make_exception_ptr(e);
         reject(eptr);
