@@ -154,28 +154,9 @@ struct ListenerImpl
 	void bind( int port );
 	void cancel();
 
-	template<class E>
-	void reject( const E& e) const
-	{
-		if(onError)
-		{
-			auto eptr = std::make_exception_ptr(e);
-			onError(eptr);
-		}
-	}
-
-	void reject(const std::exception_ptr& eptr) const
-	{
-		if(onError)
-		{
-			onError(eptr);
-		}
-	}
-
 	socket_t fd;
 	Event::Ptr e;
-	std::function<void(Connection::Ptr)> onAccept;
-	std::function<bool(const std::exception_ptr&)> onError;
+	Callback<Connection::Ptr> cb_;
 };
 
 

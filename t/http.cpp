@@ -140,7 +140,7 @@ TEST_F(BasicTest, SSlClient3)
 
 		Listener listener(ssl);
 		listener.bind(8765)
-		.onAccept( [&c,&listener](Connection::Ptr con)
+		.then( [&c,&listener](Connection::Ptr con)
 		{ 
 			std::cout << "server connected ex!" << std::endl;
 			c =con;

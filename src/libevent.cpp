@@ -230,7 +230,7 @@ Listener::~Listener()
 {}
 
 
-Listener& Listener::bind( int port )
+Callback<Connection::Ptr>& Listener::bind( int port )
 {
 	socket_t fd;
 
@@ -265,7 +265,7 @@ Listener& Listener::bind( int port )
 
 	impl_->bind(port);
 
-	return *this;
+	return impl_->cb_;
 }
 
 
@@ -274,16 +274,6 @@ void Listener::cancel()
 	return impl_->cancel();
 }
 
-std::function<bool(const std::exception_ptr&)>& Listener::getErrorChain()
-{
-	return impl_->onError;
-}
-
-Listener& Listener::onAccept(std::function<void(Connection::Ptr)> handler)
-{
-	impl_->onAccept = handler;
-	return *this;
-}
 
 
 SslCtx& theSslCtx()
@@ -355,11 +345,11 @@ void TcpListenerImpl::accept_handler()
 
 			impl->fd = client;
 
-			this->onAccept(ptr);
+			this->cb_.resolve(ptr);
 		}
 		catch(...)
 		{
-			this->reject(std::current_exception());
+			this->cb_.reject(std::current_exception());
 		}
 	});
 	e->add();
@@ -387,14 +377,14 @@ void do_ssl_accept(SslListenerImpl& listener, Connection::Ptr ptr, socket_t sock
 
 		if ( s == SSL_ERROR_NONE )
 		{
-			listener.onAccept(ptr);
+			listener.cb_.resolve(ptr);
 			e->dispose();
 			return;
 		}
 
 		if ( s < 0 )
 		{
-			listener.reject(Ex("SSL accept failed"));
+			listener.cb_.reject(Ex("SSL accept failed"));
 			e->dispose();
 			return;
 		}
@@ -438,19 +428,19 @@ void SslListenerImpl::accept_handler()
 			int s = check_err_code(ssl,r,what);
 			if ( s == SSL_ERROR_NONE)
 			{
-				this->onAccept(ptr);
+				this->cb_.resolve(ptr);
 				return;
 			}
 			if ( s < 0)
 			{
-				reject(Ex("SSL accept failed"));
+				this->cb_.reject(Ex("SSL accept failed"));
 				return;
 			}		
 			do_ssl_accept(*this,ptr,client,ssl,s,ctx.ctx->ctx);
 		}
 		catch(...)
 		{
-			reject(std::current_exception());
+			this->cb_.reject(std::current_exception());
 		}
 	});
 	e->add();

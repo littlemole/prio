@@ -7,6 +7,7 @@
 #include "priocpp/timeout.h"
 #include "priocpp/signal.h"
 #include "priocpp/url.h"
+#include "priocpp/callback.h"
 #include <tuple>
 
 
@@ -183,23 +184,11 @@ public:
 
 	//! \brief open server socket
 	//! bind a tcp/tls socket to port and start accepting incoming connections
-	Listener& bind(int port);
-	Listener& onAccept(std::function<void(Connection::Ptr)>);
-
-	template<class E>
-	Listener& onError(E& handler)
-	{
-		auto& chain = this->getErrorChain();
-		repro::otherwise_chain(chain,handler);		
-		return *this;
-	}
-
+	Callback<Connection::Ptr>& bind(int port);
 
 private:
 
-	std::function<bool(const std::exception_ptr&)>& getErrorChain();
-
-  std::unique_ptr<ListenerImpl> impl_;
+  	std::unique_ptr<ListenerImpl> impl_;
 };
 
 #ifndef _WIN32

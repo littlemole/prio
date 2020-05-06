@@ -293,7 +293,7 @@ TEST_F(BasicTest, TcpServer) {
 
 		Listener listener;
 		listener.bind(9876)
-		.onAccept([&c](Connection::Ptr client)
+		.then([&c](Connection::Ptr client)
 		{
 			c = client;
 			client->read()
@@ -345,7 +345,7 @@ TEST_F(BasicTest, TcpServerReadN) {
 
 		Listener listener;
 		listener.bind(9876)
-		.onAccept([&c](Connection::Ptr client)
+		.then([&c](Connection::Ptr client)
 		{
 			c = client;
 			client->read()
@@ -521,7 +521,7 @@ TEST_F(BasicTest, SimplePipeClassCat)
 		{
 			PipedProcess::create()
 			->stdin("HELLO CAT")
-			->pipe("/bin/cat") //,arguments("cat"))
+			->pipe("/bin/cat",PipedProcess::arguments("cat"))
 			.then([](PipedProcess::Ptr pipe)
 			{
 				std::cout << pipe->stdout() << std::endl;

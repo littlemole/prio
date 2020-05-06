@@ -59,28 +59,16 @@ Listener::~Listener()
 {}
 
 
-Listener& Listener::bind( int port )
+Callback<Connection::Ptr>& Listener::bind( int port )
 {
 	impl_->bind(port);
-	return *this;
+	return impl_->cb;
 }
 
 
 void Listener::cancel()
 {
 	return impl_->cancel();
-}
-
-
-std::function<bool(const std::exception_ptr&)>& Listener::getErrorChain()
-{
-	return impl_->onError;
-}
-
-Listener& Listener::onAccept(std::function<void(Connection::Ptr)> handler)
-{
-	impl_->onAccept = handler;
-	return *this;
 }
 
 
@@ -160,8 +148,7 @@ void TcpListenerImpl::accept_handler()
 #else
 			impl->socket.non_blocking(true);
 #endif
-			//p.resolve(ptr);
-			this->onAccept(ptr);
+			this->cb.resolve(ptr);
 			accept_handler();
 		}
 	);
@@ -211,11 +198,11 @@ void SslListenerImpl::accept_handler()
 				{
 					if ( error  )
 					{	
-						this->reject(Ex("SSL HANDSHAKE FAILED"));
+						this->cb.reject(Ex("SSL HANDSHAKE FAILED"));
 						return;
 					}
 
-					this->onAccept(ptr);
+					this->cb.resolve(ptr);
 					SslListenerImpl::accept_handler();
 				}
 			);
