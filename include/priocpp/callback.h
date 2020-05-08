@@ -46,6 +46,22 @@ public:
         }
     }    
 
+    void reject(std::exception_ptr& eptr) const
+    {
+        if (err_)
+        {
+
+            try
+            {
+                err_(eptr);
+            }
+            catch (...)
+            {
+                throw;
+            }
+        }
+    }  
+
     template<class E>
     void reject(E&& e) const
     {
