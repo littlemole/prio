@@ -137,7 +137,7 @@ namespace Resource {
 							p.resolve(make_ptr(url, r));
 							pending_--;
 						})
-					.otherwise([this, p](const std::exception& ex)
+					.otherwise([this, p](const std::exception_ptr& ex)
 						{
 							p.reject(ex);
 							pending_--;
