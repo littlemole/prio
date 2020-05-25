@@ -395,8 +395,6 @@ bool do_verify(SslCtx& ctx, SSL* ssl)
 }
 void do_ssl_accept(SslListenerImpl& listener, Connection::Ptr ptr, socket_t sock_fd, SSL* ssl, short what, SslCtx& sslctx)
 {
-	SSL_CTX* ctx = sslctx.ctx->ctx;
-
 	Event::Ptr e  = onEvent(sock_fd,what);
 	e->callback( [e,&listener,ptr,sock_fd,ssl,what,&sslctx](socket_t fd, short w)
 	{
