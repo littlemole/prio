@@ -191,6 +191,10 @@ void SslListenerImpl::accept_handler()
 			impl->socket.lowest_layer().non_blocking(true);
 #endif
 
+			if(ctx.verify_client())
+			{
+				impl->socket.set_verify_mode(boost::asio::ssl::verify_peer|boost::asio::ssl::verify_fail_if_no_peer_cert);
+			}
 
 			impl->socket.async_handshake(
 				boost::asio::ssl::stream_base::server,

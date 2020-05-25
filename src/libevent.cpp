@@ -2,6 +2,7 @@
 
 #include <fcntl.h>
 #include "reprocpp/debug.h"
+#include "reprocpp/ex.h"
 #include "priocpp/impl/event.h"
 #include "priocpp/connection.h"
 #include "priocpp/ssl_connection.h"
@@ -367,17 +368,51 @@ SslListenerImpl::~SslListenerImpl()
 		e->cancel();
 }
 
-void do_ssl_accept(SslListenerImpl& listener, Connection::Ptr ptr, socket_t sock_fd, SSL* ssl, short what, SSL_CTX* ctx)
+
+bool do_verify(SslCtx& ctx, SSL* ssl)
 {
+	if(ctx.verify_client())
+	{
+		/* Step 1: verify a server certificate was presented during the negotiation */
+		X509* cert = SSL_get_peer_certificate(ssl);
+		if(cert) { X509_free(cert); } /* Free immediately */
+		if(NULL == cert) 
+		{
+			std::cout << "no SSL cert received from client!" << std::endl;
+			return false;
+		}
+
+		/* Step 2: verify the result of chain verification */
+		/* Verification performed according to RFC 4158    */
+		long res = SSL_get_verify_result(ssl);
+		if(!(X509_V_OK == res)) 
+		{
+			std::cout << "SSL cert received from client did not validate!" << std::endl;
+			return false;
+		}
+	}	
+	return true;
+}
+void do_ssl_accept(SslListenerImpl& listener, Connection::Ptr ptr, socket_t sock_fd, SSL* ssl, short what, SslCtx& sslctx)
+{
+	SSL_CTX* ctx = sslctx.ctx->ctx;
+
 	Event::Ptr e  = onEvent(sock_fd,what);
-	e->callback( [e,&listener,ptr,sock_fd,ssl,what,ctx](socket_t fd, short w)
+	e->callback( [e,&listener,ptr,sock_fd,ssl,what,&sslctx](socket_t fd, short w)
 	{
 		int r = ::SSL_accept(ssl);
 		int s = check_err_code(ssl,r,what);
 
 		if ( s == SSL_ERROR_NONE )
 		{
-			listener.cb_.resolve(ptr);
+			if(!do_verify(sslctx,ssl))
+			{
+				listener.cb_.reject(repro::Ex("client cert validaiton failed!"));
+			}
+			else
+			{
+				listener.cb_.resolve(ptr);
+			}
 			e->dispose();
 			return;
 		}
@@ -389,7 +424,7 @@ void do_ssl_accept(SslListenerImpl& listener, Connection::Ptr ptr, socket_t sock
 			return;
 		}
 
-		do_ssl_accept(listener,ptr,sock_fd,ssl,s,ctx);
+		do_ssl_accept(listener,ptr,sock_fd,ssl,s,sslctx);
 		e->dispose();
 	})
 	->add();
@@ -421,6 +456,11 @@ void SslListenerImpl::accept_handler()
 			SSL_set_fd(ssl,(int)client);
 			SSL_set_mode(ssl, SSL_MODE_ENABLE_PARTIAL_WRITE|SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER);
 
+			if(ctx.verify_client())
+			{
+				SSL_set_verify(ssl, SSL_VERIFY_PEER|SSL_VERIFY_FAIL_IF_NO_PEER_CERT, NULL);
+			}
+
 			impl->fd = client;
 			impl->ssl = ssl;
 
@@ -428,6 +468,11 @@ void SslListenerImpl::accept_handler()
 			int s = check_err_code(ssl,r,what);
 			if ( s == SSL_ERROR_NONE)
 			{
+				if(!do_verify(ctx,ssl))
+				{
+					this->cb_.reject(repro::Ex("client certificate validation failed!"));
+					return;
+				}
 				this->cb_.resolve(ptr);
 				return;
 			}
@@ -436,7 +481,7 @@ void SslListenerImpl::accept_handler()
 				this->cb_.reject(Ex("SSL accept failed"));
 				return;
 			}		
-			do_ssl_accept(*this,ptr,client,ssl,s,ctx.ctx->ctx);
+			do_ssl_accept(*this,ptr,client,ssl,s,ctx);
 		}
 		catch(...)
 		{
@@ -445,6 +490,7 @@ void SslListenerImpl::accept_handler()
 	});
 	e->add();
 }
+
 
 IOImpl::IOImpl()
 {}

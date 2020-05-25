@@ -56,6 +56,24 @@ bool SslConnectionImpl::isHttp2Requested()
 }
 
 
+std::string SslConnectionImpl::common_name()
+{
+	X509* cert = SSL_get_peer_certificate(socket.native_handle());
+
+	if(cert) 
+	{ 
+		char buf[1025];
+
+		X509_NAME_get_text_by_NID(X509_get_subject_name(cert),NID_commonName, buf, 1024);
+
+		std::string res = buf;
+		X509_free(cert); 
+		return res;
+	}
+	return ""; 
+}
+
+
 SslConnection::SslConnection(SslConnectionImpl* impl)
 	: timeouts_(connection_timeouts()),
 	  impl_(impl)
@@ -86,7 +104,7 @@ Future<Connection::Ptr> SslConnection::connect(const std::string& host, int port
 	boost::asio::ip::tcp::resolver::query query(host, "");
 	impl->resolver.async_resolve(
 		query,
-		[impl,p,port,c](const boost::system::error_code& error,boost::asio::ip::tcp::resolver::iterator iterator)
+		[host,&ctx,impl,p,port,c](const boost::system::error_code& error,boost::asio::ip::tcp::resolver::iterator iterator)
 		{
 			while(iterator != boost::asio::ip::tcp::resolver::iterator())
 			{
@@ -101,12 +119,14 @@ Future<Connection::Ptr> SslConnection::connect(const std::string& host, int port
 					end.address(), 
 					port
 				);
+		
+				SSL_set_tlsext_host_name(impl->socket.native_handle(), host.c_str());
 
 				impl->socket
 				.lowest_layer()
 				.async_connect( 
 					endpoint, 
-					[impl,p,c](const boost::system::error_code& error)
+					[host,&ctx,impl,p,c](const boost::system::error_code& error)
 					{
 						if(error)
 						{
@@ -115,9 +135,11 @@ Future<Connection::Ptr> SslConnection::connect(const std::string& host, int port
 						}
 						else
 						{
+							impl->socket.set_verify_mode(boost::asio::ssl::verify_peer|boost::asio::ssl::verify_fail_if_no_peer_cert);
+							impl->socket.set_verify_callback(boost::asio::ssl::rfc2818_verification(host));
 							impl->socket.async_handshake(
 								boost::asio::ssl::stream_base::client,
-								[impl,p,c](const boost::system::error_code& error)
+								[host,impl,p,c](const boost::system::error_code& error)
 								{
 									if(error)
 									{
@@ -311,10 +333,74 @@ bool SslConnection::isHttp2Requested()
 	return impl_->isHttp2Requested();
 }
 
+std::string SslConnection::common_name()
+{
+	return impl_->common_name();
+}
+
 
 SslCtxImpl::SslCtxImpl()
-	  : ssl( boost::asio::ssl::context::tlsv12 ) 
-{}
+	  : ssl( boost::asio::ssl::context::tlsv12 ), verify_(true),verify_client_(false),ca_path_("")
+{
+	ssl.set_default_verify_paths();
+}
+
+
+void SslCtxImpl::verify_certs(bool v)
+{
+	verify_ = v;
+}
+
+bool SslCtxImpl::verify_certs()
+{
+	return verify_;
+}
+
+bool SslCtxImpl::verify_client()
+{
+	return verify_client_;
+}
+
+void SslCtxImpl::set_ca_path(const std::string& ca)
+{
+	ca_path_ = ca;
+
+	if(verify_)
+	{
+		ssl.set_verify_mode(boost::asio::ssl::verify_peer);
+	}
+
+	if(ca.empty())
+	{
+		ssl.set_default_verify_paths();
+	}
+	else
+	{
+		ssl.load_verify_file(ca_path_);
+	}
+
+}
+
+std::string SslCtxImpl::get_ca_path()
+{
+	return ca_path_;
+}
+
+void SslCtxImpl::set_client_ca(const std::string& pem)
+{
+	STACK_OF(X509_NAME) *cert_names;
+
+	cert_names = SSL_load_client_CA_file(pem.c_str());
+	if (cert_names == NULL)
+	{
+		std::cout << "load client ca file failed!" << std::endl;
+		exit(1);
+	}
+
+	SSL_CTX_set_client_CA_list(ssl.native_handle(), cert_names);
+
+	verify_client_ = true;
+}
 
 SslCtx::SslCtx()
 	: ctx(new SslCtxImpl)
@@ -353,6 +439,38 @@ void SslCtx::load_cert_pem(const std::string& file)
 	std::cout << "set cipher: " << r << std::endl;
 
 }
+
+void SslCtx::verify_certs(bool v)
+{
+	ctx->verify_certs(v);
+}
+
+bool SslCtx::verify_certs()
+{
+	return ctx->verify_certs();
+}
+
+bool SslCtx::verify_client()
+{
+	return ctx->verify_client();
+}
+
+void SslCtx::set_ca_path(const std::string& ca)
+{
+	ctx->set_ca_path(ca);
+}
+
+std::string SslCtx::get_ca_path()
+{
+	return ctx->get_ca_path();	
+}
+
+void SslCtx::set_client_ca(const std::string& pem)
+{
+	ctx->set_client_ca(pem);
+}
+
+
 
 } // close namespaces
 

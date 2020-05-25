@@ -69,12 +69,32 @@ connection_timeout_t& SslConnection::timeouts()
 }
 
 
-void SslConnection::ssl_do_connect(Promise<Connection::Ptr> p)
+void SslConnection::ssl_do_connect(Promise<Connection::Ptr> p,SslCtx& ctx)
 {
 	int r = SSL_connect(impl_->ssl);
 	int s = check_err_code(impl_->ssl,r,EV_READ);
 	if ( s == 0)
 	{
+		if(ctx.verify_certs())
+		{
+			/* Step 1: verify a server certificate was presented during the negotiation */
+			X509* cert = SSL_get_peer_certificate(impl_->ssl);
+			if(cert) { X509_free(cert); } /* Free immediately */
+			if(NULL == cert) 
+			{
+				p.reject(repro::Ex("no SSL cert received from server!"));
+				return;
+			}
+
+			/* Step 2: verify the result of chain verification */
+			/* Verification performed according to RFC 4158    */
+			long res = SSL_get_verify_result(impl_->ssl);
+			if(!(X509_V_OK == res)) 
+			{
+				p.reject(repro::Ex("SSL cert rchain validation failed!"));
+				return;
+			}
+		}
 		p.resolve(Ptr(this));
 		return;
 	}
@@ -86,7 +106,7 @@ void SslConnection::ssl_do_connect(Promise<Connection::Ptr> p)
 	}
 
 	impl_->e_ = onEvent( impl_->fd, s)
-	->callback( [this,p](socket_t fd, short w)
+	->callback( [this,p,&ctx](socket_t fd, short w)
 	{
 		if(w == EV_TIMEOUT)
 		{
@@ -94,7 +114,7 @@ void SslConnection::ssl_do_connect(Promise<Connection::Ptr> p)
 			delete this;
 			return;
 		}
-		ssl_do_connect(p);
+		ssl_do_connect(p,ctx);
 	})
 	->add(timeouts().connect_timeout_s,0);
 }
@@ -110,7 +130,7 @@ Future<Connection::Ptr> SslConnection::connect(const std::string& host, int port
 
 	dnsResolver()
 	.connect(h,port)
-	.then( [p,impl,ptr,&ctx](socket_t fd)
+	.then( [p,host,impl,ptr,&ctx](socket_t fd)
 	{
 		impl->fd = fd;
 
@@ -120,12 +140,20 @@ Future<Connection::Ptr> SslConnection::connect(const std::string& host, int port
 		SSL_set_fd(ssl,(int)fd);
 		SSL_set_mode(ssl, SSL_MODE_ENABLE_PARTIAL_WRITE|SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER);
 
-		ptr->ssl_do_connect(p);
+		SSL_set_tlsext_host_name(ssl, host.c_str());
+
+		if(ctx.verify_certs())
+		{
+			SSL_set_hostflags(ssl, X509_CHECK_FLAG_NO_PARTIAL_WILDCARDS);
+			if (!SSL_set1_host(ssl, host.c_str())) 
+			{
+				throw repro::Ex("could not set hostname verification");
+			}
+			SSL_set_verify(ssl, SSL_VERIFY_PEER, NULL);
+		}
+		ptr->ssl_do_connect(p,ctx);
 	})
-	.otherwise([p](const std::exception& ex)
-	{
-		p.reject(ex);
-	});
+	.otherwise(reject(p));
 
 	return p.future();	
 }
@@ -449,6 +477,28 @@ bool SslConnection::isHttp2Requested()
 	return impl_->isHttp2Requested();
 }
 
+std::string SslConnection::common_name()
+{
+	return impl_->common_name();
+}
+
+std::string SslConnectionImpl::common_name()
+{
+	X509* cert = SSL_get_peer_certificate(ssl);
+
+	if(cert) 
+	{ 
+		char buf[1025];
+
+		X509_NAME_get_text_by_NID(X509_get_subject_name(cert),NID_commonName, buf, 1024);
+
+		std::string res = buf;
+		X509_free(cert); 
+		return res;
+	}
+	return ""; 
+}
+
 bool SslConnectionImpl::isHttp2Requested()
 {
 	const unsigned char *alpn = NULL;
@@ -504,7 +554,8 @@ int check_err_code(SSL* ssl, int len, int want)
 		}
 		default :
 		{
-			std::cout << "SSL SOME ERR" << r << std::endl;
+
+			std::cout << "SSL SOME ERR " << ERR_error_string(ERR_get_error(), NULL) <<  " " << r << std::endl;
 		}
 	}
 	return -1;
@@ -514,6 +565,7 @@ int check_err_code(SSL* ssl, int len, int want)
 
 
 SslCtxImpl::SslCtxImpl()
+	: verify_(true), verify_client_(false),ca_path_("")
 {
 	ctx = SSL_CTX_new(TLS_method());
 	if (!ctx) 
@@ -521,12 +573,65 @@ SslCtxImpl::SslCtxImpl()
 	  throw(Ex("Could not create SSL/TLS context"));
 	}
 	SSL_CTX_set_min_proto_version(ctx, TLS1_2_VERSION);
+
+	SSL_CTX_set_default_verify_paths(ctx);
 }
 
 SslCtxImpl::~SslCtxImpl()
 {
 	SSL_CTX_free(ctx);
 }
+
+void SslCtxImpl::verify_certs(bool v)
+{
+	verify_ = v;
+}
+
+bool SslCtxImpl::verify_certs()
+{
+	return verify_;
+}
+
+bool SslCtxImpl::verify_client()
+{
+	return verify_client_;
+}
+
+void SslCtxImpl::set_ca_path(const std::string& ca)
+{
+	ca_path_ = ca;
+	if(ca.empty())
+	{
+		SSL_CTX_set_default_verify_paths(ctx);
+	}
+	else
+	{
+		int r = SSL_CTX_load_verify_locations(ctx,ca_path_.c_str(),NULL);
+		std::cout << "SSL_CTX_load_verify_locations returned: " << r << std::endl;
+	}
+}
+
+std::string SslCtxImpl::get_ca_path()
+{
+	return ca_path_;
+}
+
+void SslCtxImpl::set_client_ca(const std::string& pem)
+{
+	STACK_OF(X509_NAME) *cert_names;
+
+	cert_names = SSL_load_client_CA_file(pem.c_str());
+	if (cert_names == NULL)
+	{
+		std::cout << "load client ca file failed!" << std::endl;
+		exit(1);
+	}
+
+	SSL_CTX_set_client_CA_list(ctx, cert_names);
+
+	verify_client_ = true;
+}
+
 
 
 int next_proto_cb(SSL *ssl, const unsigned char **data,unsigned int *len, void *arg);
@@ -541,7 +646,8 @@ void SslCtxImpl::loadKeys( const std::string& keyfile )
 {
 	std::cout << "Load cer " << keyfile << std::endl;
 
-	if(!(SSL_CTX_use_certificate_chain_file(ctx,	keyfile.c_str())))
+//	if(!(SSL_CTX_use_certificate_chain_file(ctx,	keyfile.c_str())))
+	if(!(SSL_CTX_use_certificate_file(ctx,	keyfile.c_str(),SSL_FILETYPE_PEM)))
 	{
 		auto e = ERR_get_error();
 		auto s = ERR_error_string(e,0);
@@ -589,6 +695,36 @@ SslCtx::~SslCtx()
 void SslCtx::load_cert_pem(const std::string& file)
 {
 	ctx->loadKeys(file);
+}
+
+void SslCtx::verify_certs(bool v)
+{
+	ctx->verify_certs(v);
+}
+
+bool SslCtx::verify_certs()
+{
+	return ctx->verify_certs();
+}
+
+bool SslCtx::verify_client()
+{
+	return ctx->verify_client();
+}
+
+void SslCtx::set_ca_path(const std::string& ca)
+{
+	ctx->set_ca_path(ca);
+}
+
+std::string SslCtx::get_ca_path()
+{
+	return ctx->get_ca_path();	
+}
+
+void SslCtx::set_client_ca(const std::string& pem)
+{
+	ctx->set_client_ca(pem);
 }
 
 

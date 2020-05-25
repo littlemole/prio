@@ -32,13 +32,14 @@ public:
 	virtual connection_timeout_t& timeouts();
 
 	virtual bool isHttp2Requested();
+	virtual std::string common_name();
 	
 protected:
 
 	SslConnection(SslConnection&) = delete;
 	SslConnection& operator=(SslConnection&) = delete;
 
-	void ssl_do_connect(repro::Promise<Connection::Ptr> p);
+	void ssl_do_connect(repro::Promise<Connection::Ptr> p, SslCtx& ctx);
 	void do_ssl_read(repro::Promise<Connection::Ptr,std::string> p, short what);
 	void do_ssl_read(repro::Promise<Connection::Ptr,std::string> p, short what, std::shared_ptr<std::string> buffer, std::shared_ptr<size_t> want);
 	void do_ssl_write( repro::Promise<Connection::Ptr> p, std::string data, std::shared_ptr<size_t> written, short what);

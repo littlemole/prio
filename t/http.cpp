@@ -133,7 +133,7 @@ TEST_F(BasicTest, SSlClient3)
 	ssl.load_cert_pem("pem/server.pem"); 
 
 	std::string result;
-	{
+	{ 
 		signal(SIGINT).then([](int s){ theLoop().exit(); });
 
 		Connection::Ptr c;
@@ -167,6 +167,9 @@ TEST_F(BasicTest, SSlClient3)
 		});
 		
 		SslCtx ctx;
+//		ctx.verify_certs(false);
+		ctx.set_ca_path("pem/ca.crt");
+
 		SslConnection::Ptr con;
 		timeout([&con, &ctx, &result, &listener]()
 		{
@@ -176,6 +179,93 @@ TEST_F(BasicTest, SSlClient3)
 					.then([&con](Connection::Ptr c)
 				{
 					std::cout << "client connected" << std::endl;
+					con = c;
+					return con->write("HELO");
+				})
+					.then([](Connection::Ptr con)
+				{
+					std::cout << "client written" << std::endl;
+					return con->read();
+				})
+					.then([&result](Connection::Ptr con, std::string data)
+				{
+					std::cout << "client received " << data << std::endl;
+					result = data;
+					con->close();
+				})
+					.otherwise([&listener](const std::exception& ex)
+				{
+					std::cout << ex.what() << std::endl;
+					listener.cancel();
+					theLoop().exit();
+				});
+			});
+		}, 0, 10);
+		
+		theLoop().run();
+	}
+
+	MOL_TEST_ASSERT_CNTS(0,0);
+	EXPECT_EQ("HELO",result);
+
+}
+
+TEST_F(BasicTest, SSlClientWithCert4) 
+{
+	SslCtx ssl;
+	ssl.set_ca_path("pem/ca.crt");
+	ssl.load_cert_pem("pem/server.pem"); 
+	ssl.set_client_ca("pem/ca.crt");
+
+	std::string result;
+	{ 
+		signal(SIGINT).then([](int s){ theLoop().exit(); });
+
+		Connection::Ptr c;
+
+		Listener listener(ssl);
+		
+		listener.bind(6765)
+		.then( [&c,&listener](Connection::Ptr con)
+		{ 
+			std::cout << "server connected ex! " << con->common_name() << std::endl;
+			c =con;
+			con->read()
+			.then( [](Connection::Ptr con, std::string data)
+			{
+				std::cout << "server has read" << std::endl;
+				return con->write(data);
+			})
+			.then( [](Connection::Ptr con)
+			{
+				std::cout << "server has written" << std::endl;
+				return con->read();
+			})
+			.otherwise([&listener](const std::exception& ex)
+			{
+				std::cout << "ex!" << ex.what() << std::endl;
+				listener.cancel();
+
+				timeout( []() {
+					theLoop().exit();			
+				},1,100);
+			});
+		});
+		 
+		SslCtx ctx;
+//		ctx.verify_certs(false);
+		ctx.set_ca_path("pem/ca.crt");
+ 		ctx.load_cert_pem("pem/server.pem"); 
+
+		SslConnection::Ptr con;
+		timeout([&con, &ctx, &result, &listener]()
+		{
+			nextTick([&con, &ctx, &result, &listener]()
+			{
+				SslConnection::connect("localhost", 6765, ctx)
+					.then([&con](Connection::Ptr c)
+				{
+					std::cout << "client connected: " << c->common_name() << std::endl;
 					con = c;
 					return con->write("HELO");
 				})

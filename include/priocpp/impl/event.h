@@ -129,6 +129,7 @@ public:
 	std::shared_ptr<Event> e_;
 
 	bool isHttp2Requested();	
+	std::string common_name();
 };
 
 
@@ -138,8 +139,18 @@ struct SslCtxImpl
 	~SslCtxImpl();
 	
 	void loadKeys( const std::string& keyfile );
+	void verify_certs(bool v);
+	bool verify_certs();
+	bool verify_client();
+
+	void set_ca_path(const std::string& ca);
+	std::string get_ca_path();
+	void set_client_ca(const std::string& pem);
 	
 	SSL_CTX* ctx;
+	bool verify_;
+	bool verify_client_;
+	std::string ca_path_;
 };
 
 

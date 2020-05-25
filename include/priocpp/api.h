@@ -110,6 +110,8 @@ public:
 	//! cancel current pending IO
 	virtual void cancel() = 0;
 
+	virtual std::string common_name() { return ""; }
+
 	//! return connection timeouts for this connection
 	virtual connection_timeout_t& timeouts() = 0;
 
@@ -147,6 +149,13 @@ public:
 
 	//! load TLS certificates from PEM file.
 	void load_cert_pem(const std::string& file);
+	void verify_certs(bool v);
+	bool verify_certs();
+	bool verify_client();
+	void set_ca_path(const std::string& ca);
+	std::string get_ca_path();
+
+	void set_client_ca(const std::string& pem);
 	
 	std::unique_ptr<SslCtxImpl> ctx;
 };
