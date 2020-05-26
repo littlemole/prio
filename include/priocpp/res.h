@@ -101,6 +101,8 @@ namespace Resource {
 		{
 			auto p = repro::Promise<ResourcePtr>();
 
+			std::cout << "POOL get(" << typeid(type).name() << ")" << std::endl;
+
 			if (unused_.count(url) > 0)
 			{
 				while (!unused_[url].empty())
@@ -120,6 +122,8 @@ namespace Resource {
 
 					used_[url].insert(r);
 
+					std::cout << "POOL get(" << typeid(type).name() << ") return re-used" << std::endl;
+
 					p.resolve(make_ptr(url, r));
 
 					return p.future();
@@ -134,6 +138,8 @@ namespace Resource {
 						{
 							used_[url].insert(r);
 							timestamps_[r] = unix_timestamp();
+
+							std::cout << "POOL get(" << typeid(type).name() << ") return new " << std::endl;
 							p.resolve(make_ptr(url, r));
 							pending_--;
 						})
@@ -145,6 +151,7 @@ namespace Resource {
 			}
 			else
 			{
+				std::cout << "POOL get(" << typeid(type).name() << ") waiting" << std::endl;
 				waiting_.push_back(p);
 			}
 			return p.future();
@@ -158,8 +165,11 @@ namespace Resource {
 		{
 			if (shutdown_ == true) return;
 
+			std::cout << "POOL collect(" << typeid(type).name() << ")" << std::endl;
+
 			if (InvalidResources<type>::is_invalid(t))
 			{
+				std::cout << "POOL collect(" << typeid(type).name() << ") release invailid" << std::endl;
 				InvalidResources<type>::revoke(t);
 				release(url, t);
 				return;
@@ -167,6 +177,8 @@ namespace Resource {
 
 			if (!waiting_.empty())
 			{
+				std::cout << "POOL collect(" << typeid(type).name() << ") re-use for waiting reqquest" << std::endl;
+
 				PromiseType p = waiting_.front();
 				waiting_.pop_front();
 				timestamps_[t] = unix_timestamp();
@@ -176,6 +188,8 @@ namespace Resource {
 
 			if (used_[url].count(t) > 0)
 			{
+				std::cout << "POOL collect(" << typeid(type).name() << ") park for reuse" << std::endl;
+
 				used_[url].erase(t);
 				unused_[url].insert(t);
 
@@ -188,11 +202,13 @@ namespace Resource {
 						timestamps_.erase(tmp);
 					}
 
+					std::cout << "POOL collect(" << typeid(type).name() << ") free superflous" << std::endl;
 					L::free(tmp);
 				}
 			}
 			else
 			{
+				std::cout << "POOL collect(" << typeid(type).name() << ") free unknown" << std::endl;
 				L::free(t);
 			}
 		}
@@ -200,6 +216,8 @@ namespace Resource {
 		void release(const std::string& url, type t)
 		{
 			if (shutdown_ == true) return;
+
+			std::cout << "POOL release(" << typeid(type).name() << ")" << std::endl;
 
 			if (used_[url].find(t) != used_[url].end())
 			{
@@ -209,6 +227,7 @@ namespace Resource {
 			{
 				timestamps_.erase(t);
 			}
+			std::cout << "POOL release(" << typeid(type).name() << ") free" << std::endl;
 			L::free(t);
 		}
 
