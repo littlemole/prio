@@ -14,7 +14,7 @@ ENV BUILDCHAIN=${BUILDCHAIN}
 ARG TS=
 ENV TS=${TS}
 
-RUN BRANCH=ng /usr/local/bin/install.sh repro 
+RUN /usr/local/bin/install.sh repro 
 
 RUN mkdir -p /usr/local/src/priocpp
 ADD . /usr/local/src/priocpp
