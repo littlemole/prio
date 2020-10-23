@@ -3,7 +3,7 @@
   <compound kind="file">
     <name>api.h</name>
     <path>/home/mike/workspace/prio/include/priocpp/</path>
-    <filename>api_8h</filename>
+    <filename>api_8h.html</filename>
     <includes id="common_8h" name="common.h" local="yes" imported="no">priocpp/common.h</includes>
     <includes id="loop_8h" name="loop.h" local="yes" imported="no">priocpp/loop.h</includes>
     <includes id="timeout_8h" name="timeout.h" local="yes" imported="no">priocpp/timeout.h</includes>
@@ -21,27 +21,6 @@
       <anchorfile>api_8h.html</anchorfile>
       <anchor>adda63700d6e78cfc221e3f0a8429489e</anchor>
       <arglist>(const std::function&lt; void()&gt; f) noexcept</arglist>
-    </member>
-    <member kind="function">
-      <type>auto</type>
-      <name>resolved</name>
-      <anchorfile>api_8h.html</anchorfile>
-      <anchor>a739d2a20b10cee9b47c52c30149d3b89</anchor>
-      <arglist>(VArgs ... vargs) noexcept</arglist>
-    </member>
-    <member kind="function">
-      <type>auto</type>
-      <name>rejected</name>
-      <anchorfile>api_8h.html</anchorfile>
-      <anchor>a1eab27e8fc8b02d394f5979484e652f5</anchor>
-      <arglist>(P p, E ex) noexcept</arglist>
-    </member>
-    <member kind="function">
-      <type>auto</type>
-      <name>reject</name>
-      <anchorfile>api_8h.html</anchorfile>
-      <anchor>aed4423f65e6a716430a4df7a7a4f271a</anchor>
-      <arglist>(P p)</arglist>
     </member>
     <member kind="function">
       <type>connection_timeout_t &amp;</type>
@@ -71,18 +50,11 @@
       <anchor>a8b6e75a9a909a7bcdefde6ae2d3966fc</anchor>
       <arglist>(C &amp;c, F f)</arglist>
     </member>
-    <member kind="function">
-      <type>repro::Future&lt; Args... &gt;</type>
-      <name>future</name>
-      <anchorfile>api_8h.html</anchorfile>
-      <anchor>a64403ff5d9a7b8a30c3fcdad95820764</anchor>
-      <arglist>(T cb)</arglist>
-    </member>
   </compound>
   <compound kind="file">
     <name>common.h</name>
     <path>/home/mike/workspace/prio/include/priocpp/</path>
-    <filename>common_8h</filename>
+    <filename>common_8h.html</filename>
     <class kind="class">prio::IoEx</class>
     <class kind="class">prio::IoErr</class>
     <class kind="class">prio::IoEof</class>
@@ -131,9 +103,14 @@
     </member>
   </compound>
   <compound kind="file">
+    <name>logger.h</name>
+    <path>/home/mike/workspace/prio/include/priocpp/</path>
+    <filename>logger_8h.html</filename>
+  </compound>
+  <compound kind="file">
     <name>loop.h</name>
     <path>/home/mike/workspace/prio/include/priocpp/</path>
-    <filename>loop_8h</filename>
+    <filename>loop_8h.html</filename>
     <class kind="class">prio::Loop</class>
     <member kind="function">
       <type>Loop &amp;</type>
@@ -144,16 +121,9 @@
     </member>
   </compound>
   <compound kind="file">
-    <name>pipe.h</name>
-    <path>/home/mike/workspace/prio/include/priocpp/</path>
-    <filename>pipe_8h</filename>
-    <includes id="api_8h" name="api.h" local="yes" imported="no">priocpp/api.h</includes>
-    <class kind="class">prio::Pipe</class>
-  </compound>
-  <compound kind="file">
     <name>signal.h</name>
     <path>/home/mike/workspace/prio/include/priocpp/</path>
-    <filename>signal_8h</filename>
+    <filename>signal_8h.html</filename>
     <includes id="common_8h" name="common.h" local="yes" imported="no">priocpp/common.h</includes>
     <member kind="function">
       <type>repro::Future&lt; int &gt;</type>
@@ -166,7 +136,7 @@
   <compound kind="file">
     <name>task.h</name>
     <path>/home/mike/workspace/prio/include/priocpp/</path>
-    <filename>task_8h</filename>
+    <filename>task_8h.html</filename>
     <includes id="api_8h" name="api.h" local="yes" imported="no">priocpp/api.h</includes>
     <member kind="function">
       <type>auto</type>
@@ -179,7 +149,7 @@
   <compound kind="file">
     <name>timeout.h</name>
     <path>/home/mike/workspace/prio/include/priocpp/</path>
-    <filename>timeout_8h</filename>
+    <filename>timeout_8h.html</filename>
     <includes id="common_8h" name="common.h" local="yes" imported="no">priocpp/common.h</includes>
     <member kind="function">
       <type>repro::Future</type>
@@ -220,7 +190,7 @@
   <compound kind="file">
     <name>url.h</name>
     <path>/home/mike/workspace/prio/include/priocpp/</path>
-    <filename>url_8h</filename>
+    <filename>url_8h.html</filename>
     <includes id="common_8h" name="common.h" local="yes" imported="no">priocpp/common.h</includes>
     <class kind="class">prio::Url</class>
   </compound>
@@ -378,10 +348,10 @@
       <arglist>()</arglist>
     </member>
     <member kind="function">
-      <type>repro::Future&lt; ConnectionPtr &gt;</type>
+      <type>Callback&lt; Connection::Ptr &gt; &amp;</type>
       <name>bind</name>
       <anchorfile>classprio_1_1Listener.html</anchorfile>
-      <anchor>ada57f281baf349afca79c01f49c36421</anchor>
+      <anchor>ab395b3316eefb5a56779df12eea10823</anchor>
       <arglist>(int port)</arglist>
     </member>
   </compound>
@@ -425,76 +395,76 @@
     </member>
   </compound>
   <compound kind="class">
-    <name>prio::Pipe</name>
-    <filename>classprio_1_1Pipe.html</filename>
+    <name>prio::PipedProcess</name>
+    <filename>classprio_1_1PipedProcess.html</filename>
     <member kind="typedef">
-      <type>std::shared_ptr&lt; Pipe &gt;</type>
+      <type>std::shared_ptr&lt; PipedProcess &gt;</type>
       <name>Ptr</name>
-      <anchorfile>classprio_1_1Pipe.html</anchorfile>
-      <anchor>a681dc4b4d5e1e9ba79bd4931ac7e546c</anchor>
+      <anchorfile>classprio_1_1PipedProcess.html</anchorfile>
+      <anchor>a107e61dac9e67c2920ec8a33be0af6f1</anchor>
       <arglist></arglist>
     </member>
     <member kind="function">
       <type>Ptr</type>
       <name>stdin</name>
-      <anchorfile>classprio_1_1Pipe.html</anchorfile>
-      <anchor>a6ce661467b5e3f6d1b2b626c7d7d9bc5</anchor>
+      <anchorfile>classprio_1_1PipedProcess.html</anchorfile>
+      <anchor>a149df40817e53a829d3e346f04a055fa</anchor>
       <arglist>(const std::string &amp;s)</arglist>
     </member>
     <member kind="function">
-      <type>repro::Future&lt; Pipe::Ptr &gt;</type>
+      <type>repro::Future&lt; PipedProcess::Ptr &gt;</type>
       <name>pipe</name>
-      <anchorfile>classprio_1_1Pipe.html</anchorfile>
-      <anchor>a1069113e5eef8c0b6fc51f4a8b959999</anchor>
+      <anchorfile>classprio_1_1PipedProcess.html</anchorfile>
+      <anchor>aea17cce7029473e44b7fa61031366e59</anchor>
       <arglist>(const std::string &amp;path)</arglist>
     </member>
     <member kind="function">
-      <type>repro::Future&lt; Pipe::Ptr &gt;</type>
+      <type>repro::Future&lt; PipedProcess::Ptr &gt;</type>
       <name>pipe</name>
-      <anchorfile>classprio_1_1Pipe.html</anchorfile>
-      <anchor>a342d759bad0f139de35ad1988c4ec8e9</anchor>
+      <anchorfile>classprio_1_1PipedProcess.html</anchorfile>
+      <anchor>a3e2564fe0c65cda09ec2a246a6a0f813</anchor>
       <arglist>(const std::string &amp;path, A &amp;&amp;a)</arglist>
     </member>
     <member kind="function">
-      <type>repro::Future&lt; Pipe::Ptr &gt;</type>
+      <type>repro::Future&lt; PipedProcess::Ptr &gt;</type>
       <name>pipe</name>
-      <anchorfile>classprio_1_1Pipe.html</anchorfile>
-      <anchor>a9cdccb49a362820294c76ff3d5b884ae</anchor>
+      <anchorfile>classprio_1_1PipedProcess.html</anchorfile>
+      <anchor>ac7207cbb15a083706b7644a0d94f9c5e</anchor>
       <arglist>(const std::string &amp;path, A &amp;&amp;a, char **env)</arglist>
     </member>
     <member kind="function">
-      <type>repro::Future&lt; Pipe::Ptr &gt;</type>
+      <type>repro::Future&lt; PipedProcess::Ptr &gt;</type>
       <name>pipe</name>
-      <anchorfile>classprio_1_1Pipe.html</anchorfile>
-      <anchor>ad83ead79c5a0f482e78720be7a0d65fc</anchor>
+      <anchorfile>classprio_1_1PipedProcess.html</anchorfile>
+      <anchor>ad2716e6783124315b5928a609cfeae1b</anchor>
       <arglist>(const std::string &amp;path, A &amp;&amp;args, E &amp;&amp;env)</arglist>
     </member>
     <member kind="function">
       <type>std::string</type>
       <name>stdout</name>
-      <anchorfile>classprio_1_1Pipe.html</anchorfile>
-      <anchor>a59b6dc1d201da6a1d09e3e16e276e651</anchor>
+      <anchorfile>classprio_1_1PipedProcess.html</anchorfile>
+      <anchor>a77c39903b08126c7d1bc79a720e20602</anchor>
       <arglist>()</arglist>
     </member>
     <member kind="function">
       <type>std::string</type>
       <name>stderr</name>
-      <anchorfile>classprio_1_1Pipe.html</anchorfile>
-      <anchor>a1250ba87a2fd6d5fec2dd20d5800617d</anchor>
+      <anchorfile>classprio_1_1PipedProcess.html</anchorfile>
+      <anchor>a96d5ca4e3d2f37b02277e9aa1dd7f566</anchor>
       <arglist>()</arglist>
     </member>
     <member kind="function">
       <type>int</type>
       <name>result</name>
-      <anchorfile>classprio_1_1Pipe.html</anchorfile>
-      <anchor>ac774cab8c6cbe38e98f0637ee37b9f71</anchor>
+      <anchorfile>classprio_1_1PipedProcess.html</anchorfile>
+      <anchor>ae338fc0f3adb3f391d7add03d027b4b1</anchor>
       <arglist>()</arglist>
     </member>
     <member kind="function" static="yes">
       <type>static Ptr</type>
       <name>create</name>
-      <anchorfile>classprio_1_1Pipe.html</anchorfile>
-      <anchor>acd99f582462ac57b7b5ea969633bb3b1</anchor>
+      <anchorfile>classprio_1_1PipedProcess.html</anchorfile>
+      <anchor>a8bd9c6417bb5e3903d606de86f7d61aa</anchor>
       <arglist>()</arglist>
     </member>
   </compound>

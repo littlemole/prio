@@ -1,8 +1,9 @@
 <map id="include/priocpp/timeout.h" name="include/priocpp/timeout.h">
-<area shape="rect" id="node2" href="$api_8h.html" title="include/priocpp/api.h" alt="" coords="332,80,473,107"/>
-<area shape="rect" id="node3" href="$connection_8h_source.html" title="include/priocpp/connection.h" alt="" coords="5,162,192,189"/>
-<area shape="rect" id="node4" href="$pipe_8h.html" title="include/priocpp/pipe.h" alt="" coords="217,162,365,189"/>
-<area shape="rect" id="node5" href="$ResourcePool_8h_source.html" title="include/priocpp/Resource\lPool.h" alt="" coords="451,244,621,285"/>
-<area shape="rect" id="node6" href="$ssl__connection_8h_source.html" title="include/priocpp/ssl\l_connection.h" alt="" coords="440,155,571,196"/>
-<area shape="rect" id="node7" href="$task_8h.html" title="include/priocpp/task.h" alt="" coords="595,162,744,189"/>
+<area shape="rect" id="node1" title=" " alt="" coords="315,5,503,32"/>
+<area shape="rect" id="node2" href="$api_8h.html" title=" " alt="" coords="331,80,488,107"/>
+<area shape="rect" id="node3" href="$connection_8h_source.html" title=" " alt="" coords="5,162,213,189"/>
+<area shape="rect" id="node4" href="$pipe_8h_source.html" title=" " alt="" coords="237,162,403,189"/>
+<area shape="rect" id="node6" href="$ssl__connection_8h_source.html" title=" " alt="" coords="427,155,570,196"/>
+<area shape="rect" id="node7" href="$task_8h.html" title=" " alt="" coords="595,162,760,189"/>
+<area shape="rect" id="node5" href="$logger_8h.html" title=" " alt="" coords="231,244,409,271"/>
 </map>

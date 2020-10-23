@@ -1,6 +1,16 @@
 <map id="include/priocpp/loop.h" name="include/priocpp/loop.h">
-<area shape="rect" id="node2" href="$threadpool_8h_source.html" title="priocpp/threadpool.h" alt="" coords="329,80,467,107"/>
-<area shape="rect" id="node3" href="$common_8h.html" title="priocpp/common.h" alt="" coords="273,155,403,181"/>
-<area shape="rect" id="node11" href="/home/mike/workspace/repro/repro.tag$promise_8h.html" title="reprocpp/promise.h" alt="" coords="670,229,803,256"/>
-<area shape="rect" id="node12" href="/home/mike/workspace/repro/repro.tag$future_8h.html" title="reprocpp/future.h" alt="" coords="677,304,797,331"/>
+<area shape="rect" id="node1" title=" " alt="" coords="387,5,552,32"/>
+<area shape="rect" id="node2" href="$threadpool_8h_source.html" title=" " alt="" coords="391,80,547,107"/>
+<area shape="rect" id="node3" href="$common_8h.html" title=" " alt="" coords="334,155,477,181"/>
+<area shape="rect" id="node14" title=" " alt="" coords="501,155,568,181"/>
+<area shape="rect" id="node4" title=" " alt="" coords="5,229,80,256"/>
+<area shape="rect" id="node5" title=" " alt="" coords="105,229,167,256"/>
+<area shape="rect" id="node6" title=" " alt="" coords="191,229,254,256"/>
+<area shape="rect" id="node7" title=" " alt="" coords="278,229,349,256"/>
+<area shape="rect" id="node8" title=" " alt="" coords="373,229,437,256"/>
+<area shape="rect" id="node9" title=" " alt="" coords="461,229,525,256"/>
+<area shape="rect" id="node10" title=" " alt="" coords="550,229,693,256"/>
+<area shape="rect" id="node11" href="/home/mike/workspace/repro/repro.tag$promise_8h.html" title=" " alt="" coords="717,229,865,256"/>
+<area shape="rect" id="node13" title=" " alt="" coords="889,229,999,256"/>
+<area shape="rect" id="node12" href="/home/mike/workspace/repro/repro.tag$future_8h.html" title=" " alt="" coords="723,304,858,331"/>
 </map>

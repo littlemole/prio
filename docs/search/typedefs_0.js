@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['ptr',['Ptr',['../classprio_1_1Pipe.html#a681dc4b4d5e1e9ba79bd4931ac7e546c',1,'prio::Pipe']]]
+  ['ptr_178',['Ptr',['../classprio_1_1PipedProcess.html#a107e61dac9e67c2920ec8a33be0af6f1',1,'prio::PipedProcess']]]
 ];

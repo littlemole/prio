@@ -1,4 +1,5 @@
 <map id="prio::IoEof" name="prio::IoEof">
-<area shape="rect" id="node2" href="/home/mike/workspace/repro/repro.tag$classrepro_1_1ReproEx.html" title="repro::ReproEx\&lt; IoEof \&gt;" alt="" coords="5,80,171,107"/>
-<area shape="rect" id="node3" href="/home/mike/workspace/repro/repro.tag$classrepro_1_1Ex.html" title="repro::Ex" alt="" coords="51,5,125,32"/>
+<area shape="rect" id="node1" title="end&#45;of&#45;file IO exception indicating closed connection" alt="" coords="52,155,140,181"/>
+<area shape="rect" id="node2" href="/home/mike/workspace/repro/repro.tag$classrepro_1_1ReproEx.html" title=" " alt="" coords="5,80,187,107"/>
+<area shape="rect" id="node3" href="/home/mike/workspace/repro/repro.tag$classrepro_1_1Ex.html" title=" " alt="" coords="56,5,136,32"/>
 </map>

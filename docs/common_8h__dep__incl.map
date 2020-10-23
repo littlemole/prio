@@ -1,13 +1,15 @@
 <map id="include/priocpp/common.h" name="include/priocpp/common.h">
-<area shape="rect" id="node2" href="$api_8h.html" title="include/priocpp/api.h" alt="" coords="339,229,480,256"/>
-<area shape="rect" id="node5" href="$ResourcePool_8h_source.html" title="include/priocpp/Resource\lPool.h" alt="" coords="33,393,202,435"/>
-<area shape="rect" id="node8" href="$signal_8h.html" title="include/priocpp/signal.h" alt="" coords="559,155,718,181"/>
-<area shape="rect" id="node9" href="$threadpool_8h_source.html" title="include/priocpp/threadpool.h" alt="" coords="76,80,260,107"/>
-<area shape="rect" id="node11" href="$timeout_8h.html" title="include/priocpp/timeout.h" alt="" coords="266,155,433,181"/>
-<area shape="rect" id="node12" href="$url_8h.html" title="include/priocpp/url.h" alt="" coords="345,80,484,107"/>
-<area shape="rect" id="node3" href="$connection_8h_source.html" title="include/priocpp/connection.h" alt="" coords="421,311,608,338"/>
-<area shape="rect" id="node4" href="$pipe_8h.html" title="include/priocpp/pipe.h" alt="" coords="633,311,781,338"/>
-<area shape="rect" id="node6" href="$ssl__connection_8h_source.html" title="include/priocpp/ssl\l_connection.h" alt="" coords="267,304,397,345"/>
-<area shape="rect" id="node7" href="$task_8h.html" title="include/priocpp/task.h" alt="" coords="43,311,192,338"/>
-<area shape="rect" id="node10" href="$loop_8h.html" title="include/priocpp/loop.h" alt="" coords="94,155,242,181"/>
+<area shape="rect" id="node1" title=" " alt="" coords="420,5,615,32"/>
+<area shape="rect" id="node2" href="$api_8h.html" title=" " alt="" coords="381,229,539,256"/>
+<area shape="rect" id="node8" href="$res_8h_source.html" title=" " alt="" coords="727,80,884,107"/>
+<area shape="rect" id="node9" href="$signal_8h.html" title=" " alt="" coords="629,155,805,181"/>
+<area shape="rect" id="node10" href="$threadpool_8h_source.html" title=" " alt="" coords="83,80,290,107"/>
+<area shape="rect" id="node12" href="$timeout_8h.html" title=" " alt="" coords="366,155,554,181"/>
+<area shape="rect" id="node13" href="$url_8h.html" title=" " alt="" coords="497,80,652,107"/>
+<area shape="rect" id="node3" href="$connection_8h_source.html" title=" " alt="" coords="363,311,571,338"/>
+<area shape="rect" id="node4" href="$pipe_8h_source.html" title=" " alt="" coords="595,311,760,338"/>
+<area shape="rect" id="node6" href="$ssl__connection_8h_source.html" title=" " alt="" coords="195,304,338,345"/>
+<area shape="rect" id="node7" href="$task_8h.html" title=" " alt="" coords="5,311,171,338"/>
+<area shape="rect" id="node5" href="$logger_8h.html" title=" " alt="" coords="589,393,766,420"/>
+<area shape="rect" id="node11" href="$loop_8h.html" title=" " alt="" coords="125,155,291,181"/>
 </map>

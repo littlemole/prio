@@ -1,4 +1,13 @@
 <map id="include/priocpp/common.h" name="include/priocpp/common.h">
-<area shape="rect" id="node9" href="/home/mike/workspace/repro/repro.tag$promise_8h.html" title="reprocpp/promise.h" alt="" coords="670,80,803,107"/>
-<area shape="rect" id="node10" href="/home/mike/workspace/repro/repro.tag$future_8h.html" title="reprocpp/future.h" alt="" coords="677,155,797,181"/>
+<area shape="rect" id="node1" title=" " alt="" coords="308,5,503,32"/>
+<area shape="rect" id="node2" title=" " alt="" coords="5,80,80,107"/>
+<area shape="rect" id="node3" title=" " alt="" coords="105,80,167,107"/>
+<area shape="rect" id="node4" title=" " alt="" coords="191,80,254,107"/>
+<area shape="rect" id="node5" title=" " alt="" coords="278,80,349,107"/>
+<area shape="rect" id="node6" title=" " alt="" coords="373,80,437,107"/>
+<area shape="rect" id="node7" title=" " alt="" coords="461,80,525,107"/>
+<area shape="rect" id="node8" title=" " alt="" coords="550,80,693,107"/>
+<area shape="rect" id="node9" href="/home/mike/workspace/repro/repro.tag$promise_8h.html" title=" " alt="" coords="717,80,865,107"/>
+<area shape="rect" id="node11" title=" " alt="" coords="889,80,999,107"/>
+<area shape="rect" id="node10" href="/home/mike/workspace/repro/repro.tag$future_8h.html" title=" " alt="" coords="723,155,858,181"/>
 </map>
