@@ -93,12 +93,8 @@ void ListenerImpl::bind( int port )
 {
 	auto p = promise<Connection::Ptr>();
 
-	acceptor = boost::asio::ip::tcp::acceptor(
-		asioLoop().io() //, 
-//		boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port)
-	);
+	acceptor = boost::asio::ip::tcp::acceptor( asioLoop().io() );
 
-//	boost::asio::ip::tcp::acceptor acceptor(io_service);
 	boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4(), port);
 	acceptor.open(endpoint.protocol());
 	acceptor.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true));

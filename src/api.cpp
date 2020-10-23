@@ -74,9 +74,6 @@ Future<> timeout( int secs) noexcept
 
 
 
-//unsigned char next_proto_list[256];
-//size_t next_proto_list_len;
-
 Future<int> signal(int s) noexcept
 {
 	return theLoop().signal(s);

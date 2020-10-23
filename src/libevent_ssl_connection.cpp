@@ -183,9 +183,7 @@ void SslConnection::do_ssl_read(Promise<Connection::Ptr,std::string> p, short wh
 		int s = check_err_code(impl_->ssl,len,EV_READ);
 		if ( s <= 0 )
 		{
-//			auto e = impl_->e_;
 			p.reject(Ex("ssl io EOF"));
-//			e->dispose();
 			return;
 		}
 		do_ssl_read(p,s);
@@ -291,7 +289,6 @@ Future<Connection::Ptr, std::string> SslConnection::read(size_t s)
 	std::shared_ptr<size_t> want = std::make_shared<size_t>(s);
 	std::shared_ptr<std::string> buffer = std::make_shared<std::string>();
 
-//	char c[s];
 	std::vector<char> c(s,0);
 	int n = s;
 
@@ -646,7 +643,6 @@ void SslCtxImpl::loadKeys( const std::string& keyfile )
 {
 	std::cout << "Load cer " << keyfile << std::endl;
 
-//	if(!(SSL_CTX_use_certificate_chain_file(ctx,	keyfile.c_str())))
 	if(!(SSL_CTX_use_certificate_file(ctx,	keyfile.c_str(),SSL_FILETYPE_PEM)))
 	{
 		auto e = ERR_get_error();
